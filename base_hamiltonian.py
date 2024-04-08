@@ -11,8 +11,8 @@ class Base_Hamiltonian:
         Ns,
         H_params,
         boundary_conds,
-        symmetries=[],
-        target_symmetries=[],
+        symmetries={},
+        target_symmetries={},
     ):
         """
         Parameters:

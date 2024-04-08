@@ -19,8 +19,8 @@ class Hamiltonian_CD(Base_Hamiltonian):
         H_params,
         boundary_conds,
         agp_order,
-        symmetries=[],
-        target_symmetries=[],
+        symmetries={},
+        target_symmetries={},
         agp_orthog=True,
         norm_type="trace",
     ):

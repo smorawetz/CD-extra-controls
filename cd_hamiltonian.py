@@ -15,7 +15,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
 
     def __init__(
         self,
-        Nspins,
+        Ns,
         H_params,
         boundary_conds,
         agp_order,
@@ -24,7 +24,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
     ):
         """
         Parameters:
-            Nspins (int):               Number of spins in spin model
+            Ns (int):                   Number of spins in spin model
             H_params (listof float):    Parameters of the spin model,
                                         e.g. [1, 2] for J = 1 and h = 2
             boundary_cond (str):        Whether to use open ("open") or periodic
@@ -39,7 +39,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
                                         infinite temperature AGP, "ground_state" gives zero
                                         temperature
         """
-        super().__init__(Nspins, H_params, boundary_conds)
+        super().__init__(Ns, H_params, boundary_conds)
         self.agp_order = agp_order
         self.agp_orthog = agp_orthog
         self.norm_type = norm_type

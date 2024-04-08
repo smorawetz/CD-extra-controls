@@ -8,13 +8,13 @@ class Base_Hamiltonian:
 
     def __init__(
         self,
-        Nspins,
+        Ns,
         H_params,
         boundary_conds,
     ):
         """
         Parameters:
-            Nspins (int):               Number of spins in spin model
+            Ns (int):                   Number of sites in lattice model (i.e. spins)
             H_params (listof float):    Parameters of the spin model,
                                         e.g. [1, 2] for J = 1 and h = 2
             boundary_cond (str):        Whether to use open ("open") or periodic
@@ -22,7 +22,7 @@ class Base_Hamiltonian:
                                         to open
         """
 
-        self.Nspins = Nspins
+        self.Ns= Ns
         self.H_params = H_params
         self.boundary_conds = boundary_conds
 
@@ -52,7 +52,7 @@ class Base_Hamiltonian:
         """
         return None
 
-    def get_gstate(self, sched):
+    def get_targ_gstate(self):
         """Return the final (target) ground state encoded in the Hamiltonian
         Returns:
             final_gs (np.array):    The final ground state wavefunction

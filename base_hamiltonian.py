@@ -77,4 +77,6 @@ class Base_Hamiltonian:
         if self.symmetries == self.target_symmetries:
             return target_gs
         else:
-            return self.target_basis.project_from(target_gs, sparse=False)
+            return self.basis.project_to(
+                self.target_basis.project_from(target_gs), sparse=False
+            )

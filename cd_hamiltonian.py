@@ -19,6 +19,8 @@ class Hamiltonian_CD(Base_Hamiltonian):
         H_params,
         boundary_conds,
         agp_order,
+        symmetries=[],
+        target_symmetries=[],
         agp_orthog=True,
         norm_type="trace",
     ):
@@ -39,7 +41,13 @@ class Hamiltonian_CD(Base_Hamiltonian):
                                         infinite temperature AGP, "ground_state" gives zero
                                         temperature
         """
-        super().__init__(Ns, H_params, boundary_conds)
+        super().__init__(
+            Ns,
+            H_params,
+            boundary_conds,
+            symmetries=symmetries,
+            target_symmetries=target_symmetries,
+        )
         self.agp_order = agp_order
         self.agp_orthog = agp_orthog
         self.norm_type = norm_type

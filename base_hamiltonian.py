@@ -39,26 +39,26 @@ class Base_Hamiltonian:
     # should be able to have ground state, other functionality for bare, dlamH, etc.
 
     def build_H(self):
-        """Build a QuSpin Hamiltonian object for the bare Hamiltonian
-        Returns:
-            H (quspin.operators.hamiltonian):           The bare Hamiltonian
-        """
+        """Build a QuSpin Hamiltonian object for the bare Hamiltonian"""
         return None
 
     def build_dlam_H(self):
-        """Build a QuSpin Hamiltonian object for the $d_\lambda$ of bare Hamiltonian
-        Returns:
-            dlam_H (quspin.operators.hamiltonian):      $d_\lambda$ of bare Hamiltonian
-        """
+        """Build a QuSpin Hamiltonian object for the $d_\lambda$ of bare Hamiltonian"""
         return None
 
     def build_final_H(self):
         """Build a QuSpin Hamiltonian object for the Hamiltonian encoding the
-        target ground state, including any symmetries of the final ground state
-        Returns:
-            final_H (quspin.operators.hamiltonian):     The bare Hamiltonian encoding the
-                                                        target ground state, with
-                                                        relevant symmetries included
+        target ground state, including any symmetries of the final ground state"""
+        return None
+
+    def build_H0(self):
+        """Build QuSpin Hamiltonian for H0, which is component being
+        "turned on" in annealing problem"""
+        return None
+
+    def build_H1(self):
+        """Method specific to this spin model to calculate
+        the bare Hamiltonian (no controls or AGP)
         """
         return None
 

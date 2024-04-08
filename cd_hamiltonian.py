@@ -19,6 +19,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         H_params,
         boundary_conds,
         agp_order,
+        schedule,
         symmetries={},
         target_symmetries={},
         agp_orthog=True,
@@ -33,6 +34,13 @@ class Hamiltonian_CD(Base_Hamiltonian):
                                         ("periodic") boundary conditions. Defaults
                                         to open
             agp_order (int):            Order of AGP ansatz
+            schedule (Schedule):        Schedule object that encodes $\lambda(t)$
+            symmetries (dictof (np.array, int)):    Symmetries of the Hamiltonian, which
+                                        include a symmetry operation on the lattice
+                                        and an integer which labels the sector by the
+                                        eigenvalue of the symmetry transformation
+            target_symmetries (dictof (np.array, int)):     Same as above, but for the
+                                        target ground state if it has different symmetry
             agp_orthog (bool):          Whether or not to construct the AGP in the Krylov
                                         basis or via the commutator expansion ansatz. If
                                         True, uses the Krylov basis. If False, uses the
@@ -48,6 +56,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
             symmetries=symmetries,
             target_symmetries=target_symmetries,
         )
+        self.schedule = schedule
         self.agp_order = agp_order
         self.agp_orthog = agp_orthog
         self.norm_type = norm_type

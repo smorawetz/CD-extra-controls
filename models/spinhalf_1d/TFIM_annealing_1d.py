@@ -1,13 +1,10 @@
-import numpy as np
-
 import quspin
 
-from .cd_hamiltonian import Hamiltonian_CD
-from .utils.connections import neighbours_1d, triplets_1d
+from spinhalf_1d import SpinHalf_1D
 from .utils.ham_couplings import turn_off_coupling, turn_on_coupling
 
 
-class TFIM_Annealing_1D(Hamiltonian_CD):
+class TFIM_Annealing_1D(SpinHalf_1D):
     """Class for 1D transverse field Ising model encoding local annealing
     problem between magnetic field polarized state at $\lambda = 0$ and
     ferromagnetic state at $\lambda = 1$"""
@@ -33,13 +30,6 @@ class TFIM_Annealing_1D(Hamiltonian_CD):
             target_symmetries=target_symmetries,
             norm_type=norm_type,
         )
-
-        self.basis = quspin.basis.spin_basis_general(L=Ns, S="1/2", **symmetries)
-        self.target_basis = quspin.basis.spin_basis_general(
-            L=Ns, S="1/2", **target_symmetries
-        )
-        self.pairs = neighbours_1d(Ns, boundary_conds)
-        self.triplets = triplets_1d(Ns, boundary_conds)
 
         J, hx = self.H_params
         self.J_terms = [[-J, *self.pairs[i]] for i in range(len(self.pairs))]

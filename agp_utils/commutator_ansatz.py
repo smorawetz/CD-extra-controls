@@ -17,10 +17,11 @@ def compute_commutators(agp_order, H, dlam_H):
 
 
 def inf_temp_R(k, commutators):
-    """Compute the R matrix for the infinite temperature AGP. Works
-    for both sparse and dense matrices
+    """Compute the spectral function moments (denoted in notes as $R_k$)
+    matrix for the infinite temperature AGP. Works for both sparse and
+    dense matrices
     Parameters:
-        k (int):                    Order of AGP commuator ansatz
+        k (int):                    Compute k-th moment of the spectral function
         commutators (list):         List of commutators of H and dlam_H
     """
     return (-1) ** k * (commutators[k].conj().T @ commutators[k]).trace()
@@ -38,17 +39,19 @@ def zero_temp_R(k, commutators, gstate):
     )
 
 
-def compute_Rs(agp_order, calc_R, args):
+def compute_Rs(agp_order, calc_R, commutators, args):
     """Compute the R matrix and R vector used in computing the
     alpha coefficients of the AGP ansatz
     Parameters:
-        agp_order (int):                Order of AGP commuator ansatz
+        agp_order (int):            Order of AGP commuator ansatz
         calc_R (function):          Function to compute R matrix
-        args (tuple):               Arguments to pass to calc_R
+        commutators (list):         List of commutators of H and dlam_H
+        args (tuple):               Arguments to pass to calc_R (i.e. `gstate`)
+
     """
     R_list = []
     for k in range(2 * agp_order + 1):
-        R_list.append(calc_R(k, *args))
+        R_list.append(calc_R(k, commutators, *args))
     Rmat = np.zeros(agp_order, agp_order)
     Rvec = np.zeros(agp_order)
     for i in range(agp_order):
@@ -58,7 +61,7 @@ def compute_Rs(agp_order, calc_R, args):
     return Rmat, Rvec
 
 
-def compute_alphas(agp_order, H, dlam_H, norm_type, gstate=None):
+def get_alphas(agp_order, H, dlam_H, norm_type, gstate=None):
     """Compute the alphas for the AGP ansatz given a Hamiltonian matrix
     and a matrix for dlam_H. Can compute for both infinite temperature
     and zero temperature norm as required

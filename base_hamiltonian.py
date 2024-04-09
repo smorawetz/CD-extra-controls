@@ -36,6 +36,11 @@ class Base_Hamiltonian:
         self.symmetries = symmetries
         self.target_symmetries = target_symmetries
 
+        self.bareH = self.build_bare_H()
+        self.dlamH = self.build_dlam_H()
+
+        self.sparse = True if self.bareH.basis.Ns >= 100 else False
+
     # should be able to have ground state, other functionality for bare, dlamH, etc.
 
     def build_H(self):
@@ -68,7 +73,7 @@ class Base_Hamiltonian:
             target_gs (np.array):    The target ground state wavefunction
         """
         H = self.build_target_H()
-        if H.basis.Ns >= 50:
+        if self.sparse:
             eigvals, eigvecs = H.eigsh(time=self.tau, k=1, which="SA")
         else:
             eigvals, eigvecs = H.eigh(time=self.tau)

@@ -21,7 +21,6 @@ class TFIM_Annealing_1D(Hamiltonian_CD):
         schedule,
         symmetries={},
         target_symmetries={},
-        agp_orthog=True,
         norm_type="trace",
     ):
         super().__init__(
@@ -32,7 +31,6 @@ class TFIM_Annealing_1D(Hamiltonian_CD):
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
-            agp_orthog=agp_orthog,
             norm_type=norm_type,
         )
 

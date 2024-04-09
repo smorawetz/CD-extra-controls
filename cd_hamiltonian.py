@@ -20,7 +20,6 @@ class Hamiltonian_CD(Base_Hamiltonian):
         schedule,
         symmetries={},
         target_symmetries={},
-        agp_orthog=True,
         norm_type="trace",
     ):
         """
@@ -39,10 +38,6 @@ class Hamiltonian_CD(Base_Hamiltonian):
                                         eigenvalue of the symmetry transformation
             target_symmetries (dictof (np.array, int)):     Same as above, but for the
                                         target ground state if it has different symmetry
-            agp_orthog (bool):          Whether or not to construct the AGP in the Krylov
-                                        basis or via the commutator expansion ansatz. If
-                                        True, uses the Krylov basis. If False, uses the
-                                        regular commutator expansion ansatz
             norm_type (str):            What type of norm to use in the AGP. "trace" gives
                                         infinite temperature AGP, "ground_state" gives zero
                                         temperature
@@ -56,7 +51,6 @@ class Hamiltonian_CD(Base_Hamiltonian):
         )
         self.schedule = schedule
         self.agp_order = agp_order
-        self.agp_orthog = agp_orthog
         self.norm_type = norm_type
 
     def calc_lanc_coeffs(self, t, gstate=None):

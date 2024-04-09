@@ -3,7 +3,7 @@ import numpy as np
 import quspin
 
 from .cd_hamiltonian import Hamiltonian_CD
-from .utils.connections import neighbours_1d
+from .utils.connections import neighbours_1d, triplets_1d
 from .utils.ham_couplings import turn_off_coupling, turn_on_coupling
 
 
@@ -38,10 +38,11 @@ class TFIM_Annealing_1D(Hamiltonian_CD):
         self.target_basis = quspin.basis.spin_basis_general(
             L=Ns, S="1/2", **target_symmetries
         )
-        links = neighbours_1d(Ns, boundary_conds)
+        self.pairs = neighbours_1d(Ns, boundary_conds)
+        self.triplets = triplets_1d(Ns, boundary_conds)
 
         J, hx = self.H_params
-        self.J_terms = [[-J, *links[i]] for i in range(len(links))]
+        self.J_terms = [[-J, *self.pairs[i]] for i in range(len(self.pairs))]
         self.hx_terms = [[-hx, i] for i in range(self.Ns)]
         self.flipped_hx_terms = [[hx, i] for i in range(self.Ns)]
 

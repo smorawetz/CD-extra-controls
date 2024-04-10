@@ -37,3 +37,4 @@ class SpinHalf_1D(Hamiltonian_CD):
         self.triplets = triplets_1d(Ns, boundary_conds)
 
         self.model_type = "spin-1/2"
+        self.model_dim = 1

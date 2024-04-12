@@ -1,3 +1,5 @@
+from .utils.lin_alg_cals import calc_comm
+
 DIV_EPS = 1e-16
 
 
@@ -23,20 +25,21 @@ def get_lanc_coeffs(Hmat, O0, gstate=None):
     """Calculate the Lanczos coefficients for the for the action of the
     Liouvillian L = [H, .] on dlamH at a given time
     Parameters:
-        t (float):      Time at which to calculate the Lanczos coefficients
+        t (float):                  Time at which to calculate the Lanczos coefficients
+        O0 (sparse or dense array): Initial operator to start the Lanczos iteration
     """
     lanc_coeffs = []
     b0 = op_norm(O0, self.Ns, gstate)
     O0 /= b0 + DIV_EPS
     lanc_coeffs.append(b0)
-    O1 = Hmat @ O0 - O0 @ Hmat
+    O1 = calc_comm(Hmat, O0)
     b1 = op_norm(O1, self.Ns, gstate)
     O1 /= b1 + DIV_EPS
     lanc_coeffs.append(b1)
     for n in range(2, 2 * agp_order + 1):
-        On = Hmat @ O1 - O1 @ Hmat - lanc_coeffs[n - 1] * O0
+        On = calc_comm(Hmat, O1) - lanc_coeffs[n - 1] * O0
         bn = op_norm(On, self.Ns, gstate)
-        opn /= bn + DIV_EPS
+        On /= bn + DIV_EPS
         lanc_coeffs.append(bn)
         O0 = O1
         O1 = On

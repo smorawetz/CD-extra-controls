@@ -1,5 +1,7 @@
 import numpy as np
 
+from .utils.lin_alg_calls import calc_comm
+
 
 def compute_commutators(agp_order, H, dlam_H):
     """Compute the nested commutators of H and dlam_H up to
@@ -12,7 +14,7 @@ def compute_commutators(agp_order, H, dlam_H):
     """
     commutators = [dlam_H]
     for k in range(agp_order):
-        commutators.append(H @ commutators[-1] - commutators[-1] @ H)
+        commutators.append(calc_comm(H, commutators[-1]))
     return commutators
 
 

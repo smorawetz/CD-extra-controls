@@ -22,11 +22,12 @@ def build_Hcd(t, ham, AGPtype, ctrls, couplings, couplings_args):
     Hmats = [bareH]
     for i in range(len(ctrls)):
         Hmats.append(build_controls_mat(ham, ctrls[i], couplings[i], couplings_args[i]))
-    Hmats.append(ham.build_AGP_mat(AGPtype, t, bareH, dlamH))
+    if ham.agp_order > 0:  # may want to evolve without AGP
+        Hmats.append(ham.build_AGP_mat(AGPtype, t, bareH, dlamH))
     return Hmats
 
 
-def schro_RHS(t, ham, AGPtype, ctrls, couplings, couplings_args, psi):  # TODO
+def schro_RHS(t, psi, ham, AGPtype, ctrls, couplings, couplings_args):  # TODO
     """Compute the right hand side of the Schrodinger equation,
     i.e. -i * H_cd * psi
     Parameters:
@@ -47,13 +48,29 @@ def schro_RHS(t, ham, AGPtype, ctrls, couplings, couplings_args, psi):  # TODO
     return delta_psi
 
 
-def do_evolution(ham, grid_size, init_state, save_states=False):
+# TODO: add args here
+def do_evolution(
+    ham,
+    AGPtype,
+    ctrls,
+    couplings,
+    couplings_args,
+    grid_size,
+    init_state,
+    save_states=False,
+):
     """Computes the time evolution (according to the Schrodinger equation)
     of some initial state according to the given Hamiltonian
     Parameters:
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
+        AGPtype (str):              Either "commutator" or "krylov" depending
+                                    on the type of AGP desired
+        ctrls (list):               List of control Hamiltonians
+        couplings (list):           List of coupling functions for control terms
+        couplings_args (list):      List of arguments for the coupling functions
         grid_size (int):            Number of time steps to take
         init_state (np.array):      Vector of initial wavefunction
+        save_state (bool):          Whether to save the state at each time step
     """
     dt = ham.schedule.tau / grid_size
     tgrid = np.linspace(0, ham.schedule.tau, grid_size)
@@ -64,7 +81,7 @@ def do_evolution(ham, grid_size, init_state, save_states=False):
     complex_ODE.set_initial_value(init_state, 0)
     # ctrls is e.g. ['yy', "HHV_VHV"], couplings is e.g. [sin_coupling, sin_coupling]
     # couplings_args is [[sched, ns, coeffs], [sched, ns, coeffs]]
-    complex_ODE.set_f_params(ham, sched, ctrls, couplings, couplings_args)  # TODO
+    complex_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)  # TODO
     while complex_ODE.successful and complex_ODE.t < ham.schedule.tau:
         if save_states:
             fname = "evolved_state_data/"  # TODO come up with naming scheme

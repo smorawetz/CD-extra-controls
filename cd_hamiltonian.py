@@ -5,6 +5,8 @@ import quspin
 from base_hamiltonian import Base_Hamiltonian
 from agp_utils.krylov_construction import get_lanc_coeffs, get_gamma_vals
 from agp_utils.commutator_ansatz import get_alphas
+from ham_controls.build_controls import build_controls_mat
+from utils.lin_alg_calls import calc_comm
 
 
 class Hamiltonian_CD(Base_Hamiltonian):
@@ -81,3 +83,51 @@ class Hamiltonian_CD(Base_Hamiltonian):
         H = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
         dlamH = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
         return get_alphas(self.agp_order, H, dlamH, self.norm_type, gstate)
+
+    def build_agp_mat_commutator(self, t, Hmat, dlamHmat):
+        """Build matrix representing the AGP. This requires the atributes
+        lanc_interp(t), gamma_interp(t), and alpha_interp(t) which give the
+        Lanczos coefficients, the Krylov space AGP coefficients, and commutator
+        ansatz AGP coefficients, respectively
+        Parameters:
+            t (float):                  Time at which to build the AGP term
+            Hmat (np.array):            Matrix representation of the bare Hamiltonian
+            dlamHmat (np.array):        Matrix representation of dlamH
+        """
+        alphas = self.alphas_interp(t)
+        cmtr = calc_comm(Hmat, cmtr)
+        AGPmat = 1j * alphas[0] * cmtr
+        for n in range(1, self.agp_order):
+            cmtr = calc_comm(Hmat, calc_comm(Hmat, cmtr))
+            AGPmat += 1j * alphas[n] * cmtr
+        return AGPmat  # TODO: confirm this is correct
+
+    def build_agp_mat_krylov(self, t, Hmat, dlamHmat):
+        """Build matrix representing the AGP. This requires the atributes
+        lanc_interp(t), gamma_interp(t), and alpha_interp(t) which give the
+        Lanczos coefficients, the Krylov space AGP coefficients, and commutator
+        ansatz AGP coefficients, respectively
+        Parameters:
+            t (float):                  Time at which to build the AGP term
+            Hmat (np.array):            Matrix representation of the bare Hamiltonian
+            dlamHmat (np.array):        Matrix representation of dlamH
+        """
+        lanc_coeffs = self.lanc_interp(t)
+        gammas = self.gammas_interp(t)
+        O0 = dlamHmat
+        O0 /= lanc_coeffs[0] + DIV_EPS
+        O1 = calc_comm(Hmat, O0)
+        O1 /= lanc_coeffs[1] + DIV_EPS
+        lanc_coeffs.append(b1)
+        AGPmat = 1j * gammas[0] * O1
+        for n in range(1, agp_order):
+            On = calc_comm(Hmat, O1) - lanc_coeffs[4 * n - 3] * O0
+            On /= lanc_coeffs[4 * n - 2] + DIV_EPS
+            O0 = O1
+            O1 = On
+            On = calc_comm(Hmat, O1) - lanc_coeffs[4 * n - 1] * O0
+            On /= lanc_coeffs[4 * n] + DIV_EPS
+            AGPmat += 1j * gammas[n] * On
+            O0 = O1
+            O1 = On
+        return AGPmat

@@ -131,3 +131,19 @@ class Hamiltonian_CD(Base_Hamiltonian):
             O0 = O1
             O1 = On
         return AGPmat
+
+    def build_agp_mat(self, type, t, Hmat, dlamHmat):
+        """Build matrix representing the AGP. This will give either the commutator
+        or Lanczos expansion of the AGP, depending on the `type` parameter
+        Parameters:
+            type (str):                 Either "commutator" or "krylov"
+            t (float):                  Time at which to build the AGP term
+            Hmat (np.array):            Matrix representation of the bare Hamiltonian
+            dlamHmat (np.array):        Matrix representation of dlamH
+        """
+        if type == "commutator":
+            return self.build_agp_mat_commutator(t, Hmat, dlamHmat)
+        elif type == "krylov":
+            return self.build_agp_mat_krylov(t, Hmat, dlamHmat)
+        else:
+            raise ValueError("Invalid type for AGP construction")

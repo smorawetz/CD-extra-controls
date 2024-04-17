@@ -45,9 +45,6 @@ class Hamiltonian_CD(Base_Hamiltonian):
                                         eigenvalue of the symmetry transformation
             target_symmetries (dictof (np.array, int)):     Same as above, but for the
                                         target ground state if it has different symmetry
-            norm_type (str):            What type of norm to use in the AGP. "trace" gives
-                                        infinite temperature AGP, "ground_state" gives zero
-                                        temperature
         """
         super().__init__(
             Ns,
@@ -58,9 +55,8 @@ class Hamiltonian_CD(Base_Hamiltonian):
         )
         self.schedule = schedule
         self.agp_order = agp_order
-        self.norm_type = norm_type
 
-    def calc_lanc_coeffs(self, t, gstate=None):
+    def calc_lanc_coeffs(self, t, norm_type, gstate=None):
         """Calculate the Lanczos coefficients for the for the action of the
         Liouvillian L = [H, .] on dlamH at a given time
         Parameters:
@@ -68,7 +64,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         """
         Hmat = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
         O0 = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
-        return get_lanc_coeffs(Hmat, O0, gstate)
+        return get_lanc_coeffs(Hmat, O0, norm_type, gstate)
 
     def calc_gammas(self, t):
         """Use the recursive solution for the coefficients of the Krylov space
@@ -79,7 +75,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         """
         return get_gamma_vals(self.lanc_interp(t), self.agp_order)
 
-    def calc_alphas(self, t, gstate=None):
+    def calc_alphas(self, t, norm_type, gstate=None):
         """Use the matrix inverse solution for the coefficients of the commmutator
         expansion of the AGP, denoted $\alpha_k$ in paper.
         Parameters:
@@ -87,7 +83,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         """
         H = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
         dlamH = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
-        return get_alphas(self.agp_order, H, dlamH, self.norm_type, gstate)
+        return get_alphas(self.agp_order, H, dlamH, norm_type, gstate)
 
     def build_agp_mat_commutator(self, t, Hmat, dlamHmat):
         """Build matrix representing the AGP. This requires the atributes

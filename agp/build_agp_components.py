@@ -7,7 +7,7 @@ def build_agp_H_mat(t, ham, ctrls, couplings, couplings_args):
         ctrls (listof str):                 List of control types to add
         couplings (listof function):        List of dlam_coupling functions for
                                             control terms
-        couplings_args (listof list):       List of arguments for the coupling functions
+        couplings_args (listof list):       List of list of arguments for the coupling functions
     """
     H = ham.bareH.tocsr(time=t) if ham.sparse else ham.bareH.toarray(time=t)
     for i in range(len(ctrls)):
@@ -26,7 +26,7 @@ def build_agp_dlamH_mat(t, ham, ctrls, couplings, dlam_couplings, couplings_args
                                             control terms
         dlam_couplings (listof function):   List of dlam_coupling functions for
                                             control terms
-        couplings_args (listof list):       List of arguments for the coupling functions
+        couplings_args (listof list):       List of list of arguments for the coupling functions
     """
     dlamH = ham.dlamH.tocsr(time=t) if ham.sparse else ham.dlamH.toarray(time=t)
     for i in range(len(ctrls)):

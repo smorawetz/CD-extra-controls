@@ -8,7 +8,7 @@ from tools.lin_alg_calls import calc_comm
 DIV_EPS = 1e-16
 
 
-def op_norm(op, Ns, gstate=None):
+def op_norm(op, Ns, norm_type, gstate=None):
     """Calculate the norm of an operator. Will be either the trace
     (infinite temperature) or the ground state expectation value
     (zero temperature) of the input operator
@@ -18,32 +18,35 @@ def op_norm(op, Ns, gstate=None):
         gstate (np.array):                  Ground state of the Hamiltonian to use in
                                             zero temperature optimization
     """
-    if self.norm_type == "trace":
+    if norm_type == "trace":
         return np.sqrt((op.conj().T @ op).trace() / 2**self.Ns)
-    elif self.norm_type == "ground_state":
+    elif norm_type == "ground_state":
         return np.sqrt(gstate.conj().dot((op.conj().T @ op).dot(gstate)).real)
     else:
         raise ValueError("Invalid norm type")
 
 
-def get_lanc_coeffs(Hmat, O0, gstate=None):
+def get_lanc_coeffs(Hmat, O0, norm_type, gstate=None):
     """Calculate the Lanczos coefficients for the for the action of the
     Liouvillian L = [H, .] on dlamH at a given time
     Parameters:
-        t (float):                  Time at which to calculate the Lanczos coefficients
-        O0 (sparse or dense array): Initial operator to start the Lanczos iteration
+        Hmat (sparse or dense array):   Hamiltonian matrix at some time
+        O0 (sparse or dense array):     Initial operator to start the Lanczos iteration
+        norm_type (str):                Either "trace" or "ground_state" for the norm
+        gstate (np.array):              Ground state of the Hamiltonian to use in
+                                        zero temperature optimization
     """
     lanc_coeffs = []
-    b0 = op_norm(O0, self.Ns, gstate)
+    b0 = op_norm(O0, self.Ns, norm_type, gstate)
     O0 /= b0 + DIV_EPS
     lanc_coeffs.append(b0)
     O1 = calc_comm(Hmat, O0)
-    b1 = op_norm(O1, self.Ns, gstate)
+    b1 = op_norm(O1, self.Ns, norm_type, gstate)
     O1 /= b1 + DIV_EPS
     lanc_coeffs.append(b1)
     for n in range(2, 2 * agp_order + 1):
         On = calc_comm(Hmat, O1) - lanc_coeffs[n - 1] * O0
-        bn = op_norm(On, self.Ns, gstate)
+        bn = op_norm(On, self.Ns, norm_type, gstate)
         On /= bn + DIV_EPS
         lanc_coeffs.append(bn)
         O0 = O1

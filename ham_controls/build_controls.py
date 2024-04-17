@@ -1,15 +1,10 @@
-from spin_half_controls import spin_half_controls
+import os
+import sys
 
-from .utils.lin_alg_calls import calc_comm
+sys.path.append(os.environ["CD_CODE_DIR"])
 
-# dictionaries to access functions for building controls
-build_direct_dict = {"spin-1/2": spin_half_controls}
-build_mat_dict = {
-    "HHV": build_HHV_mat,
-    "VHV": build_VHV_mat,
-    "Hc1": build_Hc1_mat,
-    "Hc2": build_Hc2_mat,
-}
+from .spin_half_controls import spin_half_controls
+from tools.lin_alg_calls import calc_comm
 
 
 def build_controls_direct(ham, ctrl, coupling, coupling_args):
@@ -108,3 +103,13 @@ def build_controls_mat(t, ham, ctrl, coupling, coupling_args):
         return build_mat_dict[ctrl](ham, coupling, coupling_args)
     else:
         return build_controls_direct_mat(t, ham, ctrl, coupling, coupling_args)
+
+
+# dictionaries to access functions for building controls
+build_direct_dict = {"spin-1/2": spin_half_controls}
+build_mat_dict = {
+    "HHV": build_HHV_mat,
+    "VHV": build_VHV_mat,
+    "Hc1": build_Hc1_mat,
+    "Hc2": build_Hc2_mat,
+}

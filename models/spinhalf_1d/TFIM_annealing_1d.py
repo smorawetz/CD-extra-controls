@@ -1,7 +1,12 @@
+import os
+import sys
+
 import quspin
 
-from spinhalf_1d import SpinHalf_1D
-from .utils.ham_couplings import turn_off_coupling, turn_on_coupling
+sys.path.append(os.environ["CD_CODE_DIR"])
+
+from .spinhalf_1d import SpinHalf_1D
+from tools.ham_couplings import turn_off_coupling, turn_on_coupling
 
 
 class TFIM_Annealing_1D(SpinHalf_1D):

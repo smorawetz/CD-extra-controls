@@ -1,6 +1,11 @@
+import os
+import sys
+
 import numpy as np
 
-from .utils.lin_alg_calls import calc_comm
+sys.path.append(os.environ["CD_CODE_DIR"])
+
+from tools.lin_alg_calls import calc_comm
 
 
 def compute_commutators(agp_order, H, dlam_H):

@@ -1,12 +1,17 @@
+import os
+import sys
+
 import numpy as np
 import scipy
 import quspin
 
+sys.path.append(os.environ["CD_CODE_DIR"])
+
 from base_hamiltonian import Base_Hamiltonian
-from agp_utils.krylov_construction import get_lanc_coeffs, get_gamma_vals
-from agp_utils.commutator_ansatz import get_alphas
+from agp.krylov_construction import get_lanc_coeffs, get_gamma_vals
+from agp.commutator_ansatz import get_alphas
 from ham_controls.build_controls import build_controls_mat
-from utils.lin_alg_calls import calc_comm
+from tools.lin_alg_calls import calc_comm
 
 
 class Hamiltonian_CD(Base_Hamiltonian):

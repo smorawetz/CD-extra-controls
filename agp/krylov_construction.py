@@ -1,4 +1,9 @@
-from .utils.lin_alg_cals import calc_comm
+import os
+import sys
+
+sys.path.append(os.environ["CD_CODE_DIR"])
+
+from tools.lin_alg_calls import calc_comm
 
 DIV_EPS = 1e-16
 

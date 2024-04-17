@@ -1,7 +1,12 @@
+import os
+import sys
+
 import quspin
 
-from .cd_hamiltonian import Hamiltonian_CD
-from .utils.connections import neighbours_1d, triplets_1d
+sys.path.append(os.environ["CD_CODE_DIR"])
+
+from cd_hamiltonian import Hamiltonian_CD
+from tools.connections import neighbours_1d, triplets_1d
 
 
 class SpinHalf_1D(Hamiltonian_CD):

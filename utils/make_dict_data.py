@@ -5,7 +5,7 @@ import pickle
 
 sys.path.append(os.environ["CD_CODE_DIR"])
 
-from models.TFIM_annealing_1d import TFIM_Annealing_1D
+from models.spinhalf_1d.TFIM_annealing_1d import TFIM_Annealing_1D
 
 models_dict = {"TFIM_1D": TFIM_Annealing_1D}
 param_names_dict = {

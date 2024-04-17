@@ -23,6 +23,17 @@ class SpinHalf_1D(Hamiltonian_CD):
         target_symmetries={},
         norm_type="trace",
     ):
+
+        self.basis = quspin.basis.spin_basis_general(Ns, S="1/2", **symmetries)
+        self.target_basis = quspin.basis.spin_basis_general(
+            Ns, S="1/2", **target_symmetries
+        )
+        self.pairs = neighbours_1d(Ns, boundary_conds)
+        self.triplets = triplets_1d(Ns, boundary_conds)
+
+        self.model_type = "spin-1/2"
+        self.model_dim = 1
+
         super().__init__(
             Ns,
             H_params,
@@ -33,13 +44,3 @@ class SpinHalf_1D(Hamiltonian_CD):
             target_symmetries=target_symmetries,
             norm_type=norm_type,
         )
-
-        self.basis = quspin.basis.spin_basis_general(L=Ns, S="1/2", **symmetries)
-        self.target_basis = quspin.basis.spin_basis_general(
-            L=Ns, S="1/2", **target_symmetries
-        )
-        self.pairs = neighbours_1d(Ns, boundary_conds)
-        self.triplets = triplets_1d(Ns, boundary_conds)
-
-        self.model_type = "spin-1/2"
-        self.model_dim = 1

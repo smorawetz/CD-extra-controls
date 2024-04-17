@@ -46,6 +46,9 @@ class Hamiltonian_CD(Base_Hamiltonian):
             target_symmetries (dictof (np.array, int)):     Same as above, but for the
                                         target ground state if it has different symmetry
         """
+        self.schedule = schedule
+        self.agp_order = agp_order
+
         super().__init__(
             Ns,
             H_params,
@@ -53,14 +56,14 @@ class Hamiltonian_CD(Base_Hamiltonian):
             symmetries=symmetries,
             target_symmetries=target_symmetries,
         )
-        self.schedule = schedule
-        self.agp_order = agp_order
 
     def calc_lanc_coeffs(self, t, norm_type, gstate=None):
         """Calculate the Lanczos coefficients for the for the action of the
         Liouvillian L = [H, .] on dlamH at a given time
         Parameters:
-            t (float):      Time at which to calculate the Lanczos coefficients
+            t (float):          Time at which to calculate the Lanczos coefficients
+            norm_type (str):    Either "trace" or "ground_state" for the norm
+            gstate (np.array):  Ground state wavefunction to use in zero temp optimization
         """
         Hmat = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
         O0 = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
@@ -79,7 +82,9 @@ class Hamiltonian_CD(Base_Hamiltonian):
         """Use the matrix inverse solution for the coefficients of the commmutator
         expansion of the AGP, denoted $\alpha_k$ in paper.
         Parameters:
-            t (float):      Time at which to calculate the Lanczos coefficients
+            t (float):          Time at which to calculate the Lanczos coefficients
+            norm_type (str):    Either "trace" or "ground_state" for the norm
+            gstate (np.array):  Ground state wavefunction to use in zero temp optimization
         """
         H = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
         dlamH = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)

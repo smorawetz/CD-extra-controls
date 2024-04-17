@@ -7,6 +7,7 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from .spinhalf_1d import SpinHalf_1D
 from tools.ham_couplings import turn_off_coupling, turn_on_coupling
+from tools.connections import neighbours_1d
 
 
 class TFIM_Annealing_1D(SpinHalf_1D):
@@ -25,6 +26,13 @@ class TFIM_Annealing_1D(SpinHalf_1D):
         target_symmetries={},
         norm_type="trace",
     ):
+
+        J, hx = H_params
+        pairs = neighbours_1d(Ns, boundary_conds)
+        self.J_terms = [[-J, *pairs[i]] for i in range(len(pairs))]
+        self.hx_terms = [[-hx, i] for i in range(Ns)]
+        self.flipped_hx_terms = [[hx, i] for i in range(Ns)]
+
         super().__init__(
             Ns,
             H_params,
@@ -35,11 +43,6 @@ class TFIM_Annealing_1D(SpinHalf_1D):
             target_symmetries=target_symmetries,
             norm_type=norm_type,
         )
-
-        J, hx = self.H_params
-        self.J_terms = [[-J, *self.pairs[i]] for i in range(len(self.pairs))]
-        self.hx_terms = [[-hx, i] for i in range(self.Ns)]
-        self.flipped_hx_terms = [[hx, i] for i in range(self.Ns)]
 
     def build_H0(self):
         """Build QuSpin Hamiltonian for H0, which is component being

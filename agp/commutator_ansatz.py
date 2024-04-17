@@ -18,7 +18,7 @@ def compute_commutators(agp_order, H, dlam_H):
         dlam_H (dense or sparse array):     dlam_H matrix
     """
     commutators = [dlam_H]
-    for k in range(agp_order):
+    for k in range(2 * agp_order):
         commutators.append(calc_comm(H, commutators[-1]))
     return commutators
 
@@ -31,7 +31,7 @@ def inf_temp_R(k, commutators):
         k (int):                    Compute k-th moment of the spectral function
         commutators (list):         List of commutators of H and dlam_H
     """
-    return (-1) ** k * (commutators[k].conj().T @ commutators[k]).trace()
+    return (-1) ** k * (commutators[k].conj().T @ commutators[k]).trace().item().real
 
 
 def zero_temp_R(k, commutators, gstate):
@@ -43,7 +43,7 @@ def zero_temp_R(k, commutators, gstate):
     """
     return (-1) ** k * gstate.dot(
         (commutators[k].conj().T @ commutators[k]).dot(gstate)
-    )
+    ).item().real
 
 
 def compute_Rs(agp_order, calc_R, commutators, args):
@@ -59,7 +59,7 @@ def compute_Rs(agp_order, calc_R, commutators, args):
     R_list = []
     for k in range(2 * agp_order + 1):
         R_list.append(calc_R(k, commutators, *args))
-    Rmat = np.zeros(agp_order, agp_order)
+    Rmat = np.zeros((agp_order, agp_order))
     Rvec = np.zeros(agp_order)
     for i in range(agp_order):
         Rvec[i] = R_list[i + 1]
@@ -84,9 +84,9 @@ def get_alphas(agp_order, H, dlam_H, norm_type, gstate=None):
     commutators = compute_commutators(agp_order, H, dlam_H)
     if norm_type == "trace":
         calc_R = inf_temp_R
-        args = (commutators,)
+        args = []
     elif norm_type == "ground_state":
         calc_R = zero_temp_R
-        args = (commutators, gstate)
-    Rmat, Rvec = compute_Rs(agp_order, calc_R, args)
+        args = [gstate]
+    Rmat, Rvec = compute_Rs(agp_order, calc_R, commutators, args)
     return np.linalg.solve(Rmat, -Rvec)

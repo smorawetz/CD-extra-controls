@@ -31,7 +31,7 @@ def inf_temp_R(k, commutators):
         k (int):                    Compute k-th moment of the spectral function
         commutators (list):         List of commutators of H and dlam_H
     """
-    return (-1) ** k * (commutators[k].conj().T @ commutators[k]).trace().item().real
+    return (commutators[k].conj().T @ commutators[k]).trace().item().real
 
 
 def zero_temp_R(k, commutators, gstate):
@@ -41,9 +41,9 @@ def zero_temp_R(k, commutators, gstate):
         k (int):                    Order of AGP commuator ansatz
         commutators (list):         List of commutators of H and dlam_H
     """
-    return (-1) ** k * gstate.dot(
-        (commutators[k].conj().T @ commutators[k]).dot(gstate)
-    ).item().real
+    return (
+        gstate.dot((commutators[k].conj().T @ commutators[k]).dot(gstate)).item().real
+    )
 
 
 def compute_Rs(agp_order, calc_R, commutators, args):
@@ -65,6 +65,7 @@ def compute_Rs(agp_order, calc_R, commutators, args):
         Rvec[i] = R_list[i + 1]
         for j in range(agp_order):
             Rmat[i, j] = R_list[i + j + 2]
+    print(R_list)
     return Rmat, Rvec
 
 

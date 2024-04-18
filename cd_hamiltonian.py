@@ -125,7 +125,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         """
         lanc_coeffs = self.lanc_interp(t)
         gammas = self.gammas_interp(t)
-        O0 = dlamHmat
+        O0 = dlamHmat.copy()
         O0 /= lanc_coeffs[0] + DIV_EPS
         O1 = calc_comm(Hmat, O0)
         O1 /= lanc_coeffs[1] + DIV_EPS

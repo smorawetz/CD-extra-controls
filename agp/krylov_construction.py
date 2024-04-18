@@ -2,6 +2,7 @@ import os
 import sys
 
 import numpy as np
+import scipy  # TODO TEMP
 
 sys.path.append(os.environ["CD_CODE_DIR"])
 
@@ -28,17 +29,18 @@ def op_norm(op, basis_size, norm_type, gstate=None):
         raise ValueError("Invalid norm type")
 
 
-def get_lanc_coeffs(agp_order, Hmat, O0, basis_size, norm_type, gstate=None):
+def get_lanc_coeffs(agp_order, Hmat, dlamHmat, basis_size, norm_type, gstate=None):
     """Calculate the Lanczos coefficients for the for the action of the
     Liouvillian L = [H, .] on dlamH at a given time
     Parameters:
-        Hmat (sparse or dense array):   Hamiltonian matrix at some time
-        O0 (sparse or dense array):     Initial operator to start the Lanczos iteration
-        norm_type (str):                Either "trace" or "ground_state" for the norm
-        gstate (np.array):              Ground state of the Hamiltonian to use in
-                                        zero temperature optimization
+        Hmat (sparse or dense array):       Hamiltonian matrix at some time
+        dlamHmat (sparse or dense array):   Initial operator to start the Lanczos iteration
+        norm_type (str):                    Either "trace" or "ground_state" for the norm
+        gstate (np.array):                  Ground state of the Hamiltonian to use in
+                                            zero temperature optimization
     """
     lanc_coeffs = []
+    O0 = dlamHmat.copy()
     b0 = op_norm(O0, basis_size, norm_type, gstate)
     O0 /= b0 + DIV_EPS
     lanc_coeffs.append(b0)

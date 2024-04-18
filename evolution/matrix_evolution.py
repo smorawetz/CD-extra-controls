@@ -92,9 +92,12 @@ def do_evolution(
     # ctrls is e.g. ['yy', "HHV_VHV"], couplings is e.g. [sin_coupling, sin_coupling]
     # couplings_args is [[sched, ns, coeffs], [sched, ns, coeffs]]
     complex_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)  # TODO
+    dirname = "wfs_evolved_data/{0}".format(fname)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
     while complex_ODE.successful and complex_ODE.t < ham.schedule.tau:
         if save_states:
-            path_name = "evolved_state_data/{0}_t{1:.6f}.txt"
+            path_name = "{0}/t{1:.6f}.txt".format(dirname, complex_ODE.t)
             np.savetxt(path_name, complex_ODE.y)
         complex_ODE.integrate(complex_ODE.t + dt)
     return complex_ODE.y

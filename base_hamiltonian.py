@@ -41,7 +41,7 @@ class Base_Hamiltonian:
         self.H0 = self.build_H0()
         self.H1 = self.build_H1()
 
-        self.sparse = True if self.bareH.basis.Ns >= 100 else False
+        self.sparse = True if self.bareH.basis.Ns >= 40 else False
 
     # should be able to have ground state, other functionality for bare, dlamH, etc.
 

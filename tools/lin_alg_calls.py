@@ -8,3 +8,12 @@ def calc_comm(A, B):
         B (np.array):   Matrix B
     """
     return A @ B - B @ A
+
+
+def calc_fid(psi1, psi2):
+    """Calculates the fidelity between two states psi1 and psi2
+    Parameters:
+        psi1 (np.array):    First state
+        psi2 (np.array):    Second state
+    """
+    return np.abs(np.dot(np.conj(psi1), psi2)) ** 2

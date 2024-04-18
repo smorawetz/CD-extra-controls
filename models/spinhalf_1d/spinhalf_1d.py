@@ -18,10 +18,10 @@ class SpinHalf_1D(Hamiltonian_CD):
         H_params,
         boundary_conds,
         agp_order,
+        norm_type,
         schedule,
         symmetries={},
         target_symmetries={},
-        norm_type="trace",
     ):
 
         self.basis = quspin.basis.spin_basis_general(Ns, S="1/2", **symmetries)
@@ -39,8 +39,8 @@ class SpinHalf_1D(Hamiltonian_CD):
             H_params,
             boundary_conds,
             agp_order,
+            norm_type,
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
-            norm_type=norm_type,
         )

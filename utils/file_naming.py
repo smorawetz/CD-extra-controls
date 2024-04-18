@@ -1,6 +1,12 @@
 import os
+import sys
 
 import pickle
+
+sys.path.append(os.environ["CD_CODE_DIR"])
+
+from tools.schedules import LinearSchedule, SmoothSchedule
+
 
 env_dir = os.environ["CD_CODE_DIR"]
 with open(f"{env_dir}/dicts/model_param_names.pkl", "rb") as f:
@@ -8,7 +14,10 @@ with open(f"{env_dir}/dicts/model_param_names.pkl", "rb") as f:
 
 norm_type_dict = {"trace": "infT", "ground_state": "zeroT"}
 AGPtype_dict = {"commutator": "comm", "krylov": "kry"}
+
 symmetries_names_dict = {"translation_1d": "K{0}", "spin_inversion": "Z{0}"}
+
+scheds_name_dict = {LinearSchedule: "lin", SmoothSchedule: "smooth"}
 
 
 def make_H_params_str(model_name, H_params):
@@ -33,11 +42,10 @@ def make_agp_str(AGPtype, norm_type, agp_order):
         raise ValueError(f"norm_type {norm_type} not recognized")
 
 
-def make_model_name_str(ham, model_name, ctrls, AGPtype, norm_type):
+def make_model_name_str(ham, model_name, ctrls):
     H_params_str = make_H_params_str(model_name, ham.H_params)
     ctrls_str = make_controls_str(ctrls)
-    agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
-    return f"{model_name}_N{ham.Ns}_{H_params_str}_{ctrls_str}_{agp_str}"
+    return f"{model_name}_N{ham.Ns}_{H_params_str}_{ctrls_str}"
 
 
 def make_symmetries_str(symmetries):
@@ -51,7 +59,28 @@ def make_symmetries_str(symmetries):
     return "_".join(symm_strs)
 
 
+def gen_fname(model_name_str, agp_str, schedname, grid_size, tau):
+    return f"{model_name_str}_{agp_str}_{grid_size}steps_{schedname}_sched_tau{tau}"
+
+
 def make_coeffs_fname(
+    ham,
+    model_name,
+    ctrls,
+    AGPtype,
+    norm_type,
+    grid_size,
+    sched,
+    append_str,
+):
+    model_name_str = make_model_name_str(ham, model_name, ctrls)
+    agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
+    sched_name = scheds_name_dict[type(sched)]
+    std_name = gen_fname(model_name_str, agp_str, sched_name, grid_size, sched.tau)
+    return f"{std_name}_{append_str}_coeffs"
+
+
+def make_evolved_wfs_fname(
     ham,
     model_name,
     ctrls,
@@ -61,6 +90,8 @@ def make_coeffs_fname(
     tau,
     append_str,
 ):
-    model_name_str = make_model_name_str(ham, model_name, ctrls, AGPtype, norm_type)
+    model_name_str = make_model_name_str(ham, model_name, ctrls)
     agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
-    return f"{model_name_str}_{grid_size}steps_tau{tau}_{append_str}_coeffs"
+    sched = scheds_name_dict[type(ham.schedule)]
+    std_name = gen_fname(model_name_str, agp_str, sched, grid_size, tau)
+    return f"{std_name}_{append_str}_evoled_wf"

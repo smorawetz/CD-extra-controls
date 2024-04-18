@@ -65,7 +65,6 @@ def compute_Rs(agp_order, calc_R, commutators, args):
         Rvec[i] = R_list[i + 1]
         for j in range(agp_order):
             Rmat[i, j] = R_list[i + j + 2]
-    print(R_list)
     return Rmat, Rvec
 
 

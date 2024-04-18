@@ -21,10 +21,10 @@ class TFIM_Annealing_1D(SpinHalf_1D):
         H_params,
         boundary_conds,
         agp_order,
+        norm_type,
         schedule,
         symmetries={},
         target_symmetries={},
-        norm_type="trace",
     ):
 
         J, hx = H_params
@@ -38,10 +38,10 @@ class TFIM_Annealing_1D(SpinHalf_1D):
             H_params,
             boundary_conds,
             agp_order,
+            norm_type,
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
-            norm_type=norm_type,
         )
 
     def build_H0(self):
@@ -78,7 +78,7 @@ class TFIM_Annealing_1D(SpinHalf_1D):
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis)
 
-    def build_target_H_symmetric(self):
+    def build_target_H(self):
         """Method for this particular spin model to return the target
         Hamiltonian after annealing is complete, in the
         most symmetric possible basis to get the ground state easier

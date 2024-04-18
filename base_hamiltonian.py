@@ -45,7 +45,7 @@ class Base_Hamiltonian:
 
     # should be able to have ground state, other functionality for bare, dlamH, etc.
 
-    def build_H(self):
+    def build_bare_H(self):
         """Build a QuSpin Hamiltonian object for the bare Hamiltonian"""
         return None
 
@@ -69,6 +69,20 @@ class Base_Hamiltonian:
         """
         return None
 
+    def get_init_gstate(self):
+        """Return the initial ground state encoded in the Hamiltonian
+        Returns:
+            init_gs (np.array):    The target ground state wavefunction
+        """
+        H = self.build_bare_H()
+        if self.sparse:
+            eigvals, eigvecs = H.eigsh(time=0, k=1, which="SA")
+        else:
+            eigvals, eigvecs = H.eigh(time=0)
+        idx = eigvals.argsort()[0]
+        init_gs = eigvecs[:, idx]
+        return init_gs
+
     def get_targ_gstate(self):
         """Return the target (final) ground state encoded in the Hamiltonian
         Returns:
@@ -76,9 +90,9 @@ class Base_Hamiltonian:
         """
         H = self.build_target_H()
         if self.sparse:
-            eigvals, eigvecs = H.eigsh(time=self.tau, k=1, which="SA")
+            eigvals, eigvecs = H.eigsh(time=self.schedule.tau, k=1, which="SA")
         else:
-            eigvals, eigvecs = H.eigh(time=self.tau)
+            eigvals, eigvecs = H.eigh(time=self.schedule.tau)
         idx = eigvals.argsort()[0]
         target_gs = eigvecs[:, idx]
         if self.symmetries == self.target_symmetries:

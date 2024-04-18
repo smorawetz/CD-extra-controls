@@ -13,6 +13,8 @@ from agp.commutator_ansatz import get_alphas
 from ham_controls.build_controls import build_controls_mat
 from tools.lin_alg_calls import calc_comm
 
+DIV_EPS = 1e-16
+
 
 class Hamiltonian_CD(Base_Hamiltonian):
     """This is a "Hamiltonian" child class of the Base_Hamiltonian class,
@@ -24,10 +26,10 @@ class Hamiltonian_CD(Base_Hamiltonian):
         H_params,
         boundary_conds,
         agp_order,
+        norm_type,
         schedule,
         symmetries={},
         target_symmetries={},
-        norm_type="trace",
     ):
         """
         Parameters:
@@ -38,6 +40,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
                                         ("periodic") boundary conditions. Defaults
                                         to open
             agp_order (int):            Order of AGP ansatz
+            norm_type (str):            Either "trace" or "ground_state" for the norm
             schedule (Schedule):        Schedule object that encodes $\lambda(t)$
             symmetries (dictof (np.array, int)):    Symmetries of the Hamiltonian, which
                                         include a symmetry operation on the lattice
@@ -103,7 +106,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
             dlamHmat (np.array):        Matrix representation of dlamH
         """
         alphas = self.alphas_interp(t)
-        cmtr = calc_comm(Hmat, cmtr)
+        cmtr = calc_comm(Hmat, dlamHmat)
         AGPmat = 1j * alphas[0] * cmtr
         for n in range(1, self.agp_order):
             cmtr = calc_comm(Hmat, calc_comm(Hmat, cmtr))
@@ -126,21 +129,20 @@ class Hamiltonian_CD(Base_Hamiltonian):
         O0 /= lanc_coeffs[0] + DIV_EPS
         O1 = calc_comm(Hmat, O0)
         O1 /= lanc_coeffs[1] + DIV_EPS
-        lanc_coeffs.append(b1)
         AGPmat = 1j * gammas[0] * O1
-        for n in range(1, agp_order):
-            On = calc_comm(Hmat, O1) - lanc_coeffs[4 * n - 3] * O0
-            On /= lanc_coeffs[4 * n - 2] + DIV_EPS
+        for n in range(1, self.agp_order):
+            On = calc_comm(Hmat, O1) - lanc_coeffs[2 * n - 1] * O0
+            On /= lanc_coeffs[2 * n] + DIV_EPS
             O0 = O1
             O1 = On
-            On = calc_comm(Hmat, O1) - lanc_coeffs[4 * n - 1] * O0
-            On /= lanc_coeffs[4 * n] + DIV_EPS
+            On = calc_comm(Hmat, O1) - lanc_coeffs[2 * n] * O0
+            On /= lanc_coeffs[2 * n + 1] + DIV_EPS
             AGPmat += 1j * gammas[n] * On
             O0 = O1
             O1 = On
         return AGPmat
 
-    def build_agp_mat(self, type, t, Hmat, dlamHmat):
+    def build_cd_term_mat(self, type, t, Hmat, dlamHmat):
         """Build matrix representing the AGP. This will give either the commutator
         or Lanczos expansion of the AGP, depending on the `type` parameter
         Parameters:
@@ -149,9 +151,10 @@ class Hamiltonian_CD(Base_Hamiltonian):
             Hmat (np.array):            Matrix representation of the bare Hamiltonian
             dlamHmat (np.array):        Matrix representation of dlamH
         """
+        lamdot = self.schedule.get_lamdot(t)
         if type == "commutator":
-            return self.build_agp_mat_commutator(t, Hmat, dlamHmat)
+            return lamdot * self.build_agp_mat_commutator(t, Hmat, dlamHmat)
         elif type == "krylov":
-            return self.build_agp_mat_krylov(t, Hmat, dlamHmat)
+            return lamdot * self.build_agp_mat_krylov(t, Hmat, dlamHmat)
         else:
             raise ValueError("Invalid type for AGP construction")

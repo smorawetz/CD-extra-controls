@@ -67,7 +67,9 @@ class Hamiltonian_CD(Base_Hamiltonian):
         """
         Hmat = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
         O0 = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
-        return get_lanc_coeffs(Hmat, O0, norm_type, gstate)
+        return get_lanc_coeffs(
+            self.agp_order, Hmat, O0, self.basis.Ns, norm_type, gstate=gstate
+        )
 
     def calc_gammas(self, t):
         """Use the recursive solution for the coefficients of the Krylov space

@@ -1,6 +1,8 @@
 import os
 import sys
 
+import numpy as np
+
 sys.path.append(os.environ["CD_CODE_DIR"])
 
 from tools.lin_alg_calls import calc_comm
@@ -8,7 +10,7 @@ from tools.lin_alg_calls import calc_comm
 DIV_EPS = 1e-16
 
 
-def op_norm(op, Ns, norm_type, gstate=None):
+def op_norm(op, basis_size, norm_type, gstate=None):
     """Calculate the norm of an operator. Will be either the trace
     (infinite temperature) or the ground state expectation value
     (zero temperature) of the input operator
@@ -19,14 +21,14 @@ def op_norm(op, Ns, norm_type, gstate=None):
                                             zero temperature optimization
     """
     if norm_type == "trace":
-        return np.sqrt((op.conj().T @ op).trace() / 2**self.Ns)
+        return np.sqrt((op.conj().T @ op).trace() / basis_size).item().real
     elif norm_type == "ground_state":
-        return np.sqrt(gstate.conj().dot((op.conj().T @ op).dot(gstate)).real)
+        return np.sqrt(gstate.conj().dot((op.conj().T @ op).dot(gstate))).item().real
     else:
         raise ValueError("Invalid norm type")
 
 
-def get_lanc_coeffs(Hmat, O0, norm_type, gstate=None):
+def get_lanc_coeffs(agp_order, Hmat, O0, basis_size, norm_type, gstate=None):
     """Calculate the Lanczos coefficients for the for the action of the
     Liouvillian L = [H, .] on dlamH at a given time
     Parameters:
@@ -37,16 +39,16 @@ def get_lanc_coeffs(Hmat, O0, norm_type, gstate=None):
                                         zero temperature optimization
     """
     lanc_coeffs = []
-    b0 = op_norm(O0, self.Ns, norm_type, gstate)
+    b0 = op_norm(O0, basis_size, norm_type, gstate)
     O0 /= b0 + DIV_EPS
     lanc_coeffs.append(b0)
     O1 = calc_comm(Hmat, O0)
-    b1 = op_norm(O1, self.Ns, norm_type, gstate)
+    b1 = op_norm(O1, basis_size, norm_type, gstate)
     O1 /= b1 + DIV_EPS
     lanc_coeffs.append(b1)
     for n in range(2, 2 * agp_order + 1):
         On = calc_comm(Hmat, O1) - lanc_coeffs[n - 1] * O0
-        bn = op_norm(On, self.Ns, norm_type, gstate)
+        bn = op_norm(On, basis_size, norm_type, gstate)
         On /= bn + DIV_EPS
         lanc_coeffs.append(bn)
         O0 = O1
@@ -102,13 +104,16 @@ def get_gamma_vals(lanc_coeffs, agp_order):
     """
     Aks = []
     Bks = []
-    for k in range(agp_order - 1):
+    for k in range(1, agp_order):
         Aks.append(calc_A_val(lanc_coeffs, k))
         Bks.append(calc_B_val(lanc_coeffs, k))
     Aks.append(calc_A_val(lanc_coeffs, agp_order))  # also need A_{agp_order}
-    r_vals = calc_r_vals(lanc_coeffs, agp_order)
+    r_vals = calc_r_vals(lanc_coeffs, Aks, Bks, agp_order)
     b0b1 = np.prod(lanc_coeffs[0:2])
-    gammas = [-b0b1 / (Aks[0] - r_vals[0] * Bks[0])]
+    if agp_order == 1:
+        gammas = [-b0b1 / Aks[0]]
+    else:
+        gammas = [-b0b1 / (Aks[0] - r_vals[0] * Bks[0])]
     for k in range(1, agp_order):
-        gammas[-1] = -r_vals[k] * gammas[-1]
+        gammas.append(-r_vals[k - 1] * gammas[-1])
     return np.array(gammas)

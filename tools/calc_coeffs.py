@@ -30,7 +30,7 @@ def mod_tgrid(t_grid):
 ## then load later and do evolution with easily. probably
 ## use linear schedule, and do once with a larger grid size
 ## which should hopefully avoid any problems
-def save_alphas(ham, fname, grid_size, sched, agp_order, norm_type, gstate=None):
+def save_alphas(ham, fname, grid_size, sched, agp_order, norm_type, gs_func=None):
     """Compute the coefficients for the AGP in the commutator ansatz
     on a grid covering the whole protocol, and save them to a file.
     This can later be indexed and translated for repeated use in
@@ -42,19 +42,20 @@ def save_alphas(ham, fname, grid_size, sched, agp_order, norm_type, gstate=None)
         sched (Schedule):           Schedule object that encodes $\lambda(t)$
         agp_order (int):            Order of the AGP to compute
         norm_type (str):            Either "trace" or "ground_state" for the norm
-        gstate (np.array):          Ground state of the Hamiltonian, if needed
+        gs_func (function):         Function to compute the ground state of the Hamiltonian
     """
     lam_grid = np.linspace(0, 1, grid_size)
     t_grid = mod_tgrid(sched.get_t(lam_grid))
     alphas_grid = np.zeros((grid_size, agp_order))
     for i in range(grid_size):
+        gstate = gs_func(t_grid[i]) if gs_func is not None else None
         alphas_grid[i, :] = ham.calc_alphas(t_grid[i], norm_type, gstate=gstate)
     np.savetxt("coeffs_data/{0}_alphas_tgrid.txt".format(fname), t_grid)
     np.savetxt("coeffs_data/{0}_alphas_grid.txt".format(fname), alphas_grid)
     return t_grid, alphas_grid
 
 
-def save_lanc_coeffs(ham, fname, grid_size, sched, agp_order, norm_type, gstate=None):
+def save_lanc_coeffs(ham, fname, grid_size, sched, agp_order, norm_type, gs_func=None):
     """Compute the Lanczos coefficients on a grid covering the whole protocol,
     and save them to a file.  This can later be indexed and translated for repeated use
     in e.g. evolution
@@ -65,19 +66,20 @@ def save_lanc_coeffs(ham, fname, grid_size, sched, agp_order, norm_type, gstate=
         sched (Schedule):           Schedule object that encodes $\lambda(t)$
         agp_order (int):            Order of the AGP to compute
         norm_type (str):            Either "trace" or "ground_state" for the norm
-        gstate (np.array):          Ground state of the Hamiltonian, if needed
+        gs_func (function):         Function to compute the ground state of the Hamiltonian
     """
     lam_grid = np.linspace(0, 1, grid_size)
     t_grid = mod_tgrid(sched.get_t(lam_grid))
     lanc_grid = np.zeros((grid_size, 2 * agp_order + 1))
     for i in range(grid_size):
+        gstate = gs_func(t_grid[i]) if gs_func is not None else None
         lanc_grid[i, :] = ham.calc_lanc_coeffs(t_grid[i], norm_type, gstate=gstate)
     np.savetxt("coeffs_data/{0}_lanc_coeffs_tgrid.txt".format(fname), t_grid)
     np.savetxt("coeffs_data/{0}_lanc_coeffs_grid.txt".format(fname), lanc_grid)
     return t_grid, lanc_grid
 
 
-def save_gammas(ham, fname, grid_size, sched, agp_order, norm_type, gstate=None):
+def save_gammas(ham, fname, grid_size, sched, agp_order, norm_type, gs_func=None):
     """Compute the coefficients for the AGP in the Krylov space ansatz
     on a grid covering the whole protocol, and save them to a file.
     This can later be indexed and translated for repeated use in
@@ -89,7 +91,7 @@ def save_gammas(ham, fname, grid_size, sched, agp_order, norm_type, gstate=None)
         sched (Schedule):           Schedule object that encodes $\lambda(t)$
         agp_order (int):            Order of the AGP to compute
         norm_type (str):            Either "trace" or "ground_state" for the norm
-        gstate (np.array):          Ground state of the Hamiltonian, if needed
+        gs_func (function):         Function to compute the ground state of the Hamiltonian
     """
     lam_grid = np.linspace(0, 1, grid_size)
     t_grid = mod_tgrid(sched.get_t(lam_grid))

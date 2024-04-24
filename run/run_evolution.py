@@ -14,7 +14,7 @@ from utils.file_naming import make_coeffs_fname, make_evolved_wfs_fname
 from utils.grid_utils import get_coeffs_interp
 
 model_name = "TFIM_1D"
-Ns = 16
+Ns = 10
 H_params = [1, 1]
 boundary_conds = "periodic"
 
@@ -34,10 +34,11 @@ ctrls = []
 couplings = []
 couplings_args = []
 
-agp_order = 1
+agp_order = 5
 AGPtype = "krylov"
 # AGPtype = "commutator"
-norm_type = "trace"
+# norm_type = "trace"
+norm_type = "ground_state"
 
 grid_size = 1000
 

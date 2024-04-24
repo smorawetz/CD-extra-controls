@@ -18,7 +18,7 @@ from agp.krylov_construction import op_norm
 
 # things to run here
 model_name = "TFIM_1D"
-Ns = 14
+Ns = 10
 H_params = [1, 1]
 boundary_conds = "periodic"
 
@@ -35,9 +35,9 @@ tau = 1
 sched = LinearSchedule(tau)
 ctrls = []
 
-agp_order = 1
+agp_order = 7
 AGPtype = "krylov"
-norm_type = "trace"
+norm_type = "ground_state"
 
 grid_size = 1000
 append_str = "no_ctrls"
@@ -60,11 +60,11 @@ fname = make_coeffs_fname(
 
 # now call function to compute alphas
 lanc_tgrid, lanc_grid = save_lanc_coeffs(
-    ham, fname, grid_size, sched, agp_order, norm_type, gstate=None
+    ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
 )
 ham.lanc_interp = scipy.interpolate.interp1d(lanc_tgrid, lanc_grid, axis=0)
 tgrid, gammas_grid = save_gammas(
-    ham, fname, grid_size, sched, agp_order, norm_type, gstate=None
+    ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
 )
 ham.gammas_interp = scipy.interpolate.interp1d(tgrid, gammas_grid, axis=0)
 
@@ -81,5 +81,3 @@ elif agp_order == 2:
     ax.plot(t_data, gammas_data[:, 0], label="g1")
     ax.plot(t_data, gammas_data[:, 1], label="g2")
 plt.savefig(f"gammas_{agp_order}agp_test.png")
-
-print(ham.lanc_interp(0.5 * tau))

@@ -14,7 +14,7 @@ from utils.file_naming import make_coeffs_fname
 
 # things to run here
 model_name = "TFIM_1D"
-Ns = 14
+Ns = 10
 H_params = [1, 1]
 boundary_conds = "periodic"
 
@@ -31,9 +31,9 @@ tau = 1
 sched = LinearSchedule(tau)
 ctrls = []
 
-agp_order = 1
+agp_order = 3
 AGPtype = "commutator"
-norm_type = "trace"
+norm_type = "ground_state"
 
 grid_size = 1000
 append_str = "no_ctrls"
@@ -55,7 +55,9 @@ fname = make_coeffs_fname(
 )
 
 # now call function to compute alphas
-save_alphas(ham, fname, grid_size, sched, agp_order, norm_type, gstate=None)
+save_alphas(
+    ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
+)
 
 import matplotlib.pyplot as plt
 

@@ -102,6 +102,22 @@ class Base_Hamiltonian:
                 self.target_basis.project_from(target_gs), sparse=False
             )
 
+    def get_inst_gstate(self, t):
+        """Return the instantaneous ground state of the Hamiltonian at time t
+        Parameters:
+            t (float):      Time at which to calculate the ground state
+        Returns:
+            inst_gs (np.array):     The instantaneous ground state wavefunction
+        """
+        H = self.build_bare_H()
+        if self.sparse:
+            eigvals, eigvecs = H.eigsh(time=t, k=1, which="SA")
+        else:
+            eigvals, eigvecs = H.eigh(time=t)
+        idx = eigvals.argsort()[0]
+        inst_gs = eigvecs[:, idx]
+        return inst_gs
+
     def build_H_mats(self, t, ctrls, couplings, coupling_args):
         """Returns a list of (sparse or dense) matrices, which are added to
         form H. These may be used in matrix-vector multiplication on the wavefunction

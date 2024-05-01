@@ -42,7 +42,7 @@ def zero_temp_R(k, commutators, gstate):
         commutators (list):         List of commutators of H and dlam_H
     """
     return (
-        gstate.dot((commutators[k].conj().T @ commutators[k]).dot(gstate)).item().real
+        gstate.dot((commutators[k].conj().T @ commutators[k])).dot(gstate).item().real
     )
 
 

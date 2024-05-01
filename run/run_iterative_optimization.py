@@ -18,9 +18,11 @@ from tools.symmetries import get_symm_op
 from utils.file_naming import make_coeffs_fname, make_evolved_wfs_fname
 from utils.grid_utils import get_coeffs_interp
 
-model_name = "TFIM_1D"
-Ns = 10
-H_params = [1, 1]
+# model_name = "TFIM_1D"
+model_name = "LR_Ising_1D"
+Ns = 8
+# H_params = [1, 1]
+H_params = [1, 1, 2]
 boundary_conds = "periodic"
 
 symms = ["translation_1d", "spin_inversion"]
@@ -42,8 +44,8 @@ couplings_args = []
 agp_order = 4
 AGPtype = "krylov"
 # AGPtype = "commutator"
-norm_type = "trace"
-# norm_type = "ground_state"
+# norm_type = "trace"
+norm_type = "ground_state"
 
 grid_size = 1000
 
@@ -68,7 +70,7 @@ coeffs_fname = make_coeffs_fname(
     model_name,
     ctrls,
     AGPtype,
-    norm_type,
+    "trace",  # load data from inf T
     grid_size,
     coeffs_sched,  # need separate coeff sched!!
     coeffs_append_str,

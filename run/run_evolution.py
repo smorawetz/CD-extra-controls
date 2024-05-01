@@ -43,8 +43,8 @@ norm_type = "ground_state"
 grid_size = 1000
 
 coeffs_sched = LinearSchedule(1)  # always use tau = 1 for grid save
-coeffs_append_str = "no_ctrls"
-wfs_append_str = "no_ctrls"
+coeffs_append_str = "normal"
+wfs_append_str = "normal"
 
 ham = build_ham(
     model_name,
@@ -109,7 +109,8 @@ init_state = ham.get_init_gstate()
 targ_state = ham.get_targ_gstate()
 # print("targ state is ", targ_state)
 
-final_state = cd_protocol.matrix_evolve(init_state, wfs_fname, save_states=True)
+t_data, wf_data = cd_protocol.matrix_evolve(init_state, wfs_fname, save_states=True)
+final_state = wf_data[-1, :]
 # print("final state is ", final_state)
 
 print("fidelity is ", calc_fid(targ_state, final_state))

@@ -74,11 +74,10 @@ class Base_Hamiltonian:
         Returns:
             init_gs (np.array):    The target ground state wavefunction
         """
-        H = self.build_bare_H()
         if self.sparse:
-            eigvals, eigvecs = H.eigsh(time=0, k=1, which="SA")
+            eigvals, eigvecs = self.bareH.eigsh(time=0, k=1, which="SA")
         else:
-            eigvals, eigvecs = H.eigh(time=0)
+            eigvals, eigvecs = self.bareH.eigh(time=0)
         idx = eigvals.argsort()[0]
         init_gs = eigvecs[:, idx]
         return init_gs
@@ -109,11 +108,10 @@ class Base_Hamiltonian:
         Returns:
             inst_gs (np.array):     The instantaneous ground state wavefunction
         """
-        H = self.build_bare_H()
         if self.sparse:
-            eigvals, eigvecs = H.eigsh(time=t, k=1, which="SA")
+            eigvals, eigvecs = self.bareH.eigsh(time=t, k=1, which="SA")
         else:
-            eigvals, eigvecs = H.eigh(time=t)
+            eigvals, eigvecs = self.bareH.eigh(time=t)
         idx = eigvals.argsort()[0]
         inst_gs = eigvecs[:, idx]
         return inst_gs

@@ -6,20 +6,79 @@ import scipy
 
 sys.path.append(os.environ["CD_CODE_DIR"])
 
-from tools.calc_coeffs import save_lanc_coeffs
-from tools.calc_coeffs import save_gammas
-from tools.schedules import LinearSchedule
+from agp.krylov_construction import op_norm
 from tools.build_ham import build_ham
+from tools.calc_coeffs import save_lanc_coeffs, save_gammas
+from tools.schedules import LinearSchedule
 from tools.symmetries import get_symm_op
 from utils.file_naming import make_coeffs_fname
 from utils.grid_utils import get_coeffs_interp
 
-from agp.krylov_construction import op_norm
+
+def run_calc_gammas(
+    Ns,
+    model_name,
+    H_params,
+    boundary_conds,
+    symms,
+    symms_args,
+    symm_nums,
+    tau,
+    sched,
+    ctrls,
+    agp_order,
+    AGPtype,
+    norm_type,
+    grid_size,
+    append_str,
+):
+    ham = build_ham(
+        model_name,
+        Ns,
+        H_params,
+        boundary_conds,
+        agp_order,
+        norm_type,
+        sched,
+        symmetries,
+        target_symmetries,
+    )
+
+    fname = make_coeffs_fname(
+        ham, model_name, ctrls, AGPtype, norm_type, grid_size, sched, append_str
+    )
+
+    # now call function to compute alphas
+    lanc_tgrid, lanc_grid = save_lanc_coeffs(
+        ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
+    )
+    ham.lanc_interp = scipy.interpolate.interp1d(lanc_tgrid, lanc_grid, axis=0)
+    tgrid, gammas_grid = save_gammas(
+        ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
+    )
+    ham.gammas_interp = scipy.interpolate.interp1d(tgrid, gammas_grid, axis=0)
+
+    import matplotlib.pyplot as plt
+
+    # do a sanity check
+    t_data = np.loadtxt("coeffs_data/{0}_gammas_tgrid.txt".format(fname))
+    gammas_data = np.loadtxt("coeffs_data/{0}_gammas_grid.txt".format(fname))
+
+    fig, ax = plt.subplots()
+    if agp_order == 1:
+        ax.plot(t_data, gammas_data[:], label="g1")
+    elif agp_order == 2:
+        ax.plot(t_data, gammas_data[:, 0], label="g1")
+        ax.plot(t_data, gammas_data[:, 1], label="g2")
+    # plt.savefig(f"gammas_{agp_order}agp_test.png")
+
 
 # things to run here
-model_name = "TFIM_1D"
-Ns = 10
-H_params = [1, 1]
+Ns = 8
+# model_name = "TFIM_1D"
+model_name = "LR_Ising_1D"
+# H_params = [1, 1]
+H_params = [1, 1, 2]
 boundary_conds = "periodic"
 
 symms = ["translation_1d", "spin_inversion"]
@@ -35,49 +94,28 @@ tau = 1
 sched = LinearSchedule(tau)
 ctrls = []
 
-agp_order = 7
+agp_order = 8
 AGPtype = "krylov"
-norm_type = "ground_state"
+norm_type = "trace"
+# norm_type = "ground_state"
 
 grid_size = 1000
-append_str = "no_ctrls"
+append_str = "normal"
 
-ham = build_ham(
-    model_name,
+run_calc_gammas(
     Ns,
+    model_name,
     H_params,
     boundary_conds,
-    agp_order,
-    norm_type,
+    symms,
+    symms_args,
+    symm_nums,
+    tau,
     sched,
-    symmetries,
-    target_symmetries,
+    ctrls,
+    agp_order,
+    AGPtype,
+    norm_type,
+    grid_size,
+    append_str,
 )
-
-fname = make_coeffs_fname(
-    ham, model_name, ctrls, AGPtype, norm_type, grid_size, sched, append_str
-)
-
-# now call function to compute alphas
-lanc_tgrid, lanc_grid = save_lanc_coeffs(
-    ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
-)
-ham.lanc_interp = scipy.interpolate.interp1d(lanc_tgrid, lanc_grid, axis=0)
-tgrid, gammas_grid = save_gammas(
-    ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
-)
-ham.gammas_interp = scipy.interpolate.interp1d(tgrid, gammas_grid, axis=0)
-
-import matplotlib.pyplot as plt
-
-# do a sanity check
-t_data = np.loadtxt("coeffs_data/{0}_gammas_tgrid.txt".format(fname))
-gammas_data = np.loadtxt("coeffs_data/{0}_gammas_grid.txt".format(fname))
-
-fig, ax = plt.subplots()
-if agp_order == 1:
-    ax.plot(t_data, gammas_data[:], label="g1")
-elif agp_order == 2:
-    ax.plot(t_data, gammas_data[:, 0], label="g1")
-    ax.plot(t_data, gammas_data[:, 1], label="g2")
-plt.savefig(f"gammas_{agp_order}agp_test.png")

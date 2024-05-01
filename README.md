@@ -1,3 +1,5 @@
 ## Counterdiabatic Driving QuSpin Framework
 
-Emerged out of the chaos of previous code, this tries to clean things up and put together a more unified framework. Not as integrated with QuSpin as I would like though. Probably doing that requires more technical skills than I have.
+Code associated with the work done in arXiv:2401.12287. If the reader has questions about how to use this to replicate the results of that work, or any questions more generally, please reach out! I am easiest to reach by email: morawetz@bu.edu.
+
+If you use this code in any calculations, please cite the above paper.

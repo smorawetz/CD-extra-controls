@@ -42,10 +42,10 @@ def make_agp_str(AGPtype, norm_type, agp_order):
         raise ValueError(f"norm_type {norm_type} not recognized")
 
 
-def make_model_name_str(ham, model_name, ctrls):
-    H_params_str = make_H_params_str(model_name, ham.H_params)
+def make_model_str(Ns, model_name, H_params, ctrls):
+    H_params_str = make_H_params_str(model_name, H_params)
     ctrls_str = make_controls_str(ctrls)
-    return f"{model_name}_N{ham.Ns}_{H_params_str}_{ctrls_str}"
+    return f"{model_name}_N{Ns}_{H_params_str}_{ctrls_str}"
 
 
 def make_symmetries_str(symmetries):
@@ -59,8 +59,31 @@ def make_symmetries_str(symmetries):
     return "_".join(symm_strs)
 
 
-def gen_fname(model_name_str, agp_str, schedname, grid_size, tau):
-    return f"{model_name_str}_{agp_str}_{grid_size}steps_{schedname}_sched_tau{tau}"
+def gen_fname(model_str, symm_str, agp_str, schedname, grid_size, tau):
+    return (
+        f"{model_str}_{symm_str}_{agp_str}_{grid_size}steps_{schedname}_sched_tau{tau}"
+    )
+
+
+def make_base_fname(
+    Ns,
+    model_name,
+    H_params,
+    symmetries,
+    ctrls,
+    agp_order,
+    AGPtype,
+    norm_type,
+    grid_size,
+    sched,
+    append_str,
+):
+    model_str = make_model_str(Ns, model_name, H_params, ctrls)
+    symm_str = make_symmetries_str(symmetries)
+    agp_str = make_agp_str(AGPtype, norm_type, agp_order)
+    sched_name = scheds_name_dict[type(sched)]
+    std_name = gen_fname(model_str, symm_str, agp_str, sched_name, grid_size, sched.tau)
+    return f"{std_name}_{append_str}"
 
 
 def make_coeffs_fname(
@@ -73,10 +96,11 @@ def make_coeffs_fname(
     sched,
     append_str,
 ):
-    model_name_str = make_model_name_str(ham, model_name, ctrls)
+    model_str = make_model_str(ham.Ns, model_name, ham.H_params, ctrls)
+    symm_str = make_symmetries_str(ham.symmetries)
     agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
     sched_name = scheds_name_dict[type(sched)]
-    std_name = gen_fname(model_name_str, agp_str, sched_name, grid_size, sched.tau)
+    std_name = gen_fname(model_str, symm_str, agp_str, sched_name, grid_size, sched.tau)
     return f"{std_name}_{append_str}_coeffs"
 
 
@@ -90,8 +114,9 @@ def make_evolved_wfs_fname(
     tau,
     append_str,
 ):
-    model_name_str = make_model_name_str(ham, model_name, ctrls)
+    model_str = make_model_str(ham.Ns, model_name, ham.H_params, ctrls)
+    symm_str = make_symmetries_str(ham.symmetries)
     agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
     sched = scheds_name_dict[type(ham.schedule)]
-    std_name = gen_fname(model_name_str, agp_str, sched, grid_size, tau)
+    std_name = gen_fname(model_str, symm_str, agp_str, sched, grid_size, tau)
     return f"{std_name}_{append_str}_evoled_wf"

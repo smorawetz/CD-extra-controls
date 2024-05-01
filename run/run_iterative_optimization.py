@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 
-from matplotlib.ticker import MaxNLocator
-
 sys.path.append(os.environ["CD_CODE_DIR"])
 
 from cd_protocol import CD_Protocol
@@ -15,7 +13,7 @@ from tools.calc_coeffs import save_alphas, save_lanc_coeffs, save_gammas
 from tools.lin_alg_calls import calc_fid
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
-from utils.file_naming import make_coeffs_fname, make_evolved_wfs_fname
+from utils.file_naming import make_base_fname, make_coeffs_fname, make_evolved_wfs_fname
 from utils.grid_utils import get_coeffs_interp
 
 
@@ -86,7 +84,7 @@ def run_iterative_evolution(
 
     wfs_fname = None  # unnecessary since not save wfs at each step
     i = 1  # index to track iteration number
-    while abs(fid - last_fid) > 1e-6 and i < 10:
+    while abs(fid - last_fid) > 1e-6 and i <= 25:
         cd_protocol = CD_Protocol(
             ham, AGPtype, ctrls, couplings, couplings_args, sched, grid_size
         )
@@ -151,9 +149,23 @@ def run_iterative_evolution(
     t_data, wf_data = cd_protocol.matrix_evolve(init_state, wfs_fname, save_states=True)
     final_state = wf_data[-1, :]
     fid = calc_fid(targ_state, final_state)
-    fids.append(fids)
+    fids.append(fid)
     print("fidelity of final iterated state is ", fid)
-    return fids
+
+    fname = make_base_fname(
+        Ns,
+        model_name,
+        H_params,
+        symmetries,
+        ctrls,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+        sched,
+        "iterative",
+    )
+    return fids, fname
 
 
 Ns = 8
@@ -179,7 +191,7 @@ ctrls = []
 couplings = []
 couplings_args = []
 
-agp_order = 5
+agp_order = 7
 AGPtype = "krylov"
 # AGPtype = "commutator"
 # norm_type = "trace"
@@ -191,7 +203,7 @@ coeffs_sched = LinearSchedule(1)  # always use tau = 1 for grid save
 coeffs_append_str = "normal"
 wfs_append_str = "iterative"
 
-fids = run_iterative_evolution(
+fids, fname = run_iterative_evolution(
     Ns,
     model_name,
     H_params,
@@ -209,3 +221,5 @@ fids = run_iterative_evolution(
     coeffs_append_str,
     wfs_append_str,
 )
+
+np.savetxt("plots/data/{0}_fids.txt".format(fname), np.array(fids))

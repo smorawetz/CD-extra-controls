@@ -9,7 +9,7 @@ from matplotlib.ticker import MaxNLocator
 
 sys.path.append(os.environ["CD_CODE_DIR"])
 
-from plots.plot_settings import std_settings
+from plots.plot_utils import std_settings
 from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
 from utils.file_naming import make_base_fname

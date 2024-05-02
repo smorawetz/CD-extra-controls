@@ -30,11 +30,11 @@ def build_1site_controls(ham, ctrl, coupling, coupling_args):
         coupling_args (list):   Arguments for the coupling function
     """
     static = []
-    dynamic = [ctrl, [[1, i] for i in range(ham.Ns)], coupling, [*coupling_args]]
-    return quspin.operator.hamiltonian(static, dynamic, basis=ham.basis)
+    dynamic = [[ctrl, [[1, i] for i in range(ham.Ns)], coupling, [*coupling_args]]]
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis)
 
 
-def build_2site_controls_1d(ham, ctrl, coupling, *coupling_args):
+def build_2site_controls_1d(ham, ctrl, coupling, coupling_args):
     """Build 2-site (in 1 dimension) extra controls term in a given
     direction with some coupling specified by user
     Parameters:
@@ -45,15 +45,17 @@ def build_2site_controls_1d(ham, ctrl, coupling, *coupling_args):
     """
     static = []
     dynamic = [
-        ctrl,
-        [[1, *self.pairs[i]] for i in range(len(self.pairs))],
-        coupling,
-        [*coupling_args],
+        [
+            ctrl,
+            [[1, *ham.pairs[i]] for i in range(len(ham.pairs))],
+            coupling,
+            [*coupling_args],
+        ]
     ]
-    return quspin.operator.hamiltonian(static, dynamic, basis=ham.basis)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis)
 
 
-def build_3site_controls_1d(ham, ctrl, coupling, *coupling_args):
+def build_3site_controls_1d(ham, ctrl, coupling, coupling_args):
     """Build 3-site (in 1 dimension) extra controls term in a given
     direction with some coupling specified by user
     Parameters:
@@ -64,9 +66,11 @@ def build_3site_controls_1d(ham, ctrl, coupling, *coupling_args):
     """
     static = []
     dynamic = [
-        ctrl,
-        [[1, *self.triplets[i]] for i in range(len(self.triplets))],
-        coupling,
-        [*coupling_args],
+        [
+            ctrl,
+            [[1, *self.triplets[i]] for i in range(len(self.triplets))],
+            coupling,
+            [*coupling_args],
+        ]
     ]
-    return quspin.operator.hamiltonian(static, dynamic, basis=ham.basis)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis)

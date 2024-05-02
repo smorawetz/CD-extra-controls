@@ -25,6 +25,8 @@ def run_evolution(
     tau,
     sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
     AGPtype,
     norm_type,
@@ -75,7 +77,7 @@ def run_evolution(
         raise ValueError(f"AGPtype {AGPtype} not recognized")
 
     cd_protocol = CD_Protocol(
-        ham, AGPtype, ctrls, couplings, couplings_args, sched, grid_size
+        ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size
     )
 
     init_state = ham.get_init_gstate()
@@ -103,9 +105,11 @@ def run_evolution(
     print("fidelity is ", calc_fid(targ_state, final_state))
 
 
-Ns = 10
-model_name = "TFIM_1D"
-H_params = [1, 1]
+Ns = 8
+# model_name = "TFIM_1D"
+model_name = "LR_Ising_1D"
+# H_params = [1, 1]
+H_params = [1, 1, 2]
 boundary_conds = "periodic"
 
 symms = ["translation_1d", "spin_inversion"]
@@ -121,10 +125,10 @@ tau = 0.01
 sched = SmoothSchedule(tau)
 
 ctrls = []
-couplings = []
-couplings_args = []
+ctrls_couplings = []
+ctrls_args = []
 
-agp_order = 5
+agp_order = 7
 AGPtype = "krylov"
 # AGPtype = "commutator"
 # norm_type = "trace"
@@ -147,6 +151,8 @@ run_evolution(
     tau,
     sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
     AGPtype,
     norm_type,

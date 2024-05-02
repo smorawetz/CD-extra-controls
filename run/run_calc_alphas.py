@@ -6,7 +6,7 @@ import numpy as np
 sys.path.append(os.environ["CD_CODE_DIR"])
 
 from tools.build_ham import build_ham
-from tools.calc_coeffs import save_alphas
+from tools.calc_coeffs import calc_alphas_grid
 from tools.schedules import LinearSchedule
 from tools.symmetries import get_symm_op
 from utils.file_naming import make_coeffs_fname
@@ -46,8 +46,15 @@ def run_calc_alphas(
     )
 
     # now call function to compute alphas
-    save_alphas(
-        ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
+    calc_alphas_grid(
+        ham,
+        fname,
+        grid_size,
+        sched,
+        agp_order,
+        norm_type,
+        gs_func=ham.get_inst_gstate,
+        save=True,
     )
 
 

@@ -8,7 +8,7 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from agp.krylov_construction import op_norm
 from tools.build_ham import build_ham
-from tools.calc_coeffs import save_lanc_coeffs, save_gammas
+from tools.calc_coeffs import calc_lanc_coeffs_grid, calc_gammas_grid
 from tools.schedules import LinearSchedule
 from tools.symmetries import get_symm_op
 from utils.file_naming import make_coeffs_fname
@@ -49,12 +49,26 @@ def run_calc_gammas(
     )
 
     # now call function to compute alphas
-    lanc_tgrid, lanc_grid = save_lanc_coeffs(
-        ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
+    lanc_tgrid, lanc_grid = calc_lanc_coeffs_grid(
+        ham,
+        fname,
+        grid_size,
+        sched,
+        agp_order,
+        norm_type,
+        gs_func=ham.get_inst_gstate,
+        save=True,
     )
     ham.lanc_interp = scipy.interpolate.interp1d(lanc_tgrid, lanc_grid, axis=0)
-    tgrid, gammas_grid = save_gammas(
-        ham, fname, grid_size, sched, agp_order, norm_type, gs_func=ham.get_inst_gstate
+    tgrid, gammas_grid = calc_gammas_grid(
+        ham,
+        fname,
+        grid_size,
+        sched,
+        agp_order,
+        norm_type,
+        gs_func=ham.get_inst_gstate,
+        save=True,
     )
     ham.gammas_interp = scipy.interpolate.interp1d(tgrid, gammas_grid, axis=0)
 
@@ -96,8 +110,8 @@ ctrls = []
 
 agp_order = 8
 AGPtype = "krylov"
-norm_type = "trace"
-# norm_type = "ground_state"
+# norm_type = "trace"
+norm_type = "ground_state"
 
 grid_size = 1000
 append_str = "normal"

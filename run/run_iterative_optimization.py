@@ -9,7 +9,7 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
-from tools.calc_coeffs import save_alphas, save_lanc_coeffs, save_gammas
+from tools.calc_coeffs import calc_alphas_grid, calc_lanc_coeffs_grid, calc_gammas_grid
 from tools.lin_alg_calls import calc_fid
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
@@ -27,6 +27,8 @@ def run_iterative_evolution(
     tau,
     sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
     AGPtype,
     norm_type,
@@ -84,9 +86,10 @@ def run_iterative_evolution(
 
     wfs_fname = None  # unnecessary since not save wfs at each step
     i = 1  # index to track iteration number
-    while abs(fid - last_fid) > 1e-6 and i <= 25:
+    # while abs(fid - last_fid) > 1e-6 and i <= 25:
+    while i <= 10:
         cd_protocol = CD_Protocol(
-            ham, AGPtype, ctrls, couplings, couplings_args, sched, grid_size
+            ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size
         )
         init_state = ham.get_init_gstate()
         targ_state = ham.get_targ_gstate()
@@ -101,7 +104,7 @@ def run_iterative_evolution(
         fid = calc_fid(targ_state, final_state)
         fids.append(fid)
         print(f"step {i} fidelity is ", fid)
-        print("final state is ", final_state)
+        # print("final state is ", final_state)
         fname = make_coeffs_fname(
             ham,
             model_name,
@@ -113,21 +116,42 @@ def run_iterative_evolution(
             "iter_step_{0}".format(i),
         )
         if AGPtype == "commutator":
-            tgrid, alpha_grid = save_alphas(
-                ham, fname, grid_size, sched, agp_order, norm_type, gs_func=wf_interp
+            tgrid, alpha_grid = calc_alphas_grid(
+                ham,
+                fname,
+                grid_size,
+                sched,
+                agp_order,
+                norm_type,
+                gs_func=wf_interp,
+                save=True,
             )
             ham.alphas_interp = scipy.interpolate.interp1d(
                 tgrid, alpha_grid, axis=0, fill_value="extrapolate"
             )
         elif AGPtype == "krylov":
-            lanc_tgrid, lanc_grid = save_lanc_coeffs(
-                ham, fname, grid_size, sched, agp_order, norm_type, gs_func=wf_interp
+            lanc_tgrid, lanc_grid = calc_lanc_coeffs_grid(
+                ham,
+                fname,
+                grid_size,
+                sched,
+                agp_order,
+                norm_type,
+                gs_func=wf_interp,
+                save=True,
             )
             ham.lanc_interp = scipy.interpolate.interp1d(
                 lanc_tgrid, lanc_grid, axis=0, fill_value="extrapolate"
             )
-            tgrid, gammas_grid = save_gammas(
-                ham, fname, grid_size, sched, agp_order, norm_type, gs_func=wf_interp
+            tgrid, gammas_grid = calc_gammas_grid(
+                ham,
+                fname,
+                grid_size,
+                sched,
+                agp_order,
+                norm_type,
+                gs_func=wf_interp,
+                save=True,
             )
             ham.gammas_interp = scipy.interpolate.interp1d(
                 tgrid, gammas_grid, axis=0, fill_value="extrapolate"
@@ -188,10 +212,10 @@ tau = 0.01
 sched = SmoothSchedule(tau)
 
 ctrls = []
-couplings = []
-couplings_args = []
+ctrls_couplings = []
+ctrls_args = []
 
-agp_order = 7
+agp_order = 5
 AGPtype = "krylov"
 # AGPtype = "commutator"
 # norm_type = "trace"
@@ -213,6 +237,8 @@ fids, fname = run_iterative_evolution(
     tau,
     sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
     AGPtype,
     norm_type,

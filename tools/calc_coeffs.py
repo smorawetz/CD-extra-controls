@@ -30,7 +30,7 @@ def mod_tgrid(t_grid):
 ## then load later and do evolution with easily. probably
 ## use linear schedule, and do once with a larger grid size
 ## which should hopefully avoid any problems
-def save_alphas(
+def calc_alphas_grid(
     ham, fname, grid_size, sched, agp_order, norm_type, gs_func=None, save=True
 ):
     """Compute the coefficients for the AGP in the commutator ansatz
@@ -59,7 +59,7 @@ def save_alphas(
     return t_grid, alphas_grid
 
 
-def save_lanc_coeffs(
+def calc_lanc_coeffs_grid(
     ham, fname, grid_size, sched, agp_order, norm_type, gs_func=None, save=True
 ):
     """Compute the Lanczos coefficients on a grid covering the whole protocol,
@@ -87,7 +87,7 @@ def save_lanc_coeffs(
     return t_grid, lanc_grid
 
 
-def save_gammas(
+def calc_lanc_coeffs_grid(
     ham, fname, grid_size, sched, agp_order, norm_type, gs_func=None, save=True
 ):
     """Compute the coefficients for the AGP in the Krylov space ansatz

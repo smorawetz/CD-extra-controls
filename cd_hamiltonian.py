@@ -142,19 +142,44 @@ class Hamiltonian_CD(Base_Hamiltonian):
             O1 = On
         return AGPmat
 
-    def build_cd_term_mat(self, type, t, Hmat, dlamHmat):
+    def build_agp_mat(self, t, AGPtype, Hmat, dlamHmat):
         """Build matrix representing the AGP. This will give either the commutator
-        or Lanczos expansion of the AGP, depending on the `type` parameter
+        or Lanczos expansion of the AGP, depending on the `AGPtype` parameter
         Parameters:
-            type (str):                 Either "commutator" or "krylov"
             t (float):                  Time at which to build the AGP term
+            AGPtype (str):              Either "commutator" or "krylov"
+            Hmat (np.array):            Matrix representation of the bare Hamiltonian
+            dlamHmat (np.array):        Matrix representation of dlamH
+        """
+        if AGPtype == "commutator":
+            return self.build_agp_mat_commutator(t, Hmat, dlamHmat)
+        elif AGPtype == "krylov":
+            return self.build_agp_mat_krylov(t, Hmat, dlamHmat)
+        else:
+            raise ValueError("Invalid type for AGP construction")
+
+    def build_cd_term_mat(self, t, AGPtype, Hmat, dlamHmat):
+        """Build matrix representing the counterdiabatic term, which is just
+        $\dot{\lambda}$ multiplied by the AGP. This will give either the commutator
+        or Lanczos construction of the AGP, depending on the `AGPtype` parameter
+        Parameters:
+            t (float):                  Time at which to build the AGP term
+            AGPtype (str):              Either "commutator" or "krylov"
             Hmat (np.array):            Matrix representation of the bare Hamiltonian
             dlamHmat (np.array):        Matrix representation of dlamH
         """
         lamdot = self.schedule.get_lamdot(t)
-        if type == "commutator":
-            return lamdot * self.build_agp_mat_commutator(t, Hmat, dlamHmat)
-        elif type == "krylov":
-            return lamdot * self.build_agp_mat_krylov(t, Hmat, dlamHmat)
-        else:
-            raise ValueError("Invalid type for AGP construction")
+        return lamdot * self.build_agp_mat(t, AGPtype, Hmat, dlamHmat)
+
+    def build_cons_G_mat(self, t, AGPtype, Hmat, dlamHmat):
+        """Build the matrix representing the (approximately) conserved quantity
+        $G_\lambda$, whose off-diagonal elements (in the energy eigenbasis) are
+        minimized to obtain the approxiamte AGP
+        Parameters:
+            t (float):                  Time at which to build the AGP term
+            AGPtype (str):              Either "commutator" or "krylov"
+            Hmat (np.array):            Matrix representation of the bare Hamiltonian
+            dlamHmat (np.array):        Matrix representation of dlamH
+        """
+        Alam = self.build_agp_mat(t, AGPtype, Hmat, dlamHmat)
+        return dlamHmat + 1j * calc_comm(Alam, Hmat)

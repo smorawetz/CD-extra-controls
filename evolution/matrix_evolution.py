@@ -31,7 +31,7 @@ def build_Hcd(t, ham, AGPtype, ctrls, couplings, couplings_args):
     for i in range(len(ctrls)):
         Hmats.append(build_controls_mat(ham, ctrls[i], couplings[i], couplings_args[i]))
     if ham.agp_order > 0:  # may want to evolve without AGP
-        Hmats.append(ham.build_cd_term_mat(AGPtype, t, bareH, dlamH))
+        Hmats.append(ham.build_cd_term_mat(t, AGPtype, bareH, dlamH))
     return Hmats
 
 

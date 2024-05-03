@@ -41,12 +41,13 @@ def build_controls_direct_mat(t, ham, ctrl, coupling, coupling_args):
 def build_HHV_mat(t, ham, coupling, coupling_args):
     """Build the extra controls of the form [H, [H, dlamH]] and [dlamH, [H, dlamH]]
     Parameters:
+        t (float):                  Time at which to evaluate the control
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
         coupling (function):    Coupling function for the control term
         coupling_args (list):   Arguments for the coupling function
     """
-    H = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
-    V = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
+    H = ham.bareH.tocsr(time=t) if ham.sparse else ham.bareH.toarray(time=t)
+    V = ham.dlamH.tocsr(time=t) if ham.sparse else ham.dlamH.toarray(time=t)
     HVcomm = calc_comm(H, V)
     return coupling(t, *coupling_args) * calc_comm(H, HVcomm)
 
@@ -54,53 +55,57 @@ def build_HHV_mat(t, ham, coupling, coupling_args):
 def build_VHV_mat(t, ham, coupling, coupling_args):
     """Build the extra controls of the form [H, [H, dlamH]] and [dlamH, [H, dlamH]]
     Parameters:
+        t (float):                  Time at which to evaluate the control
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
         coupling (function):    Coupling function for the control term
         coupling_args (list):   Arguments for the coupling function
     """
-    H = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
-    V = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
+    H = ham.bareH.tocsr(time=t) if ham.sparse else ham.bareH.toarray(time=t)
+    V = ham.dlamH.tocsr(time=t) if ham.sparse else ham.dlamH.toarray(time=t)
     HVcomm = calc_comm(H, V)
     return coupling(t, *coupling_args) * calc_comm(V, HVcomm)
 
 
-def build_Hc1_mat(ham, coupling, coupling_args):
+def build_Hc1_mat(t, ham, coupling, coupling_args):
     """Build
     Parameters:
+        t (float):                  Time at which to evaluate the control
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
         coupling (function):    Coupling function for the control term
         coupling_args (list):   Arguments for the coupling function
     """
-    H0 = self.H0.tocsr(time=t) if self.sparse else self.H0.toarray(time=t)
-    H1 = self.H1.tocsr(time=t) if self.sparse else self.H1.toarray(time=t)
+    H0 = ham.H0.tocsr(time=t) if ham.sparse else ham.H0.toarray(time=t)
+    H1 = ham.H1.tocsr(time=t) if ham.sparse else ham.H1.toarray(time=t)
     H1H0comm = calc_comm(H1, H0)
     return coupling(t, *coupling_args) * calc_comm(H0, H1H0comm)
 
 
-def build_Hc2_mat(ham, coupling, coupling_args):
+def build_Hc2_mat(t, ham, coupling, coupling_args):
     """Build
     Parameters:
+        t (float):                  Time at which to evaluate the control
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
         coupling (function):    Coupling function for the control term
         coupling_args (list):   Arguments for the coupling function
     """
-    H0 = self.H0.tocsr(time=t) if self.sparse else self.H0.toarray(time=t)
-    H1 = self.H1.tocsr(time=t) if self.sparse else self.H1.toarray(time=t)
+    H0 = ham.H0.tocsr(time=t) if ham.sparse else ham.H0.toarray(time=t)
+    H1 = ham.H1.tocsr(time=t) if ham.sparse else ham.H1.toarray(time=t)
     H1H0comm = calc_comm(H1, H0)
-    return coupling(t, *coupling_args) * calc_comm(H1, H0)
+    return coupling(t, *coupling_args) * calc_comm(H1, H1H0comm)
 
 
 def build_controls_mat(t, ham, ctrl, coupling, coupling_args):
     """Build extra control terms from a list with different kinds of controls
     and the relevant couplings and parameters of those couplings
     Parameters:
+        t (float):                  Time at which to evaluate the control
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
         ctrl (str):                 Type of control to add
         coupling (function):        Coupling function for control term
         coupling_args (list):       List of arguments for the coupling functions
     """
     if ctrl in build_mat_dict.keys():
-        return build_mat_dict[ctrl](ham, coupling, coupling_args)
+        return build_mat_dict[ctrl](t, ham, coupling, coupling_args)
     else:
         return build_controls_direct_mat(t, ham, ctrl, coupling, coupling_args)
 

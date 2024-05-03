@@ -16,7 +16,7 @@ from utils.file_naming import make_base_fname
 
 mpl_colors = std_settings()  # use common plot settings, including science plots style
 
-
+############# params #############
 Ns = 8
 model_name = "LR_Ising_1D"
 H_params = [1, 1, 2]
@@ -42,6 +42,7 @@ append_str = "iterative"
 
 agp_orders = [1, 3, 5, 7]
 
+############# plotting #############
 # fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 12))
 fig, ax = plt.subplots(figsize=(8, 6))
 for i in range(4):
@@ -86,4 +87,4 @@ for i in range(4):
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
 fig.legend(frameon=False, loc=[0.69, 0.21])
-plt.savefig(f"fids_vs_iter_{AGPtype}_compare_convergence.pdf")
+plt.savefig(f"plots/images/fids_vs_iter_{AGPtype}_compare_convergence.pdf")

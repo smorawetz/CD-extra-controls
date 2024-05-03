@@ -115,22 +115,3 @@ class Base_Hamiltonian:
         idx = eigvals.argsort()[0]
         inst_gs = eigvecs[:, idx]
         return inst_gs
-
-    def build_H_mats(self, t, ctrls, couplings, coupling_args):
-        """Returns a list of (sparse or dense) matrices, which are added to
-        form H. These may be used in matrix-vector multiplication on the wavefunction
-        Parameters:
-            t (float):                      Time at which to build the Hamiltonian
-            ctrls (listof str):             List of control types to add
-            couplings (listof function):    List of dlam_coupling functions for
-                                            control terms
-            coupling_args (listof list):    List of arguments for the coupling functions
-        """
-        # need to get bare H, controls, and AGP term
-        bareH = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
-        Hmats = [bareH]
-        for i in range(len(ctrls)):
-            Hmats.append(
-                build_controls_mat(t, self, ctrls[i], couplings[i], couplings_args[i])
-            )
-        return Hmats

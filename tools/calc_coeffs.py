@@ -87,7 +87,7 @@ def calc_lanc_coeffs_grid(
     return t_grid, lanc_grid
 
 
-def calc_lanc_coeffs_grid(
+def calc_gammas_grid(
     ham, fname, grid_size, sched, agp_order, norm_type, gs_func=None, save=True
 ):
     """Compute the coefficients for the AGP in the Krylov space ansatz

@@ -9,8 +9,9 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from base_hamiltonian import Base_Hamiltonian
 from agp.krylov_construction import get_lanc_coeffs, get_gamma_vals
+from agp.build_agp_components import build_agp_H_mat, build_agp_dlamH_mat
 from agp.commutator_ansatz import get_alphas
-from ham_controls.build_controls import build_controls_mat
+from ham_controls.build_controls import build_controls_direct, build_mat_dict
 from tools.lin_alg_calls import calc_comm
 
 DIV_EPS = 1e-16
@@ -33,24 +34,27 @@ class Hamiltonian_CD(Base_Hamiltonian):
     ):
         """
         Parameters:
-            Ns (int):                   Number of spins in spin model
-            H_params (listof float):    Parameters of the spin model,
-                                        e.g. [1, 2] for J = 1 and h = 2
-            boundary_cond (str):        Whether to use open ("open") or periodic
-                                        ("periodic") boundary conditions. Defaults
-                                        to open
-            agp_order (int):            Order of AGP ansatz
-            norm_type (str):            Either "trace" or "ground_state" for the norm
-            schedule (Schedule):        Schedule object that encodes $\lambda(t)$
+            Ns (int):                       Number of spins in spin model
+            H_params (listof float):        Parameters of the spin model,
+                                            e.g. [1, 2] for J = 1 and h = 2
+            boundary_cond (str):            Whether to use open ("open") or periodic
+                                            ("periodic") boundary conditions. Defaults
+                                            to open
+            agp_order (int):                Order of AGP ansatz
+            norm_type (str):                Either "trace" or "ground_state" for the norm
+            schedule (Schedule):            Schedule object that encodes $\lambda(t)$
             symmetries (dictof (np.array, int)):    Symmetries of the Hamiltonian, which
-                                        include a symmetry operation on the lattice
-                                        and an integer which labels the sector by the
-                                        eigenvalue of the symmetry transformation
+                                            include a symmetry operation on the lattice
+                                            and an integer which labels the sector by the
+                                            eigenvalue of the symmetry transformation
             target_symmetries (dictof (np.array, int)):     Same as above, but for the
-                                        target ground state if it has different symmetry
+                                            target ground state if it has different symmetry
         """
-        self.schedule = schedule
         self.agp_order = agp_order
+        self.schedule = schedule
+        self.ctrls = []
+        self.ctrls_couplings = []
+        self.ctrls_args = []
 
         super().__init__(
             Ns,
@@ -60,6 +64,18 @@ class Hamiltonian_CD(Base_Hamiltonian):
             target_symmetries=target_symmetries,
         )
 
+    def init_controls(self, ctrls, ctrls_couplings, ctrls_args):
+        """Add extra control terms to the CD Hamiltonian object
+        Parameters:
+            ctrls (listof str):                 List of control types to add
+            ctrls_couplings (listof str):       List of strings corresponding to coupling
+                                                functions of control terms
+            ctrls_args (listof list):           List of list of arguments for the coupling functions
+        """
+        self.ctrls = ctrls
+        self.ctrls_couplings = ctrls_couplings
+        self.ctrls_args = ctrls_args
+
     def calc_lanc_coeffs(self, t, norm_type, gstate=None):
         """Calculate the Lanczos coefficients for the for the action of the
         Liouvillian L = [H, .] on dlamH at a given time
@@ -68,8 +84,12 @@ class Hamiltonian_CD(Base_Hamiltonian):
             norm_type (str):    Either "trace" or "ground_state" for the norm
             gstate (np.array):  Ground state wavefunction to use in zero temp optimization
         """
-        Hmat = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
-        O0 = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
+        Hmat = build_agp_H_mat(
+            self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
+        )
+        O0 = build_agp_dlamH_mat(
+            self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
+        )
         return get_lanc_coeffs(
             self.agp_order, Hmat, O0, self.basis.Ns, norm_type, gstate=gstate
         )
@@ -91,8 +111,12 @@ class Hamiltonian_CD(Base_Hamiltonian):
             norm_type (str):    Either "trace" or "ground_state" for the norm
             gstate (np.array):  Ground state wavefunction to use in zero temp optimization
         """
-        H = self.bareH.tocsr(time=t) if self.sparse else self.bareH.toarray(time=t)
-        dlamH = self.dlamH.tocsr(time=t) if self.sparse else self.dlamH.toarray(time=t)
+        Hmat = build_agp_H_mat(
+            self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
+        )
+        dlamH = build_agp_dlamH_mat(
+            self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
+        )
         return get_alphas(self.agp_order, H, dlamH, norm_type, gstate)
 
     def build_agp_mat_commutator(self, t, Hmat, dlamHmat):

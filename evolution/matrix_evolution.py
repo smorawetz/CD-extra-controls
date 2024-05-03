@@ -8,28 +8,29 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from quspin.tools.misc import get_matvec_function
 
+from agp.build_agp_components import build_agp_H_mat, build_agp_dlamH_mat
 from ham_controls.build_controls import build_controls_mat
 
 
-def build_Hcd(t, ham, AGPtype, ctrls, couplings, couplings_args):
+def build_Hcd(t, ham, AGPtype, ctrls, ctrls_couplings, ctrls_args):
     """Returns a list of (sparse or dense) matrices, which are within $H_{CD}$
     in order to do matrix-vector multiplication on the wavefunction
     Parameters:
-        t (float):                  Time at which to build the Hamiltonian
-        ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
-        AGPtype (str):              Either "commutator" or "krylov" depending
-                                    on the type of AGP desired
-        ctrls (list):               List of control Hamiltonians
-        couplings (list):           List of coupling functions for control terms
-        couplings_args (list):      List of list of arguments for the coupling functions
+        t (float):                      Time at which to build the Hamiltonian
+        ham (Hamiltonian_CD):           Counterdiabatic Hamiltonian of interest
+        AGPtype (str):                  Either "commutator" or "krylov" depending
+                                        on the type of AGP desired
+        ctrls (listof str):             List of control Hamiltonians
+        ctrls_couplings (listof str):   List of strings indexing coupling functions
+                                        for control terms
+        ctrls_args (list):              List of list of arguments for the coupling
+                                        functions
 
     """
     # need to get bare H, controls, and AGP term
-    bareH = ham.bareH.tocsr(time=t) if ham.sparse else ham.bareH.toarray(time=t)
-    dlamH = ham.dlamH.tocsr(time=t) if ham.sparse else ham.dlamH.toarray(time=t)
+    bareH = build_agp_H_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
+    dlamH = build_agp_dlamH_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
     Hmats = [bareH]
-    for i in range(len(ctrls)):
-        Hmats.append(build_controls_mat(ham, ctrls[i], couplings[i], couplings_args[i]))
     if ham.agp_order > 0:  # may want to evolve without AGP
         Hmats.append(ham.build_cd_term_mat(t, AGPtype, bareH, dlamH))
     return Hmats

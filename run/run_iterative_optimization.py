@@ -49,6 +49,8 @@ def run_iterative_evolution(
         symmetries=symmetries,
         target_symmetries=symmetries,
     )
+    ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
+
     coeffs_fname = make_coeffs_fname(
         ham,
         model_name,

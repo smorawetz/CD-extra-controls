@@ -20,12 +20,12 @@ def run_calc_gammas(
     model_name,
     H_params,
     boundary_conds,
-    symms,
-    symms_args,
-    symm_nums,
+    symmetries,
     tau,
     sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
     AGPtype,
     norm_type,
@@ -43,6 +43,7 @@ def run_calc_gammas(
         symmetries,
         target_symmetries,
     )
+    ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
     fname = make_coeffs_fname(
         ham, model_name, ctrls, AGPtype, norm_type, grid_size, sched, append_str
@@ -121,12 +122,12 @@ run_calc_gammas(
     model_name,
     H_params,
     boundary_conds,
-    symms,
-    symms_args,
-    symm_nums,
+    symmetries,
     tau,
     sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
     AGPtype,
     norm_type,

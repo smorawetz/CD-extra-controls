@@ -19,9 +19,7 @@ def run_evolution(
     model_name,
     H_params,
     boundary_conds,
-    symms,
-    symms_args,
-    symm_nums,
+    symmetries,
     tau,
     sched,
     ctrls,
@@ -46,6 +44,9 @@ def run_evolution(
         symmetries=symmetries,
         target_symmetries=symmetries,
     )
+    # add the controls
+    ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
+
     coeffs_fname = make_coeffs_fname(
         ham,
         model_name,

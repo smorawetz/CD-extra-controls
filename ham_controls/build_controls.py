@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(os.environ["CD_CODE_DIR"])
 
-from .spin_half_controls import spin_half_controls
+from ham_controls.spin_half_controls import spin_half_controls
 from tools.lin_alg_calls import calc_comm
 
 

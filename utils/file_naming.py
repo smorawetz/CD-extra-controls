@@ -119,4 +119,4 @@ def make_evolved_wfs_fname(
     agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
     sched = scheds_name_dict[type(ham.schedule)]
     std_name = gen_fname(model_str, symm_str, agp_str, sched, grid_size, tau)
-    return f"{std_name}_{append_str}_evoled_wf"
+    return f"{std_name}_{append_str}_evolved_wf"

@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(os.environ["CD_CODE_DIR"])
 
-from evolution.matrix_evolution import do_evolution
+from tools.matrix_evolution import do_evolution
 
 
 class CD_Protocol:

@@ -101,8 +101,9 @@ class Base_Hamiltonian:
                 self.target_basis.project_from(target_gs), sparse=False
             )
 
-    def get_inst_gstate(self, t):
-        """Return the instantaneous ground state of the Hamiltonian at time t
+    def get_bare_inst_gstate(self, t):
+        """Return the instantaneous ground state of the BARE Hamiltonian at time t.
+        This does NOT include the extra controls, if they are present.
         Parameters:
             t (float):      Time at which to calculate the ground state
         Returns:

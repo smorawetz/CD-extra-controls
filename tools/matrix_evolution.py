@@ -8,7 +8,10 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from quspin.tools.misc import get_matvec_function
 
-from agp.build_agp_components import build_agp_H_mat, build_agp_dlamH_mat
+from ham_controls.build_controls_ham import (
+    build_H_controls_mat,
+    build_dlamH_controls_mat,
+)
 from ham_controls.build_controls import build_controls_mat
 
 
@@ -28,8 +31,8 @@ def build_Hcd(t, ham, AGPtype, ctrls, ctrls_couplings, ctrls_args):
 
     """
     # need to get bare H, controls, and AGP term
-    bareH = build_agp_H_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
-    dlamH = build_agp_dlamH_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
+    bareH = build_H_controls_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
+    dlamH = build_dlamH_controls_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
     Hmats = [bareH]
     if ham.agp_order > 0:  # may want to evolve without AGP
         Hmats.append(ham.build_cd_term_mat(t, AGPtype, bareH, dlamH))

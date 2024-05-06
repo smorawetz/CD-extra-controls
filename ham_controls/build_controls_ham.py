@@ -14,7 +14,7 @@ with open("{0}/dicts/dlam_couplings.pkl".format(os.environ["CD_CODE_DIR"]), "rb"
     dlam_couplings_dict = pickle.load(f)
 
 
-def build_agp_H_mat(ham, t, ctrls, couplings, couplings_args):
+def build_H_controls_mat(ham, t, ctrls, couplings, couplings_args):
     """Build H for use in forming the AGP. This will consist of the
     bare Hamiltonian plus any extra controlsa, including HHV/VHV etc.
     Parameters:
@@ -37,7 +37,7 @@ def build_agp_H_mat(ham, t, ctrls, couplings, couplings_args):
     return H
 
 
-def build_agp_dlamH_mat(ham, t, ctrls, couplings, couplings_args):
+def build_dlamH_controls_mat(ham, t, ctrls, couplings, couplings_args):
     """Build dlamH for use in forming the AGP. This will consist of the
     dlam of the bare Hamiltonian plus any extra controls, including HHV/VHV etc.
     Parameters:

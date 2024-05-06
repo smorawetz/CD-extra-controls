@@ -9,7 +9,10 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from base_hamiltonian import Base_Hamiltonian
 from agp.krylov_construction import get_lanc_coeffs, get_gamma_vals
-from agp.build_agp_components import build_agp_H_mat, build_agp_dlamH_mat
+from ham_controls.build_controls_ham import (
+    build_H_controls_mat,
+    build_dlamH_controls_mat,
+)
 from agp.commutator_ansatz import get_alphas
 from ham_controls.build_controls import build_controls_direct, build_mat_dict
 from tools.lin_alg_calls import calc_comm
@@ -84,10 +87,10 @@ class Hamiltonian_CD(Base_Hamiltonian):
             norm_type (str):    Either "trace" or "ground_state" for the norm
             gstate (np.array):  Ground state wavefunction to use in zero temp optimization
         """
-        Hmat = build_agp_H_mat(
+        Hmat = build_H_controls_mat(
             self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
         )
-        O0 = build_agp_dlamH_mat(
+        O0 = build_dlamH_controls_mat(
             self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
         )
         return get_lanc_coeffs(
@@ -111,10 +114,10 @@ class Hamiltonian_CD(Base_Hamiltonian):
             norm_type (str):    Either "trace" or "ground_state" for the norm
             gstate (np.array):  Ground state wavefunction to use in zero temp optimization
         """
-        Hmat = build_agp_H_mat(
+        Hmat = build_H_controls_mat(
             self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
         )
-        dlamH = build_agp_dlamH_mat(
+        dlamH = build_dlamH_controls_mat(
             self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
         )
         return get_alphas(self.agp_order, H, dlamH, norm_type, gstate)

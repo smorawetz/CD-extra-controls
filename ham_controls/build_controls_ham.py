@@ -3,6 +3,9 @@ import sys
 
 import pickle
 
+import numpy as np
+import scipy
+
 sys.path.append(os.environ["CD_CODE_DIR"])
 
 from ham_controls.build_controls import build_controls_mat
@@ -66,3 +69,27 @@ def build_dlamH_controls_mat(ham, t, ctrls, couplings, couplings_args):
             couplings_args[i],
         )
     return dlamH
+
+
+def get_H_controls_gs(ham, t, ctrls, couplings, couplings_args):
+    """Get the ground state of the Hamiltonian matrix, including the
+    extra controls, at time t
+    Parameters:
+        ham (Hamiltonian_CD):               Counterdiabatic Hamiltonian of interest
+        t (float):                          Time at which to build the AGP term
+        ctrls (listof str):                 List of control types to add
+        couplings (listof str):             List of strings corresponding to coupling
+                                            functions of control terms
+        couplings_args (listof list):       List of list of arguments for the coupling functions
+    """
+    H = build_H_controls_mat(ham, t, ctrls, couplings, couplings_args)
+    if ham.sparse:
+        eigsolver = scipy.sparse.linalg.eigsh
+        kwargs = {"k": 1, "which": "SA"}
+    else:
+        eigsolver = np.linalg.eigh
+        kwargs = {}
+    eigvals, eigvecs = eigsolver(H, **kwargs)
+    idx = eigvals.argsort()[0]
+    inst_gs = eigvecs[:, idx]
+    return inst_gs.reshape(-1)

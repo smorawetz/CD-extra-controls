@@ -150,10 +150,28 @@ def optim_coeffs(
         method="Powell",
         options={
             "disp": True,
-            # "xtol": 1e-4,
-            # "ftol": 1e-4,
+            "xtol": 1e-4,
+            "ftol": 1e-4,
         },
     )
+
+    final_wf_fname = "optim_ctrls_data/" + (
+        make_base_fname(
+            Ns,
+            model_name,
+            H_params,
+            symmetries,
+            ctrls,
+            agp_order,
+            AGPtype,
+            norm_type,
+            grid_size,
+            sched,
+            append_str,
+        )
+        + "_optim_final_wf.txt"
+    )
+    np.savetxt(final_wf_fname, res.x)
 
 
 Ns = 8
@@ -187,7 +205,7 @@ norm_type = "trace"
 
 grid_size = 1000
 
-append_str = "normal"
+append_str = "powell"
 
 maxfields = 3
 

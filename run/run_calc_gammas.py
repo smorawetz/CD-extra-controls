@@ -9,7 +9,7 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 from agp.krylov_construction import op_norm
 from tools.build_ham import build_ham
 from tools.calc_coeffs import calc_lanc_coeffs_grid, calc_gammas_grid
-from tools.schedules import LinearSchedule
+from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
 from utils.file_naming import make_coeffs_fname
 from utils.grid_utils import get_coeffs_interp
@@ -52,24 +52,24 @@ def run_calc_gammas(
     # now call function to compute alphas
     lanc_tgrid, lanc_grid = calc_lanc_coeffs_grid(
         ham,
-        fname,
         grid_size,
         sched,
         agp_order,
         norm_type,
         gs_func=ham.get_inst_gstate,
         save=True,
+        fname=fname,
     )
     ham.lanc_interp = scipy.interpolate.interp1d(lanc_tgrid, lanc_grid, axis=0)
     tgrid, gammas_grid = calc_gammas_grid(
         ham,
-        fname,
         grid_size,
         sched,
         agp_order,
         norm_type,
         gs_func=ham.get_inst_gstate,
         save=True,
+        fname=fname,
     )
     ham.gammas_interp = scipy.interpolate.interp1d(tgrid, gammas_grid, axis=0)
 
@@ -107,15 +107,38 @@ target_symmetries = symmetries
 
 tau = 1
 sched = LinearSchedule(tau)
-ctrls = []
+# sched = SmoothSchedule(tau)
 
-agp_order = 8
+# ctrls = []
+# ctrls_couplings = []
+# ctrls_args = []
+
+ctrls = ["Hc1", "Hc2"]
+ctrls_couplings = ["sin", "sin"]
+harmonics = [1, 1]
+# 1st order optimal
+# ctrls_coeffs = [-1.03440, 2.99858]
+# 2nd order optimal
+# ctrls_coeffs = [-1.14467, 1.60439]
+# 3rd order optimal
+ctrls_coeffs = [-1.99224, 2.51090]
+ctrls_args = [
+    [sched, harmonics[0], ctrls_coeffs[0]],
+    [sched, harmonics[1], ctrls_coeffs[1]],
+]
+
+agp_order = 7
 AGPtype = "krylov"
-# norm_type = "trace"
-norm_type = "ground_state"
+# AGPtype = "commutator"
+norm_type = "trace"
+# norm_type = "ground_state"
 
 grid_size = 1000
-append_str = "normal"
+
+# 50, 100, 200, 300, 500, 1000, 2500, 10000
+
+append_str = "optim_ctrls"
+# append_str = "no_ctrls"
 
 run_calc_gammas(
     Ns,

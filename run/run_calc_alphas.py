@@ -49,13 +49,13 @@ def run_calc_alphas(
     # now call function to compute alphas
     calc_alphas_grid(
         ham,
-        fname,
         grid_size,
         sched,
         agp_order,
         norm_type,
         gs_func=ham.get_inst_gstate,
         save=True,
+        fname=fname,
     )
 
 

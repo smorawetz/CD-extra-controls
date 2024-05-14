@@ -70,4 +70,4 @@ class Two_Spin_Test(SpinHalf_1D):
         """
         s = [["xy", self.J_terms], ["yx", self.J_terms]]
         d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.target_basis)
+        return quspin.operators.hamiltonian(s, d, basis=self.targ_basis)

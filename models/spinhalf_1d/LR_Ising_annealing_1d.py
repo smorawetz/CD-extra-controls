@@ -61,7 +61,7 @@ class LR_Ising_Annealing_1D(SpinHalf_1D):
         "turned on" in annealing problem"""
         s = [["zz", self.J_terms]]
         d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.basis)
+        return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
     def build_H1(self):
         """Method specific to this spin model to calculate
@@ -69,7 +69,7 @@ class LR_Ising_Annealing_1D(SpinHalf_1D):
         """
         s = [["x", self.hx_terms]]
         d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.basis)
+        return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
     def build_bare_H(self):
         """Method specific to this spin model to calculate
@@ -80,7 +80,7 @@ class LR_Ising_Annealing_1D(SpinHalf_1D):
             ["zz", self.J_terms, turn_on_coupling, [self.schedule]],
             ["x", self.hx_terms, turn_off_coupling, [self.schedule]],
         ]
-        return quspin.operators.hamiltonian(s, d, basis=self.basis)
+        return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
     def build_dlam_H(self):
         """Method for this particular spin model to calculate
@@ -97,4 +97,4 @@ class LR_Ising_Annealing_1D(SpinHalf_1D):
         """
         s = [["zz", self.J_terms]]
         d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.target_basis)
+        return quspin.operators.hamiltonian(s, d, basis=self.targ_basis, **self.checks)

@@ -3,8 +3,6 @@ import quspin
 # NOTE: Currently on works for global controls. But this might
 # not be helpful for e.g. disordered systems. Will reevaluate later
 
-checks = {"check_herm": False, "check_symm": False}
-
 
 def spin_half_controls(op_size, dim):
     """Gets functions to build extra controls for a spin-half system
@@ -33,7 +31,7 @@ def build_1site_controls(ham, ctrl, coupling, coupling_args):
     """
     static = []
     dynamic = [[ctrl, [[1, i] for i in range(ham.Ns)], coupling, [*coupling_args]]]
-    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **checks)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **self.checks)
 
 
 def build_2site_controls_1d(ham, ctrl, coupling, coupling_args):
@@ -54,7 +52,7 @@ def build_2site_controls_1d(ham, ctrl, coupling, coupling_args):
             [*coupling_args],
         ]
     ]
-    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **checks)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **self.checks)
 
 
 def build_3site_controls_1d(ham, ctrl, coupling, coupling_args):
@@ -75,4 +73,4 @@ def build_3site_controls_1d(ham, ctrl, coupling, coupling_args):
             [*coupling_args],
         ]
     ]
-    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **checks)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **self.checks)

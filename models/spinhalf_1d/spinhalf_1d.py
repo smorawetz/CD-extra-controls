@@ -25,7 +25,7 @@ class SpinHalf_1D(Hamiltonian_CD):
     ):
 
         self.basis = quspin.basis.spin_basis_general(Ns, S="1/2", **symmetries)
-        self.target_basis = quspin.basis.spin_basis_general(
+        self.targ_basis = quspin.basis.spin_basis_general(
             Ns, S="1/2", **target_symmetries
         )
         self.pairs = neighbours_1d(Ns, boundary_conds)

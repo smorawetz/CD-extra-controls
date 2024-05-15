@@ -43,8 +43,6 @@ class Base_Hamiltonian:
 
         self.sparse = True if self.bareH.basis.Ns >= 40 else False
 
-        self.checks = {"check_herm": False, "check_symm": False}
-
     # should be able to have ground state, other functionality for bare, dlamH, etc.
 
     def build_bare_H(self):

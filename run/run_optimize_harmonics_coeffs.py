@@ -25,7 +25,8 @@ def calc_infid(
     ctrls_couplings,
     AGPtype,
     grid_size,
-    write_file,
+    coeffs_write_file,
+    optim_wf_fname,
 ):
     # set coefficients in given instance
     ctrls_args = []
@@ -66,9 +67,11 @@ def calc_infid(
     final_state = wf_data[-1, :]
     fid = calc_fid(targ_state, final_state)
 
+    np.savetxt(optim_wf_fname, final_state)  # save WF, will be optim after final step
+
     # write to file
-    if write_file is not None:
-        data_file = open(write_file, "a")
+    if coeffs_write_file is not None:
+        data_file = open(coeffs_write_file, "a")
         data_file.write("{0}\t{1}\n".format(coeffs, fid))
         data_file.close()
     print("for controls ", coeffs, " fid is ", fid)
@@ -114,7 +117,7 @@ def optim_coeffs(
 
     optim_func = calc_infid
 
-    write_file = "optim_ctrls_data/" + (
+    coeffs_write_file = "optim_ctrls_data/" + (
         make_base_fname(
             Ns,
             model_name,
@@ -130,32 +133,7 @@ def optim_coeffs(
         )
         + "_optim_coeffs.txt"
     )
-
-    # do Powell optimization
-    bounds = [(-maxfields, maxfields) for _ in range(len(ctrls))]
-    res = scipy.optimize.minimize(
-        optim_func,
-        coeffs,
-        args=(
-            ctrls_harmonics,
-            ham,
-            sched,
-            ctrls,
-            ctrls_couplings,
-            AGPtype,
-            grid_size,
-            write_file,
-        ),
-        bounds=bounds,
-        method="Powell",
-        options={
-            "disp": True,
-            "xtol": 1e-4,
-            "ftol": 1e-4,
-        },
-    )
-
-    final_wf_fname = "optim_ctrls_data/" + (
+    optim_wf_fname = "optim_ctrls_data/" + (
         make_base_fname(
             Ns,
             model_name,
@@ -171,7 +149,31 @@ def optim_coeffs(
         )
         + "_optim_final_wf.txt"
     )
-    np.savetxt(final_wf_fname, res.x)
+
+    # do Powell optimization
+    bounds = [(-maxfields, maxfields) for _ in range(len(ctrls))]
+    res = scipy.optimize.minimize(
+        optim_func,
+        coeffs,
+        args=(
+            ctrls_harmonics,
+            ham,
+            sched,
+            ctrls,
+            ctrls_couplings,
+            AGPtype,
+            grid_size,
+            coeffs_write_file,
+            optim_wf_fname,
+        ),
+        bounds=bounds,
+        method="Powell",
+        options={
+            "disp": True,
+            "xtol": 1e-4,
+            "ftol": 1e-4,
+        },
+    )
 
 
 Ns = 8

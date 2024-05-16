@@ -25,8 +25,7 @@ def calc_infid(
     ctrls_couplings,
     AGPtype,
     grid_size,
-    coeffs_write_file,
-    optim_wf_fname,
+    base_fname,
 ):
     # set coefficients in given instance
     ctrls_args = []
@@ -67,11 +66,18 @@ def calc_infid(
     final_state = wf_data[-1, :]
     fid = calc_fid(targ_state, final_state)
 
+    ctrls_write_fname = "optim_ctrls_data/" + base_fname + "_optim_ctrls_coeffs.txt"
+    coeffs_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_coeffs_grid.txt"
+    tgrid_fname = "optim_ctrls_data/" + base_fname + "_optim_tgrid.txt"
+    optim_wf_fname = "optim_ctrls_data/" + base_fname + "_optim_final_wf.txt"
+
     np.savetxt(optim_wf_fname, final_state)  # save WF, will be optim after final step
+    np.savetxt(tgrid_fname, t_data)
+    np.savetxt(coeffs_grid_fname, gammas_grid)
 
     # write to file
-    if coeffs_write_file is not None:
-        data_file = open(coeffs_write_file, "a")
+    if ctrls_write_fname is not None:
+        data_file = open(ctrls_write_fname, "a")
         data_file.write("{0}\t{1}\n".format(coeffs, fid))
         data_file.close()
     print("for controls ", coeffs, " fid is ", fid)
@@ -117,37 +123,18 @@ def optim_coeffs(
 
     optim_func = calc_infid
 
-    coeffs_write_file = "optim_ctrls_data/" + (
-        make_base_fname(
-            Ns,
-            model_name,
-            H_params,
-            symmetries,
-            ctrls,
-            agp_order,
-            AGPtype,
-            norm_type,
-            grid_size,
-            sched,
-            append_str,
-        )
-        + "_optim_coeffs.txt"
-    )
-    optim_wf_fname = "optim_ctrls_data/" + (
-        make_base_fname(
-            Ns,
-            model_name,
-            H_params,
-            symmetries,
-            ctrls,
-            agp_order,
-            AGPtype,
-            norm_type,
-            grid_size,
-            sched,
-            append_str,
-        )
-        + "_optim_final_wf.txt"
+    base_fname = make_base_fname(
+        Ns,
+        model_name,
+        H_params,
+        symmetries,
+        ctrls,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+        sched,
+        append_str,
     )
 
     # do Powell optimization
@@ -163,8 +150,7 @@ def optim_coeffs(
             ctrls_couplings,
             AGPtype,
             grid_size,
-            coeffs_write_file,
-            optim_wf_fname,
+            base_fname,
         ),
         bounds=bounds,
         method="Powell",
@@ -176,11 +162,11 @@ def optim_coeffs(
     )
 
 
-Ns = 8
-# model_name = "TFIM_1D"
-model_name = "LR_Ising_1D"
-# H_params = [1, 1]
-H_params = [1, 1, 2]
+Ns = 4
+model_name = "TFIM_1D"
+# model_name = "LR_Ising_1D"
+H_params = [1, 1]
+# H_params = [1, 1, 2]
 boundary_conds = "periodic"
 
 symms = ["translation_1d", "spin_inversion"]
@@ -211,27 +197,37 @@ append_str = "powell"
 
 maxfields = 3
 
-optim_coeffs(
-    ## H params
-    Ns,
-    model_name,
-    H_params,
-    boundary_conds,
-    symmetries,
-    ## schedule params
-    tau,
-    sched,
-    ## controls params
-    ctrls,
-    ctrls_couplings,
-    ctrls_harmonics,
-    ## agp params
-    agp_order,
-    AGPtype,
-    norm_type,
-    ## simulation params
-    grid_size,
-    append_str,
-    ## optimization params
-    maxfields,
-)
+# for Ns in np.arange(5, 10 + 1):
+if True:
+    symms = ["translation_1d", "spin_inversion"]
+    symms_args = [[Ns], [Ns]]
+    symm_nums = [0, 0]
+    symmetries = {
+        symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
+        for i in range(len(symms))
+    }
+    target_symmetries = symmetries
+    optim_coeffs(
+        ## H params
+        Ns,
+        model_name,
+        H_params,
+        boundary_conds,
+        symmetries,
+        ## schedule params
+        tau,
+        sched,
+        ## controls params
+        ctrls,
+        ctrls_couplings,
+        ctrls_harmonics,
+        ## agp params
+        agp_order,
+        AGPtype,
+        norm_type,
+        ## simulation params
+        grid_size,
+        append_str,
+        ## optimization params
+        maxfields,
+    )

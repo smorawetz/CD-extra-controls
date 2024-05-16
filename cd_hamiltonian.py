@@ -122,7 +122,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         dlamH = build_dlamH_controls_mat(
             self, t, self.ctrls, self.ctrls_couplings, self.ctrls_args
         )
-        return get_alphas(self.agp_order, H, dlamH, norm_type, gstate)
+        return get_alphas(self.agp_order, Hmat, dlamH, norm_type, gstate)
 
     def build_agp_mat_commutator(self, t, Hmat, dlamHmat):
         """Build matrix representing the AGP. This requires the atributes

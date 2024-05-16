@@ -98,7 +98,7 @@ class Base_Hamiltonian:
             return target_gs
         else:
             return self.basis.project_to(
-                self.targ_basis.project_from(target_gs), sparse=False
+                self.targ_basis.project_from(target_gs, sparse=False), sparse=False
             )
 
     def get_bare_inst_gstate(self, t):

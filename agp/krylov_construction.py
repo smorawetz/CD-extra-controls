@@ -24,7 +24,7 @@ def op_norm(op, basis_size, norm_type, gstate=None):
     if norm_type == "trace":
         return np.sqrt((op.conj().T @ op).trace() / basis_size).item().real
     elif norm_type == "ground_state":
-        return np.sqrt(gstate.conj().dot((op.conj().T @ op)).dot(gstate)).item().real
+        return np.sqrt(gstate.conj().dot((op.conj().T @ op).dot(gstate))).item().real
     else:
         raise ValueError("Invalid norm type")
 

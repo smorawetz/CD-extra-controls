@@ -89,5 +89,5 @@ def run_time_evolution(
     final_state = wf_data[-1, :]
     # print("final state is ", final_state)
 
-    print("fidelity is ", calc_fid(targ_state, final_state))
-    return t_data, final_state
+    # print("fidelity is ", calc_fid(targ_state, final_state))
+    return final_state

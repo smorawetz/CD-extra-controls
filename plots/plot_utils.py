@@ -7,8 +7,8 @@ def std_settings():
     params = {
         "text.usetex": True,
         "font.family": "serif",
-        "legend.fontsize": 16,
-        "axes.labelsize": 18,
+        "legend.fontsize": 20,
+        "axes.labelsize": 28,
         "xtick.labelsize": 12,
         "ytick.labelsize": 12,
         "lines.linewidth": 1,

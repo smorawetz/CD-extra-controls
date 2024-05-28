@@ -33,8 +33,8 @@ def do_iterative_evolution(
     norm_type,
     grid_size,
     ## not used by all scripts
+    coeffs_fname=None,  # needs to be trace
     coeffs_sched=None,
-    coeffs_append_str=None,
     wfs_append_str=None,
 ):
     # load Hamiltonian and initial coefficients from ground state
@@ -51,16 +51,6 @@ def do_iterative_evolution(
     )
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    coeffs_fname = make_coeffs_fname(
-        ham,
-        model_name,
-        ctrls,
-        AGPtype,
-        "trace",  # load data from inf T
-        grid_size,
-        coeffs_sched,  # need separate coeff sched!!
-        coeffs_append_str,
-    )
     # load relevant coeffs for AGP
     fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], coeffs_fname)
     if AGPtype == "commutator":

@@ -13,11 +13,13 @@ from utils.grid_utils import get_coeffs_interp
 
 
 def run_time_evolution(
+    ## used by all scripts
     Ns,
     model_name,
     H_params,
     boundary_conds,
     symmetries,
+    target_symmetries,
     tau,
     sched,
     ctrls,
@@ -27,9 +29,10 @@ def run_time_evolution(
     AGPtype,
     norm_type,
     grid_size,
-    coeffs_sched,
-    coeffs_append_str,
-    wfs_append_str,
+    ## not used by all scripts
+    coeffs_fname=None,
+    coeffs_sched=None,
+    wfs_save_append_str=None,
 ):
     ham = build_ham(
         model_name,
@@ -45,16 +48,6 @@ def run_time_evolution(
     # add the controls
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    coeffs_fname = make_coeffs_fname(
-        ham,
-        model_name,
-        ctrls,
-        AGPtype,
-        norm_type,
-        grid_size,
-        coeffs_sched,  # need separate coeff sched!!
-        coeffs_append_str,
-    )
     # load relevant coeffs for AGP
     fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], coeffs_fname)
     if AGPtype == "commutator":
@@ -84,7 +77,7 @@ def run_time_evolution(
         norm_type,
         grid_size,
         sched.tau,
-        wfs_append_str,
+        wfs_save_append_str,
     )
 
     init_state = ham.get_init_gstate()

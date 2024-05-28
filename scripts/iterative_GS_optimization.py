@@ -11,13 +11,12 @@ from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
 from tools.calc_coeffs import calc_alphas_grid, calc_lanc_coeffs_grid, calc_gammas_grid
 from tools.lin_alg_calls import calc_fid
-from tools.schedules import LinearSchedule, SmoothSchedule
-from tools.symmetries import get_symm_op
 from utils.file_naming import make_base_fname, make_coeffs_fname, make_evolved_wfs_fname
 from utils.grid_utils import get_coeffs_interp
 
 
-def run_iterative_evolution(
+def do_iterative_evolution(
+    ## used by all scripts
     Ns,
     model_name,
     H_params,
@@ -33,9 +32,10 @@ def run_iterative_evolution(
     AGPtype,
     norm_type,
     grid_size,
-    coeffs_sched,
-    coeffs_append_str,
-    wfs_append_str,
+    ## not used by all scripts
+    coeffs_sched=None,
+    coeffs_append_str=None,
+    wfs_append_str=None,
 ):
     # load Hamiltonian and initial coefficients from ground state
     ham = build_ham(
@@ -192,62 +192,3 @@ def run_iterative_evolution(
         "iterative",
     )
     return fids, fname
-
-
-Ns = 8
-# model_name = "TFIM_1D"
-model_name = "LR_Ising_1D"
-# H_params = [1, 1]
-H_params = [1, 1, 2]
-boundary_conds = "periodic"
-
-symms = ["translation_1d", "spin_inversion"]
-symms_args = [[Ns], [Ns]]
-symm_nums = [0, 0]
-symmetries = {
-    symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
-    for i in range(len(symms))
-}
-target_symmetries = symmetries
-
-tau = 0.01
-sched = SmoothSchedule(tau)
-
-ctrls = []
-ctrls_couplings = []
-ctrls_args = []
-
-agp_order = 7
-AGPtype = "krylov"
-# AGPtype = "commutator"
-# norm_type = "trace"
-norm_type = "ground_state"
-
-grid_size = 1000
-
-coeffs_sched = LinearSchedule(1)  # always use tau = 1 for grid save
-coeffs_append_str = "normal"
-wfs_append_str = "iterative"
-
-fids, fname = run_iterative_evolution(
-    Ns,
-    model_name,
-    H_params,
-    boundary_conds,
-    symmetries,
-    target_symmetries,
-    tau,
-    sched,
-    ctrls,
-    ctrls_couplings,
-    ctrls_args,
-    agp_order,
-    AGPtype,
-    norm_type,
-    grid_size,
-    coeffs_sched,
-    coeffs_append_str,
-    wfs_append_str,
-)
-
-np.savetxt("plots/data/{0}_fids.txt".format(fname), np.array(fids))

@@ -8,7 +8,7 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
-from tools.calc_coeffs import calc_lanc_coeffs_grid, calc_gammas_grid
+from tools.calc_coeffs import calc_lanc_coeffs_grid, calc_alphas_grid, calc_gammas_grid
 from tools.lin_alg_calls import calc_fid
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
@@ -34,26 +34,40 @@ def calc_infid(
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
     # get coefficients
-    tgrid, lanc_grid = calc_lanc_coeffs_grid(
-        ham,
-        grid_size,
-        sched,
-        agp_order,
-        norm_type,
-        gs_func=None,
-        save=False,
-    )
-    ham.lanc_interp = get_coeffs_interp(sched, sched, tgrid, lanc_grid)  # same sched
-    tgrid, gammas_grid = calc_gammas_grid(
-        ham,
-        grid_size,
-        sched,
-        agp_order,
-        norm_type,
-        gs_func=None,
-        save=False,
-    )
-    ham.gammas_interp = get_coeffs_interp(sched, sched, tgrid, gammas_grid)
+    if AGPtype == "krylov":
+        tgrid, lanc_grid = calc_lanc_coeffs_grid(
+            ham,
+            grid_size,
+            sched,
+            agp_order,
+            norm_type,
+            gs_func=None,
+            save=False,
+        )
+        ham.lanc_interp = get_coeffs_interp(
+            sched, sched, tgrid, lanc_grid
+        )  # same sched
+        tgrid, gammas_grid = calc_gammas_grid(
+            ham,
+            grid_size,
+            sched,
+            agp_order,
+            norm_type,
+            gs_func=None,
+            save=False,
+        )
+        ham.gammas_interp = get_coeffs_interp(sched, sched, tgrid, gammas_grid)
+    elif AGPtype == "commutator":
+        tgrid, alphas_grid = calc_alphas_grid(
+            ham,
+            grid_size,
+            sched,
+            agp_order,
+            norm_type,
+            gs_func=None,
+            save=False,
+        )
+        ham.alphas_interp = get_coeffs_interp(sched, sched, tgrid, alphas_grid)
 
     cd_protocol = CD_Protocol(
         ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size
@@ -67,13 +81,17 @@ def calc_infid(
     fid = calc_fid(targ_state, final_state)
 
     ctrls_write_fname = "optim_ctrls_data/" + base_fname + "_optim_ctrls_coeffs.txt"
-    coeffs_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_coeffs_grid.txt"
     tgrid_fname = "optim_ctrls_data/" + base_fname + "_optim_tgrid.txt"
+    np.savetxt(tgrid_fname, tgrid)
+    if AGPtype == "krylov":
+        lanc_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_lanc_grid.txt"
+        gammas_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_gammas_grid.txt"
+        np.savetxt(lanc_grid_fname, lanc_grid)
+        np.savetxt(gammas_grid_fname, gammas_grid)
+    elif AGPtype == "commutator":
+        alphas_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_alphas_grid.txt"
+        np.savetxt(alphas_grid_fname, alphas_grid)
     optim_wf_fname = "optim_ctrls_data/" + base_fname + "_optim_final_wf.txt"
-
-    np.savetxt(optim_wf_fname, final_state)  # save WF, will be optim after final step
-    np.savetxt(tgrid_fname, t_data)
-    np.savetxt(coeffs_grid_fname, gammas_grid)
 
     # write to file
     if ctrls_write_fname is not None:
@@ -84,29 +102,26 @@ def calc_infid(
     return 1 - fid
 
 
-def optim_coeffs(
-    ## H params
+def optim_harmonic_coeffs(
+    ## used for all scripts
     Ns,
     model_name,
     H_params,
     boundary_conds,
     symmetries,
-    ## schedule params
+    target_symmetries,
     tau,
     sched,
-    ## controls params
     ctrls,
     ctrls_couplings,
     ctrls_harmonics,
-    ## agp params
     agp_order,
     AGPtype,
     norm_type,
-    ## simulation params
     grid_size,
-    append_str,
-    ## optimization params
-    maxfields,
+    ## not used for all scripts
+    append_str=None,
+    maxfields=None,
 ):
     ham = build_ham(
         model_name,
@@ -117,7 +132,7 @@ def optim_coeffs(
         norm_type,
         sched,
         symmetries=symmetries,
-        target_symmetries=symmetries,
+        target_symmetries=target_symmetries,
     )
     coeffs = np.zeros(len(ctrls) * len(ctrls_harmonics))
 
@@ -159,75 +174,4 @@ def optim_coeffs(
             "xtol": 1e-4,
             "ftol": 1e-4,
         },
-    )
-
-
-Ns = 4
-model_name = "TFIM_1D"
-# model_name = "LR_Ising_1D"
-H_params = [1, 1]
-# H_params = [1, 1, 2]
-boundary_conds = "periodic"
-
-symms = ["translation_1d", "spin_inversion"]
-symms_args = [[Ns], [Ns]]
-symm_nums = [0, 0]
-symmetries = {
-    symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
-    for i in range(len(symms))
-}
-target_symmetries = symmetries
-
-tau = 0.01
-sched = SmoothSchedule(tau)
-
-ctrls = ["Hc1", "Hc2"]
-ctrls_couplings = ["sin", "sin"]
-ctrls_harmonics = [1]
-
-agp_order = 1
-AGPtype = "krylov"
-# AGPtype = "commutator"
-norm_type = "trace"
-# norm_type = "ground_state"
-
-grid_size = 1000
-
-append_str = "powell"
-
-maxfields = 3
-
-# for Ns in np.arange(5, 10 + 1):
-if True:
-    symms = ["translation_1d", "spin_inversion"]
-    symms_args = [[Ns], [Ns]]
-    symm_nums = [0, 0]
-    symmetries = {
-        symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
-        for i in range(len(symms))
-    }
-    target_symmetries = symmetries
-    optim_coeffs(
-        ## H params
-        Ns,
-        model_name,
-        H_params,
-        boundary_conds,
-        symmetries,
-        ## schedule params
-        tau,
-        sched,
-        ## controls params
-        ctrls,
-        ctrls_couplings,
-        ctrls_harmonics,
-        ## agp params
-        agp_order,
-        AGPtype,
-        norm_type,
-        ## simulation params
-        grid_size,
-        append_str,
-        ## optimization params
-        maxfields,
     )

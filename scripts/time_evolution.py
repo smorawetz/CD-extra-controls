@@ -8,13 +8,11 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
 from tools.lin_alg_calls import calc_fid
-from tools.schedules import LinearSchedule, SmoothSchedule
-from tools.symmetries import get_symm_op
 from utils.file_naming import make_coeffs_fname, make_evolved_wfs_fname
 from utils.grid_utils import get_coeffs_interp
 
 
-def run_evolution(
+def run_time_evolution(
     Ns,
     model_name,
     H_params,
@@ -104,61 +102,4 @@ def run_evolution(
     # print("final state is ", final_state)
 
     print("fidelity is ", calc_fid(targ_state, final_state))
-
-
-Ns = 8
-# model_name = "TFIM_1D"
-model_name = "LR_Ising_1D"
-# H_params = [1, 1]
-H_params = [1, 1, 2]
-boundary_conds = "periodic"
-
-symms = ["translation_1d", "spin_inversion"]
-symms_args = [[Ns], [Ns]]
-symm_nums = [0, 0]
-symmetries = {
-    symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
-    for i in range(len(symms))
-}
-target_symmetries = symmetries
-
-tau = 0.01
-sched = SmoothSchedule(tau)
-
-ctrls = []
-ctrls_couplings = []
-ctrls_args = []
-
-agp_order = 7
-AGPtype = "krylov"
-# AGPtype = "commutator"
-# norm_type = "trace"
-norm_type = "ground_state"
-
-grid_size = 1000
-
-coeffs_sched = LinearSchedule(1)  # always use tau = 1 for grid save
-coeffs_append_str = "normal"
-wfs_append_str = "normal"
-
-run_evolution(
-    Ns,
-    model_name,
-    H_params,
-    boundary_conds,
-    symms,
-    symms_args,
-    symm_nums,
-    tau,
-    sched,
-    ctrls,
-    ctrls_couplings,
-    ctrls_args,
-    agp_order,
-    AGPtype,
-    norm_type,
-    grid_size,
-    coeffs_sched,
-    coeffs_append_str,
-    wfs_append_str,
-)
+    return t_data, final_state

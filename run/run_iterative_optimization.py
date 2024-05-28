@@ -120,13 +120,13 @@ def run_iterative_evolution(
         if AGPtype == "commutator":
             tgrid, alpha_grid = calc_alphas_grid(
                 ham,
-                fname,
                 grid_size,
                 sched,
                 agp_order,
                 norm_type,
                 gs_func=wf_interp,
                 save=True,
+                fname=fname,
             )
             ham.alphas_interp = scipy.interpolate.interp1d(
                 tgrid, alpha_grid, axis=0, fill_value="extrapolate"
@@ -134,26 +134,26 @@ def run_iterative_evolution(
         elif AGPtype == "krylov":
             lanc_tgrid, lanc_grid = calc_lanc_coeffs_grid(
                 ham,
-                fname,
                 grid_size,
                 sched,
                 agp_order,
                 norm_type,
                 gs_func=wf_interp,
                 save=True,
+                fname=fname,
             )
             ham.lanc_interp = scipy.interpolate.interp1d(
                 lanc_tgrid, lanc_grid, axis=0, fill_value="extrapolate"
             )
             tgrid, gammas_grid = calc_gammas_grid(
                 ham,
-                fname,
                 grid_size,
                 sched,
                 agp_order,
                 norm_type,
                 gs_func=wf_interp,
                 save=True,
+                fname=fname,
             )
             ham.gammas_interp = scipy.interpolate.interp1d(
                 tgrid, gammas_grid, axis=0, fill_value="extrapolate"
@@ -217,7 +217,7 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-agp_order = 5
+agp_order = 7
 AGPtype = "krylov"
 # AGPtype = "commutator"
 # norm_type = "trace"

@@ -5,6 +5,7 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
+from utils.file_naming import make_base_fname
 
 from scripts.calc_commutator_coeffs import calc_comm_coeffs
 from scripts.calc_krylov_coeffs import calc_kry_coeffs
@@ -18,7 +19,7 @@ from scripts.time_evolution import run_time_evolution
 
 
 # define the various parameters of the model/task
-Ns = 3
+Ns = 4
 model_name = "TFIM_1D"
 H_params = [1, 1]
 boundary_conds = "periodic"
@@ -33,14 +34,16 @@ symmetries = {
 target_symmetries = symmetries
 
 # schedule will be for coeffs grid, or evolution depending on script
-tau = 1
-sched = SmoothSchedule(tau)
+evolve_tau = 0.01
+coeffs_tau = 1
+evolve_sched = SmoothSchedule(evolve_tau)
+coeffs_sched = SmoothSchedule(coeffs_tau)
 
 ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-agp_order = 1
+agp_order = 2
 AGPtype = "krylov"
 norm_type = "trace"
 
@@ -56,8 +59,8 @@ args = (
     symmetries,
     target_symmetries,
     ## schedule params
-    tau,
-    sched,
+    coeffs_tau,
+    coeffs_sched,
     ## controls params
     ctrls,
     ctrls_couplings,
@@ -77,3 +80,51 @@ append_str = "std"
 kwargs = {"append_str": append_str}
 
 calc_kry_coeffs(*args, **kwargs)
+
+args = (
+    ## H params
+    Ns,
+    model_name,
+    H_params,
+    boundary_conds,
+    symmetries,
+    target_symmetries,
+    ## schedule params
+    evolve_tau,
+    evolve_sched,
+    ## controls params
+    ctrls,
+    ctrls_couplings,
+    ctrls_args,
+    ## agp params
+    agp_order,
+    AGPtype,
+    norm_type,
+    ## simulation params
+    grid_size,
+)
+
+coeffs_fname = (
+    make_base_fname(
+        Ns,
+        model_name,
+        H_params,
+        symmetries,
+        ctrls,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+        coeffs_sched,
+        append_str,
+    )
+    + "_coeffs"
+)
+
+kwargs = {
+    "coeffs_fname": coeffs_fname,
+    "coeffs_sched": coeffs_sched,
+    "wfs_save_append_str": append_str,
+}
+
+run_time_evolution(*args, **kwargs)

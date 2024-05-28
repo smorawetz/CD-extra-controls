@@ -56,20 +56,15 @@ def run_time_evolution(
         coeffs_append_str,
     )
     # load relevant coeffs for AGP
+    fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], coeffs_fname)
     if AGPtype == "commutator":
-        tgrid = np.loadtxt("coeffs_data/{0}_alphas_tgrid.txt".format(coeffs_fname))
-        alphas_grid = np.loadtxt(
-            "coeffs_data/{0}_alphas_grid.txt".format(coeffs_fname), ndmin=2
-        )
+        tgrid = np.loadtxt("{0}_alphas_tgrid.txt".format(fname))
+        alphas_grid = np.loadtxt("{0}_alphas_grid.txt".format(fname), ndmin=2)
         ham.alphas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, alphas_grid)
     elif AGPtype == "krylov":
-        tgrid = np.loadtxt("coeffs_data/{0}_lanc_coeffs_tgrid.txt".format(coeffs_fname))
-        lgrid = np.loadtxt(
-            "coeffs_data/{0}_lanc_coeffs_grid.txt".format(coeffs_fname), ndmin=2
-        )
-        gammas_grid = np.loadtxt(
-            "coeffs_data/{0}_gammas_grid.txt".format(coeffs_fname), ndmin=2
-        )
+        tgrid = np.loadtxt("{0}_lanc_coeffs_tgrid.txt".format(fname))
+        lgrid = np.loadtxt("{0}_lanc_coeffs_grid.txt".format(fname), ndmin=2)
+        gammas_grid = np.loadtxt("{0}_gammas_grid.txt".format(fname), ndmin=2)
         ham.lanc_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, lgrid)
         ham.gammas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, gammas_grid)
     else:

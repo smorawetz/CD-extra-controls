@@ -54,8 +54,9 @@ def calc_alphas_grid(
         gstate = gs_func(t_grid[i]) if gs_func is not None else None
         alphas_grid[i, :] = ham.calc_alphas(t_grid[i], norm_type, gstate=gstate)
     if save and fname is not None:
-        np.savetxt("coeffs_data/{0}_alphas_tgrid.txt".format(fname), t_grid)
-        np.savetxt("coeffs_data/{0}_alphas_grid.txt".format(fname), alphas_grid)
+        fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], fname)
+        np.savetxt("{0}_alphas_tgrid.txt".format(fname), t_grid)
+        np.savetxt("{0}_alphas_grid.txt".format(fname), alphas_grid)
     return t_grid, alphas_grid
 
 
@@ -82,8 +83,9 @@ def calc_lanc_coeffs_grid(
         gstate = gs_func(t_grid[i]) if gs_func is not None else None
         lanc_grid[i, :] = ham.calc_lanc_coeffs(t_grid[i], norm_type, gstate=gstate)
     if save and fname is not None:
-        np.savetxt("coeffs_data/{0}_lanc_coeffs_tgrid.txt".format(fname), t_grid)
-        np.savetxt("coeffs_data/{0}_lanc_coeffs_grid.txt".format(fname), lanc_grid)
+        fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], fname)
+        np.savetxt("{0}_lanc_coeffs_tgrid.txt".format(fname), t_grid)
+        np.savetxt("{0}_lanc_coeffs_grid.txt".format(fname), lanc_grid)
     return t_grid, lanc_grid
 
 
@@ -110,6 +112,7 @@ def calc_gammas_grid(
     for i in range(grid_size):
         gammas_grid[i, :] = ham.calc_gammas(t_grid[i])
     if save and fname is not None:
-        np.savetxt("coeffs_data/{0}_gammas_tgrid.txt".format(fname), t_grid)
-        np.savetxt("coeffs_data/{0}_gammas_grid.txt".format(fname), gammas_grid)
+        fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], fname)
+        np.savetxt("{0}_gammas_tgrid.txt".format(fname), t_grid)
+        np.savetxt("{0}_gammas_grid.txt".format(fname), gammas_grid)
     return t_grid, gammas_grid

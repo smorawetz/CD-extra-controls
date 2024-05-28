@@ -94,7 +94,7 @@ def do_evolution(
     complex_ODE.set_integrator("zvode")
     complex_ODE.set_initial_value(init_state, 0)
     complex_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)
-    dirname = "wfs_evolved_data/{0}".format(fname)
+    dirname = "{0}/wfs_evolved_data/{1}".format(os.environ["CD_CODE_DIR"], fname)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     wfs_full, ts_full = [], []

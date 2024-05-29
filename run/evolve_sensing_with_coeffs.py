@@ -111,6 +111,7 @@ coeffs_fname = fname + "_coeffs"
 wfs_append_str = "g{0:.6f}".format(g)
 
 kwargs = {
+    "save_wf": False,
     "coeffs_fname": coeffs_fname,
     "coeffs_sched": coeffs_sched,
     "wfs_save_append_str": wfs_append_str,

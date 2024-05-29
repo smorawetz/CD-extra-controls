@@ -30,6 +30,7 @@ def run_time_evolution(
     norm_type,
     grid_size,
     ## not used by all scripts
+    save_wf=True,
     coeffs_fname=None,
     coeffs_sched=None,
     wfs_save_append_str=None,
@@ -85,7 +86,9 @@ def run_time_evolution(
     targ_state = ham.get_targ_gstate()
     # print("targ state is ", targ_state)
 
-    t_data, wf_data = cd_protocol.matrix_evolve(init_state, wfs_fname, save_states=True)
+    t_data, wf_data = cd_protocol.matrix_evolve(
+        init_state, wfs_fname, save_states=save_wf
+    )
     final_state = wf_data[-1, :]
     # print("final state is ", final_state)
 

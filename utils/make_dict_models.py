@@ -17,7 +17,7 @@ models_dict = {
 param_names_dict = {
     "TFIM_1D": "J{0}_hx{1}",
     "LR_Ising_1D": "J{0}_hx{1}_alpha{2}",
-    "Field_Sensing_1D": "J{0}_hx{1}_hz{2}",
+    "Field_Sensing_1D": "J{0}_hx{1}_hz{2:.6f}",
 }
 
 with open("{0}/dicts/models.pkl".format(os.environ["CD_CODE_DIR"]), "wb") as f:

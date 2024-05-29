@@ -37,7 +37,7 @@ symmetries = {
 target_symmetries = symmetries
 
 # schedule will be for coeffs grid, or evolution depending on script
-evolve_tau = 0.01
+evolve_tau = 0.001
 coeffs_tau = 1
 evolve_sched = SmoothSchedule(evolve_tau)
 coeffs_sched = SmoothSchedule(coeffs_tau)
@@ -93,20 +93,22 @@ coeffs_symmetries = {
 
 coeffs_append_str = "std"
 
-fname = make_base_fname(
-    Ns,
-    coeffs_model_name,
-    coeffs_H_params,
-    coeffs_symmetries,
-    ctrls,
-    agp_order,
-    AGPtype,
-    norm_type,
-    grid_size,
-    coeffs_sched,
-    coeffs_append_str,
+coeffs_fname = (
+    make_base_fname(
+        Ns,
+        coeffs_model_name,
+        coeffs_H_params,
+        coeffs_symmetries,
+        ctrls,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+        coeffs_sched,
+        coeffs_append_str,
+    )
+    + "_coeffs"
 )
-coeffs_fname = fname + "_coeffs"
 
 wfs_append_str = "g{0:.6f}".format(g)
 
@@ -126,8 +128,23 @@ checks = {"check_herm": False, "check_symm": False}
 Szop = quspin.operators.hamiltonian(Szterms, [], basis=basis, **checks)
 mag = Szop.matrix_ele(final_wf, final_wf).real  # is guaranteed to have 0 imag part
 
+mag_append_str = "std"
+
+mag_fname = make_base_fname(
+    Ns,
+    coeffs_model_name,
+    coeffs_H_params,
+    coeffs_symmetries,
+    ctrls,
+    agp_order,
+    AGPtype,
+    norm_type,
+    grid_size,
+    evolve_sched,
+    mag_append_str,
+)
 mag_data_fname = "{0}/plots/data/{1}_sensing_mag.txt".format(
-    os.environ["CD_CODE_DIR"], fname
+    os.environ["CD_CODE_DIR"], mag_fname
 )
 data_file = open(mag_data_fname, "a")
 data_file.write("{0}\t{1}\n".format(g, mag))

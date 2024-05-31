@@ -1,7 +1,6 @@
 import os
 import sys
 
-import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 
@@ -47,7 +46,7 @@ def do_iterative_evolution(
         norm_type,
         sched,
         symmetries=symmetries,
-        target_symmetries=symmetries,
+        target_symmetries=target_symmetries,
     )
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 

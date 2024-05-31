@@ -34,6 +34,7 @@ def run_time_evolution(
     coeffs_fname=None,
     coeffs_sched=None,
     wfs_save_append_str=None,
+    print_fid=False,
 ):
     ham = build_ham(
         model_name,
@@ -44,7 +45,7 @@ def run_time_evolution(
         norm_type,
         sched,
         symmetries=symmetries,
-        target_symmetries=symmetries,
+        target_symmetries=target_symmetries,
     )
     # add the controls
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
@@ -92,5 +93,6 @@ def run_time_evolution(
     final_state = wf_data[-1, :]
     # print("final state is ", final_state)
 
-    # print("fidelity is ", calc_fid(targ_state, final_state))
+    if print_fid:
+        print("fidelity is ", calc_fid(targ_state, final_state))
     return final_state

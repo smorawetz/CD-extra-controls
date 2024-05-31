@@ -33,8 +33,10 @@ def get_lanc_coeffs(agp_order, Hmat, dlamHmat, basis_size, norm_type, gstate=Non
     """Calculate the Lanczos coefficients for the for the action of the
     Liouvillian L = [H, .] on dlamH at a given time
     Parameters:
+        agp_order (int):                    Order of the AGP ansatz
         Hmat (sparse or dense array):       Hamiltonian matrix at some time
         dlamHmat (sparse or dense array):   Initial operator to start the Lanczos iteration
+        basis_size (int):                   Size of the basis in the Hilbert space
         norm_type (str):                    Either "trace" or "ground_state" for the norm
         gstate (np.array):                  Ground state of the Hamiltonian to use in
                                             zero temperature optimization

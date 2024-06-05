@@ -82,8 +82,7 @@ def plot_inst_gs_overlap_compare_grid(
                 sched,
                 append_str,
             )
-            # + "_evolved_wf"
-            + "_evoled_wf"
+            + "_evolved_wf"
         )
         dirname = "wfs_evolved_data/{0}".format(wf_fname)
         overlaps = []

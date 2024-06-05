@@ -1,6 +1,7 @@
 import os
 import sys
 
+import numpy as np
 import quspin
 
 sys.path.append(os.environ["CD_CODE_DIR"])
@@ -25,14 +26,19 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         schedule,
         symmetries={},
         target_symmetries={},
+        disorder_strength=0,
+        disorder_seed=0,
     ):
+
+        np.random.seed(0)
+        on_site_disorder = np.random.uniform(-disorder_strength, disorder_strength, Ns)
 
         J, hx, hz = H_params
         pairs = neighbours_1d(Ns, boundary_conds)
         self.J_terms = [[-J, *pairs[i]] for i in range(len(pairs))]
         self.hx_terms = [[-hx, i] for i in range(Ns)]
         self.flipped_hx_terms = [[hx, i] for i in range(Ns)]
-        self.hz_terms = [[-hz, i] for i in range(Ns)]
+        self.hz_terms = [[-hz + on_site_disorder[i], i] for i in range(Ns)]
 
         super().__init__(
             Ns,

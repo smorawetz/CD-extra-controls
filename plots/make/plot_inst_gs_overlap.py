@@ -31,6 +31,7 @@ def plot_inst_gs_overlap_compare_grid(
     H_params,
     boundary_conds,
     symmetries,
+    model_kwargs,
     ctrls,
     ctrls_couplings,
     ctrls_args,
@@ -46,6 +47,7 @@ def plot_inst_gs_overlap_compare_grid(
         Ns,
         H_params,
         boundary_conds,
+        model_kwargs,
         agp_order,
         norm_type,
         sched,
@@ -91,12 +93,12 @@ def plot_inst_gs_overlap_compare_grid(
             evolved_wf = np.loadtxt(path_name, dtype=np.complex128)
             inst_gs = wf_interp(t)
             overlaps.append(calc_fid(evolved_wf, inst_gs))
-        ax.plot(tgrid, overlaps, label=f"{grid_size} pts", linewidth=2)
+        lamgrid = sched.get_lam(tgrid)
+        ax.plot(lamgrid, overlaps, label=f"{grid_size} pts", linewidth=2)
 
     time4 = time.time()
     print("time to calculate overlaps is ", time4 - time3)
-    # ax.set_xlabel(r"$\lambda$")
-    ax.set_xlabel(r"$t$")
+    ax.set_xlabel(r"$\lambda$")
     ax.set_ylabel(r"$\langle \psi_0 \vert \psi(t) \rangle$")
     fig.legend(frameon=False)
     fig.savefig(
@@ -117,29 +119,18 @@ symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
+target_symmetries = symmetries
 
-# ctrls = []
-# ctrls_couplings = []
-# ctrls_args = []
+model_kwargs = {}
+
+ctrls = []
+ctrls_couplings = []
+ctrls_args = []
 
 tau = 0.01
 sched = SmoothSchedule(tau)  # always use tau = 1 for grid save
-append_str = "optim_ctrls"
-# append_str = "no_ctrls"
 
-ctrls = ["Hc1", "Hc2"]
-ctrls_couplings = ["sin", "sin"]
-harmonics = [1, 1]
-# 1st order optimal
-ctrls_coeffs = [-1.03440, 2.99858]
-# 2nd order optimal
-# ctrls_coeffs = [-1.14467, 1.60439]
-# 3rd order optimal
-# ctrls_coeffs = [-1.99224, 2.51090]
-ctrls_args = [
-    [sched, harmonics[0], ctrls_coeffs[0]],
-    [sched, harmonics[1], ctrls_coeffs[1]],
-]
+append_str = "std"
 
 agp_order = 1
 AGPtype = "krylov"
@@ -155,6 +146,7 @@ plot_inst_gs_overlap_compare_grid(
     H_params,
     boundary_conds,
     symmetries,
+    model_kwargs,
     ctrls,
     ctrls_couplings,
     ctrls_args,

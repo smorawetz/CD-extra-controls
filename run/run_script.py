@@ -32,6 +32,8 @@ symmetries = {
 }
 target_symmetries = symmetries
 
+model_kwargs = {}
+
 # schedule will be for coeffs grid, or evolution depending on script
 tau = 1
 sched = SmoothSchedule(tau)
@@ -55,6 +57,7 @@ args = (
     boundary_conds,
     symmetries,
     target_symmetries,
+    model_kwargs,
     ## schedule params
     tau,
     sched,

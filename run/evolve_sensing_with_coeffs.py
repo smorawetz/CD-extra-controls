@@ -34,7 +34,18 @@ symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
-target_symmetries = symmetries
+target_symms = ["translation_1d", "spin_inversion"]
+target_symms_args = [[Ns], [Ns]]
+target_symm_nums = [0, 0]
+target_symmetries = {
+    target_symms[i]: (
+        get_symm_op(target_symms[i], *target_symms_args[i]),
+        target_symm_nums[i],
+    )
+    for i in range(len(target_symms))
+}
+
+model_kwargs = {}
 
 # schedule will be for coeffs grid, or evolution depending on script
 evolve_tau = 0.001
@@ -61,6 +72,7 @@ args = (
     boundary_conds,
     symmetries,
     target_symmetries,
+    model_kwargs,
     ## schedule params
     evolve_tau,
     evolve_sched,

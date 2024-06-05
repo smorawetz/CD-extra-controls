@@ -16,6 +16,7 @@ def build_ham(
     Ns,
     H_params,
     boundary_conds,
+    model_kwargs,
     agp_order,
     norm_type,
     sched,
@@ -29,6 +30,7 @@ def build_ham(
         Ns (int):                   Number of sites in the system
         H_params (list):            List of Hamiltonian parameters
         boundary_conds (str):       Boundary conditions for the system
+        model_kwargs (dict):        Dictionary of model-specific parameters
         agp_order (int):            Order of the AGP term
         norm_type (str):            Either "trace" or "ground_state" for the norm
         sched (Schedule):           Schedule for the protocol to follow
@@ -45,4 +47,5 @@ def build_ham(
         sched,
         symmetries=symmetries,
         target_symmetries=target_symmetries,
+        **model_kwargs
     )

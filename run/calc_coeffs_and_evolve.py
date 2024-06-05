@@ -33,6 +33,8 @@ symmetries = {
 }
 target_symmetries = symmetries
 
+model_kwargs = {}
+
 # schedule will be for coeffs grid, or evolution depending on script
 evolve_tau = 0.01
 coeffs_tau = 1
@@ -58,6 +60,7 @@ args = (
     boundary_conds,
     symmetries,
     target_symmetries,
+    model_kwargs,
     ## schedule params
     coeffs_tau,
     coeffs_sched,
@@ -89,6 +92,7 @@ args = (
     boundary_conds,
     symmetries,
     target_symmetries,
+    model_kwargs,
     ## schedule params
     evolve_tau,
     evolve_sched,
@@ -122,9 +126,11 @@ coeffs_fname = (
 )
 
 kwargs = {
+    "save_wf": True,
     "coeffs_fname": coeffs_fname,
     "coeffs_sched": coeffs_sched,
     "wfs_save_append_str": append_str,
+    "print_fid": True,
 }
 
 run_time_evolution(*args, **kwargs)

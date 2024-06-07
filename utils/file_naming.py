@@ -120,3 +120,7 @@ def make_evolved_wfs_fname(
     sched = scheds_name_dict[type(ham.schedule)]
     std_name = gen_fname(model_str, symm_str, agp_str, sched, grid_size, tau)
     return f"{std_name}_{append_str}_evolved_wf"
+
+
+def make_fit_coeffs_fname(agp_order, window_start, window_end):
+    return f"universal_fit_ord{agp_order}_start{window_start}_end{window_end}"

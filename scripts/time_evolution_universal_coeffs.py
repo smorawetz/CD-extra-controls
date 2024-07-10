@@ -58,11 +58,10 @@ def run_time_evolution_universal(
         ndmin=1,
     )
 
-    # particularized to alphas
-    ham.alphas_interp = get_universal_coeffs_func(coeffs)
-
-    # particularized to chebyshev
-    ham.polycoeffs_interp = get_universal_coeffs_func(coeffs)
+    if AGPtype == "commutator":
+        ham.alphas_interp = get_universal_coeffs_func(coeffs)
+    if AGPtype == "chebyshev":
+        ham.polycoeffs_interp = get_universal_coeffs_func(coeffs)
 
     cd_protocol = CD_Protocol(
         ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size

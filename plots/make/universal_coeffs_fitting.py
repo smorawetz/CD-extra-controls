@@ -2,6 +2,8 @@ import os
 import sys
 
 import csv
+import pickle
+
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy
@@ -16,11 +18,14 @@ from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
 from utils.file_naming import make_base_fname
 
+with open("{0}/dicts/fit_funcs.pkl".format(os.environ["CD_CODE_DIR"]), "rb") as f:
+    fit_funcs_dict = pickle.load(f)
+
 std_settings()
 
 
 ############# plotting #############
-def plot_alphas_fitting(
+def plot_coeffs_fitting(
     tau_frac,  # what fraction of way through protocol to plot
     Ns,
     model_name,
@@ -30,6 +35,7 @@ def plot_alphas_fitting(
     target_symmetries,
     ctrls,
     agp_order,
+    AGPtype,
     window_start,
     window_end,
     norm_type,
@@ -46,12 +52,14 @@ def plot_alphas_fitting(
         symmetries,
         ctrls,
         agp_order,
-        "commutator",  # fitting only sensible for alphas
+        AGPtype,
         norm_type,
         grid_size,
         sched,
         append_str,
     )
+    # rescale = 1
+    rescale = 1 / window_end
     # employ CD Hamiltonian to for excitation frequencies, possibly alphas
     ham = build_ham(
         model_name,
@@ -64,9 +72,10 @@ def plot_alphas_fitting(
         sched,
         symmetries=symmetries,
         target_symmetries=symmetries,
+        rescale=rescale,
     )
 
-    alphas = fit_universal_coeffs(agp_order, window_start, window_end)
+    coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
 
     # now get the excitation frequencies directly from the model at a given t
     eigvals, eigvecs = ham.build_bare_H().eigh(time=tval)
@@ -76,18 +85,16 @@ def plot_alphas_fitting(
         for n in range(m + 1, len(eigvals)):
             mtx_elt = dlamH.matrix_ele(eigvecs[:, m], eigvecs[:, n])
             freq = eigvals[n] - eigvals[m]
-            if np.abs(mtx_elt) > 1e-12:
+            if np.abs(mtx_elt) > 1e-8:
                 freqs.append(freq)
     freqs = np.array(freqs)
 
-    x = np.linspace(1e-3, 1.2 * max(freqs), 1000)
-    y = np.zeros_like(x)
-    for n in range(len(alphas)):
-        y += -alphas[n] * x ** (2 * n + 1)  # - since flipped
+    x = np.linspace(1e-3, 1.2, 1000)
+    y = -fit_funcs_dict[AGPtype](x, *coeffs)  # - since flipped
 
     fig, ax = plt.subplots(figsize=(9, 5))
     # ax.set_yscale("log")
-    ax.set_ylim(0, 10)
+    ax.set_ylim(0, 10 / rescale)
     ax.plot(x, 1 / x, "k--", linewidth=2, label=r"$1/\omega$")
     ax.plot(freqs, 1 / freqs, "ro", markersize=7, label=r"Excitations")
     ax.plot(x, y, "b-", linewidth=2, label=r"Fit at order {0}".format(agp_order))
@@ -126,9 +133,11 @@ model_kwargs = {"disorder_strength": 0, "disorder_seed": 0}
 
 ctrls = []
 
-agp_order = 10
-window_start = 0.5
-window_end = 4.0
+agp_order = 7
+# AGPtype = "commutator"
+AGPtype = "chebyshev"
+window_start = 0.1
+window_end = 5.0
 norm_type = "trace"
 
 grid_size = 1000
@@ -138,8 +147,8 @@ sched = SmoothSchedule(tau)  # always use tau = 1 for grid save
 
 append_str = "std"
 
-tau_frac = 0.5
-plot_alphas_fitting(
+tau_frac = 0.2
+plot_coeffs_fitting(
     tau_frac,
     Ns,
     model_name,
@@ -149,6 +158,7 @@ plot_alphas_fitting(
     target_symmetries,
     ctrls,
     agp_order,
+    AGPtype,
     window_start,
     window_end,
     norm_type,

@@ -39,30 +39,25 @@ def build_Hcd(t, ham, AGPtype, ctrls, ctrls_couplings, ctrls_args):
     return Hmats
 
 
-def schro_RHS(t, stack_psi, ham, AGPtype, ctrls, couplings, couplings_args):
+def schro_RHS(t, psi, ham, AGPtype, ctrls, couplings, couplings_args):
     """Compute the right hand side of the Schrodinger equation,
     i.e. -i * H_cd * psi
     Parameters:
         t (float):                  Time at which to compute the RHS of SE
-        stack_psi (np.array):       Wavefunction to evolve, with stacked real
-                                    (first N elts) and imaginary (last N elts) parts
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
         AGPtype (str):              Type of approximate AGP to construct depending
                                     on the type of AGP desired
         ctrls (list):               List of control Hamiltonians
         couplings (list):           List of coupling functions for control terms
         couplings_args (list):      List of list of arguments for the coupling functions
+        psi (np.array):             Wavefunction to evolve
     """
     Hcd = build_Hcd(t, ham, AGPtype, ctrls, couplings, couplings_args)
-    N = len(stack_psi) // 2
-    stack_psi = stack_psi.reshape(len(stack_psi), 1)
-    delta_psi = np.zeros_like(stack_psi)
+    psi = psi.reshape(len(psi), 1)
+    delta_psi = np.zeros_like(psi)
     for H in Hcd:
-        real_psi_mult = H @ stack_psi[:N]
-        imag_psi_mult = H @ stack_psi[N:]
-        delta_psi[:N] += real_psi_mult.imag + imag_psi_mult.real
-        delta_psi[N:] += imag_psi_mult.imag - real_psi_mult.real
-    # print(t, delta_psi[0] + 1j * delta_psi[N], delta_psi[1] + 1j * delta_psi[N + 1])
+        matvec = get_matvec_function(H)
+        delta_psi += -1j * matvec(H, psi)
     return delta_psi
 
 
@@ -95,25 +90,22 @@ def do_evolution(
     tgrid = np.linspace(0, ham.schedule.tau, grid_size)
     sched = ham.schedule
 
-    N = len(init_state)
-    stack_psi = np.hstack((init_state.real, init_state.imag))
-
-    real_ODE = scipy.integrate.ode(schro_RHS)
-    real_ODE.set_integrator("vode", method="bdf")
-    real_ODE.set_initial_value(stack_psi, 0)
-    real_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)
+    complex_ODE = scipy.integrate.ode(schro_RHS)
+    complex_ODE.set_integrator("zvode")
+    complex_ODE.set_initial_value(init_state, 0)
+    complex_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)
     dirname = "{0}/wfs_evolved_data/{1}".format(os.environ["CD_CODE_DIR"], fname)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     wfs_full, ts_full = [], []
-    while real_ODE.successful and real_ODE.t < ham.schedule.tau:
-        wfs_full.append(real_ODE.y[:N] + 1j * real_ODE.y[N:])
-        ts_full.append(real_ODE.t)
+    while complex_ODE.successful and complex_ODE.t < ham.schedule.tau:
+        wfs_full.append(complex_ODE.y)
+        ts_full.append(complex_ODE.t)
         if save_states:
-            path_name = "{0}/t{1:.6f}.txt".format(dirname, real_ODE.t)
-            np.savetxt(path_name, real_ODE.y[:N] + 1j * real_ODE.y[N:])
-        real_ODE.integrate(real_ODE.t + dt)
+            path_name = "{0}/t{1:.6f}.txt".format(dirname, complex_ODE.t)
+            np.savetxt(path_name, complex_ODE.y)
+        complex_ODE.integrate(complex_ODE.t + dt)
     if save_states:  # save final state if desired
-        path_name = "{0}/t{1:.6f}.txt".format(dirname, real_ODE.t)
-        np.savetxt(path_name, real_ODE.y[:N] + 1j * real_ODE.y[N:])
+        path_name = "{0}/t{1:.6f}.txt".format(dirname, complex_ODE.t)
+        np.savetxt(path_name, complex_ODE.y)
     return np.array(ts_full), np.array(wfs_full)

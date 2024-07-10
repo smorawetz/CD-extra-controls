@@ -24,7 +24,7 @@ class CD_Protocol:
         """
         Parameters:
             ham (Hamiltonian_CD):           Counterdiabatic Hamiltonian of interest
-            AGPtype (str):                  Either "commutator" or "krylov" depending
+            AGPtype (str):                  Type of approximate AGP to construct depending
                                             on the type of AGP desired
             ctrls (list):                   List of control Hamiltonians
             couplings (list):               List of coupling functions for control terms

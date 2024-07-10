@@ -20,7 +20,7 @@ def get_coeffs_interp(file_sched, new_sched, file_tgrid, file_coeff_grid):
     return interp1d(new_tgrid, file_coeff_grid.T, fill_value="extrapolate")
 
 
-def get_universal_alphas_func(coeffs_list):
+def get_universal_coeffs_func(coeffs_list):
     """Return a function which always returns the same set of coefficients,
     which are presumed to be those obtained for somme "universal" CD driving
     Parameters:

@@ -21,7 +21,7 @@ def build_Hcd(t, ham, AGPtype, ctrls, ctrls_couplings, ctrls_args):
     Parameters:
         t (float):                      Time at which to build the Hamiltonian
         ham (Hamiltonian_CD):           Counterdiabatic Hamiltonian of interest
-        AGPtype (str):                  Either "commutator" or "krylov" depending
+        AGPtype (str):                  Type of approximate AGP to construct depending
                                         on the type of AGP desired
         ctrls (listof str):             List of control Hamiltonians
         ctrls_couplings (listof str):   List of strings indexing coupling functions
@@ -45,7 +45,7 @@ def schro_RHS(t, psi, ham, AGPtype, ctrls, couplings, couplings_args):
     Parameters:
         t (float):                  Time at which to compute the RHS of SE
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
-        AGPtype (str):              Either "commutator" or "krylov" depending
+        AGPtype (str):              Type of approximate AGP to construct depending
                                     on the type of AGP desired
         ctrls (list):               List of control Hamiltonians
         couplings (list):           List of coupling functions for control terms
@@ -77,7 +77,7 @@ def do_evolution(
     Parameters:
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
         fname (str):                Name of file to store instantaneous wavefunctions
-        AGPtype (str):              Either "commutator" or "krylov" depending
+        AGPtype (str):              Type of approximate AGP to construct depending
                                     on the type of AGP desired
         ctrls (list):               List of control Hamiltonians
         couplings (list):           List of coupling functions for control terms

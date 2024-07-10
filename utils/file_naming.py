@@ -13,7 +13,7 @@ with open(f"{env_dir}/dicts/model_param_names.pkl", "rb") as f:
     param_names_dict = pickle.load(f)
 
 norm_type_dict = {"trace": "infT", "ground_state": "zeroT"}
-AGPtype_dict = {"commutator": "comm", "krylov": "kry"}
+AGPtype_dict = {"commutator": "comm", "krylov": "kry", "chebyshev": "cheby"}
 
 symmetries_names_dict = {"translation_1d": "K{0}", "spin_inversion": "Z{0}"}
 
@@ -37,7 +37,7 @@ def make_agp_str(AGPtype, norm_type, agp_order):
     if AGPtype in AGPtype_dict.keys() and norm_type in norm_type_dict.keys():
         return f"{AGPtype_dict[AGPtype]}_{norm_type_dict[norm_type]}_ord{agp_order}agp"
     elif AGPtype not in AGPtype_dict.keys():
-        raise ValueError(f"AGPtype {agp_order} not recognized")
+        raise ValueError(f"AGPtype {AGPtype} not recognized")
     elif norm_type not in norm_type_dict.keys():
         raise ValueError(f"norm_type {norm_type} not recognized")
 
@@ -122,5 +122,5 @@ def make_evolved_wfs_fname(
     return f"{std_name}_{append_str}_evolved_wf"
 
 
-def make_fit_coeffs_fname(agp_order, window_start, window_end):
-    return f"universal_fit_ord{agp_order}_start{window_start}_end{window_end}"
+def make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end):
+    return f"universal_fit_{AGPtype}_ord{agp_order}_start{window_start}_end{window_end}"

@@ -9,7 +9,7 @@ from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
 from tools.lin_alg_calls import calc_fid
 from utils.file_naming import make_coeffs_fname, make_evolved_wfs_fname
-from utils.grid_utils import get_universal_alphas_func
+from utils.grid_utils import get_universal_coeffs_func
 
 
 def run_time_evolution_universal(
@@ -30,6 +30,7 @@ def run_time_evolution_universal(
     AGPtype,
     norm_type,
     grid_size,
+    rescale,
     ## not used by all scripts
     save_wf=True,
     coeffs_fname=None,
@@ -47,15 +48,21 @@ def run_time_evolution_universal(
         sched,
         symmetries=symmetries,
         target_symmetries=target_symmetries,
+        rescale=rescale,
     )
     # add the controls
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    alphas = np.loadtxt(
+    coeffs = np.loadtxt(
         "{0}/coeffs_data/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
         ndmin=1,
     )
-    ham.alphas_interp = get_universal_alphas_func(alphas)
+
+    # particularized to alphas
+    ham.alphas_interp = get_universal_coeffs_func(coeffs)
+
+    # particularized to chebyshev
+    ham.polycoeffs_interp = get_universal_coeffs_func(coeffs)
 
     cd_protocol = CD_Protocol(
         ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size

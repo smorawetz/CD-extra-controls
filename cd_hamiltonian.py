@@ -174,12 +174,37 @@ class Hamiltonian_CD(Base_Hamiltonian):
             O1 = On
         return AGPmat
 
+    def build_agp_mat_cheby(self, t, Hmat, dlamHmat):
+        """Build matrix representing the AGP, constructed so that
+        the matrix elements correspond to Chebyshev polynomials in the
+        excitation frequency. This requires polycoeffs_interp(t) to be
+        defined to give the polynomial coefficients
+        Parameters:
+            t (float):                  Time at which to build the AGP term
+            Hmat (np.array):            Matrix representation of the bare Hamiltonian
+            dlamHmat (np.array):        Matrix representation of dlamH
+        """
+        coeffs = self.polycoeffs_interp(t)
+        O0 = dlamHmat.copy()
+        O1 = calc_comm(Hmat, O0)
+        AGPmat = 1j * coeffs[0] * O1
+        for n in range(1, self.agp_order):
+            # run through twice to get odd polynomials
+            On = 2 * calc_comm(Hmat, O1) - O0
+            O0 = O1
+            O1 = On
+            On = 2 * calc_comm(Hmat, O1) - O0
+            O0 = O1
+            O1 = On
+            AGPmat += 1j * coeffs[n] * On
+        return AGPmat
+
     def build_agp_mat(self, t, AGPtype, Hmat, dlamHmat):
         """Build matrix representing the AGP. This will give either the commutator
         or Lanczos expansion of the AGP, depending on the `AGPtype` parameter
         Parameters:
             t (float):                  Time at which to build the AGP term
-            AGPtype (str):              Either "commutator" or "krylov"
+            AGPtype (str):              Type of approximate AGP to construct
             Hmat (np.array):            Matrix representation of the bare Hamiltonian
             dlamHmat (np.array):        Matrix representation of dlamH
         """
@@ -187,6 +212,8 @@ class Hamiltonian_CD(Base_Hamiltonian):
             return self.build_agp_mat_commutator(t, Hmat, dlamHmat)
         elif AGPtype == "krylov":
             return self.build_agp_mat_krylov(t, Hmat, dlamHmat)
+        elif AGPtype == "chebyshev":
+            return self.build_agp_mat_cheby(t, Hmat, dlamHmat)
         else:
             raise ValueError("Invalid type for AGP construction")
 
@@ -196,7 +223,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         or Lanczos construction of the AGP, depending on the `AGPtype` parameter
         Parameters:
             t (float):                  Time at which to build the AGP term
-            AGPtype (str):              Either "commutator" or "krylov"
+            AGPtype (str):              Type of approximate AGP to construct
             Hmat (np.array):            Matrix representation of the bare Hamiltonian
             dlamHmat (np.array):        Matrix representation of dlamH
         """
@@ -209,7 +236,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         minimized to obtain the approxiamte AGP
         Parameters:
             t (float):                  Time at which to build the AGP term
-            AGPtype (str):              Either "commutator" or "krylov"
+            AGPtype (str):              Type of approximate AGP to construct
             Hmat (np.array):            Matrix representation of the bare Hamiltonian
             dlamHmat (np.array):        Matrix representation of dlamH
         """

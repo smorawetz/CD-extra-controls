@@ -40,7 +40,8 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         self.J_terms = [[-J, *pairs[i]] for i in range(len(pairs))]
         self.hx_terms = [[-hx, i] for i in range(Ns)]
         self.flipped_hx_terms = [[hx, i] for i in range(Ns)]
-        self.hz_terms = [[-hz + on_site_disorder[i], i] for i in range(Ns)]
+        self.hz_terms = [[-hz, i] for i in range(Ns)]
+        self.disorder_terms = [[on_site_disorder[i], i] for i in range(Ns)]
 
         super().__init__(
             Ns,
@@ -57,7 +58,7 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
     def build_H0(self):
         """Build QuSpin Hamiltonian for H0, which is component being
         "turned on" in annealing problem"""
-        s = [["zz", self.J_terms], ["z", self.hz_terms]]
+        s = [["zz", self.J_terms], ["z", self.hz_terms], ["z", self.disorder_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
@@ -65,7 +66,7 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        s = [["x", self.hx_terms], ["z", self.hz_terms]]
+        s = [["x", self.hx_terms], ["z", self.hz_terms], ["z", self.disorder_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
@@ -73,7 +74,7 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        s = [["z", self.hz_terms]]
+        s = [["z", self.hz_terms], ["z", self.disorder_terms]]
         d = [
             ["zz", self.J_terms, turn_on_coupling, [self.schedule]],
             ["x", self.hx_terms, turn_off_coupling, [self.schedule]],

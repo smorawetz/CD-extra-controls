@@ -42,8 +42,14 @@ append_str = "iterative"
 
 agp_orders = [1, 3, 5, 7]
 
+# zeroT_fids = [
+#     0.31875215092282605,
+#     0.8157405721409541,
+#     0.9745590829410176,
+#     0.9992593234690229,
+# ]
+
 ############# plotting #############
-# fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 12))
 fig, ax = plt.subplots(figsize=(8, 6))
 for i in range(4):
     agp_order = agp_orders[i]
@@ -74,9 +80,14 @@ for i in range(4):
         markersize=7,
         label=r"$\ell = {0}$".format(agp_order),
     )
-    ax.plot(
-        asymp.slope * np.arange(fit_end + 1) + asymp.intercept,
-        "--",
+    # ax.plot(
+    #     asymp.slope * np.arange(fit_end + 1) + asymp.intercept,
+    #     "--",
+    #     color=mpl_colors[i],
+    # )
+    ax.axhline(
+        1 - zeroT_fids[i],
+        linestyle="dashed",
         color=mpl_colors[i],
     )
     ax.set_yscale("log")
@@ -86,5 +97,5 @@ for i in range(4):
         ax.set_xlabel("Iteration number")
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
-fig.legend(frameon=False, loc=[0.69, 0.21])
+fig.legend(frameon=False, loc=[0.41, 0.29], ncols=2)
 plt.savefig(f"plots/images/fids_vs_iter_{AGPtype}_compare_convergence.pdf")

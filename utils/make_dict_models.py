@@ -6,16 +6,19 @@ import pickle
 sys.path.append(os.environ["CD_CODE_DIR"])
 
 from models.spinhalf_1d.TFIM_annealing_1d import TFIM_Annealing_1D
+from models.spinhalf_1d.TFIM_annealing_disorder_1d import TFIM_Annealing_Disorder_1D
 from models.spinhalf_1d.LR_Ising_annealing_1d import LR_Ising_Annealing_1D
 from models.spinhalf_1d.local_field_sensing_1d import Local_Field_Sensing_1D
 
 models_dict = {
     "TFIM_1D": TFIM_Annealing_1D,
+    "TFIM_Disorder_1D": TFIM_Annealing_Disorder_1D,
     "LR_Ising_1D": LR_Ising_Annealing_1D,
     "Field_Sensing_1D": Local_Field_Sensing_1D,
 }
 param_names_dict = {
     "TFIM_1D": "J{0}_hx{1}",
+    "TFIM_Disorder_1D": "J{0}_hx{1}_disorder{2:.6f}_seed{3}",
     "LR_Ising_1D": "J{0}_hx{1}_alpha{2}",
     "Field_Sensing_1D": "J{0}_hx{1}_hz{2:.6f}",
 }

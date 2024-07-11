@@ -25,9 +25,10 @@ class TFIM_Annealing_1D(SpinHalf_1D):
         schedule,
         symmetries={},
         target_symmetries={},
+        rescale=1,
     ):
 
-        J, hx = H_params
+        J, hx = map(lambda x: x * rescale, H_params)
         pairs = neighbours_1d(Ns, boundary_conds)
         self.J_terms = [[-J, *pairs[i]] for i in range(len(pairs))]
         self.hx_terms = [[-hx, i] for i in range(Ns)]
@@ -42,6 +43,7 @@ class TFIM_Annealing_1D(SpinHalf_1D):
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
+            rescale=rescale,
         )
 
     def build_H0(self):

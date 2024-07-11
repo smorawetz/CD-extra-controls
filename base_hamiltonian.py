@@ -13,6 +13,7 @@ class Base_Hamiltonian:
         boundary_conds,
         symmetries={},
         target_symmetries={},
+        rescale=1,
     ):
         """
         Parameters:
@@ -28,6 +29,7 @@ class Base_Hamiltonian:
                                         eigenvalue of the symmetry transformation
             target_symmetries (dictof (np.array, int)):     Same as above, but for the
                                         target ground state if it has different symmetry
+            rescale (float):            Rescale the Hamiltonian by this factor
         """
 
         self.Ns = Ns
@@ -35,6 +37,7 @@ class Base_Hamiltonian:
         self.boundary_conds = boundary_conds
         self.symmetries = symmetries
         self.target_symmetries = target_symmetries
+        self.rescale = rescale
 
         self.bareH = self.build_bare_H()
         self.dlamH = self.build_dlam_H()

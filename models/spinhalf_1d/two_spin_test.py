@@ -24,9 +24,10 @@ class Two_Spin_Test(SpinHalf_1D):
         schedule,
         symmetries={},
         target_symmetries={},
+        rescale=1,
     ):
 
-        J, hz = H_params
+        J, hz = map(lambda x: x * rescale, H_params)
         pairs = [[0, 1]]
         self.J_terms = [[J, *pairs[i]] for i in range(len(pairs))]
         self.hz_terms = [[-hz, i] for i in range(Ns)]
@@ -41,6 +42,7 @@ class Two_Spin_Test(SpinHalf_1D):
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
+            rescale=rescale,
         )
 
     # H0 and H1 not defined since this does not fit into that paradigm

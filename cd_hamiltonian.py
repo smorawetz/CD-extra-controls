@@ -34,6 +34,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         schedule,
         symmetries={},
         target_symmetries={},
+        rescale=1,
     ):
         """
         Parameters:
@@ -52,6 +53,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
                                             eigenvalue of the symmetry transformation
             target_symmetries (dictof (np.array, int)):     Same as above, but for the
                                             target ground state if it has different symmetry
+            rescale (float):                Amount by which to rescale the Hamiltonian
         """
         self.agp_order = agp_order
         self.schedule = schedule
@@ -67,6 +69,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
             boundary_conds,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
+            rescale=rescale,
         )
 
     def init_controls(self, ctrls, ctrls_couplings, ctrls_args):

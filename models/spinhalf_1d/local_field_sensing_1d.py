@@ -26,14 +26,16 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         schedule,
         symmetries={},
         target_symmetries={},
-        disorder_strength=0,
-        disorder_seed=0,
+        rescale=1,
     ):
+        J, hx, hz, disorder_strength, _ = map(lambda x: x * rescale, H_params)
+        disorder_seed = H_params[-1]
 
-        np.random.seed(0)
-        on_site_disorder = np.random.uniform(-disorder_strength, disorder_strength, Ns)
+        np.random.seed(disorder_seed)
+        on_site_disorder = rescale * np.random.uniform(
+            -disorder_strength, disorder_strength, Ns
+        )
 
-        J, hx, hz = H_params
         pairs = neighbours_1d(Ns, boundary_conds)
         self.J_terms = [[-J, *pairs[i]] for i in range(len(pairs))]
         self.hx_terms = [[-hx, i] for i in range(Ns)]
@@ -49,12 +51,12 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
+            rescale=rescale,
         )
 
     def build_H0(self):
         """Build QuSpin Hamiltonian for H0, which is component being
         "turned on" in annealing problem"""
-        # s = [["zz", self.J_terms], ["z", self.hz_terms]]
         s = [["zz", self.J_terms], ["z", self.hz_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
@@ -63,7 +65,6 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        # s = [["x", self.hx_terms]]
         s = [["x", self.hx_terms], ["z", self.hz_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
@@ -75,7 +76,6 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         s = [["z", self.hz_terms]]
         d = [
             ["zz", self.J_terms, turn_on_coupling, [self.schedule]],
-            # ["z", self.hz_terms, turn_on_coupling, [self.schedule]],
             ["x", self.hx_terms, turn_off_coupling, [self.schedule]],
         ]
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
@@ -84,7 +84,6 @@ class Local_Field_Sensing_1D(SpinHalf_1D):
         """Method for this particular spin model to calculate
         the $\lambda$ derivative of the Hamiltonian
         """
-        # s = [["zz", self.J_terms], ["z", self.hz_terms], ["x", self.flipped_hx_terms]]
         s = [["zz", self.J_terms], ["x", self.flipped_hx_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)

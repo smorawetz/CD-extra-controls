@@ -22,6 +22,7 @@ class SpinHalf_1D(Hamiltonian_CD):
         schedule,
         symmetries={},
         target_symmetries={},
+        rescale=1,
     ):
 
         self.basis = quspin.basis.spin_basis_general(Ns, S="1/2", **symmetries)
@@ -43,4 +44,5 @@ class SpinHalf_1D(Hamiltonian_CD):
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
+            rescale=rescale,
         )

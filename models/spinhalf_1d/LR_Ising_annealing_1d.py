@@ -26,9 +26,10 @@ class LR_Ising_Annealing_1D(SpinHalf_1D):
         schedule,
         symmetries={},
         target_symmetries={},
+        rescale=1,
     ):
 
-        J, hx, alpha = H_params
+        J, hx, alpha = map(lambda x: x * rescale, H_params)
         pairs = list(itertools.product(range(Ns), range(Ns)))
         for i in range(Ns):  # remove self-interaction
             pairs.remove((i, i))
@@ -54,6 +55,7 @@ class LR_Ising_Annealing_1D(SpinHalf_1D):
             schedule,
             symmetries=symmetries,
             target_symmetries=target_symmetries,
+            rescale=rescale,
         )
 
     def build_H0(self):

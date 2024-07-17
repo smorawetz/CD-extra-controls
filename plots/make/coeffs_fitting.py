@@ -17,6 +17,7 @@ from tools.calc_universal_fit_coeffs import fit_universal_coeffs
 from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
 from utils.file_naming import make_base_fname
+from utils.grid_utils import get_coeffs_interp
 
 with open("{0}/dicts/fit_funcs.pkl".format(os.environ["CD_CODE_DIR"]), "rb") as f:
     fit_funcs_dict = pickle.load(f)
@@ -36,30 +37,12 @@ def plot_coeffs_fitting(
     ctrls,
     agp_order,
     AGPtype,
-    window_start,
-    window_end,
     norm_type,
     grid_size,
     sched,
     append_str,
-    load_alphas=False,
 ):
     tval = tau * tau_frac  # when to plot
-    fname = make_base_fname(
-        Ns,
-        model_name,
-        H_params,
-        symmetries,
-        ctrls,
-        agp_order,
-        AGPtype,
-        norm_type,
-        grid_size,
-        sched,
-        append_str,
-    )
-    # rescale = 1
-    rescale = 1 / window_end
     # employ CD Hamiltonian to for excitation frequencies, possibly alphas
     ham = build_ham(
         model_name,
@@ -72,10 +55,38 @@ def plot_coeffs_fitting(
         sched,
         symmetries=symmetries,
         target_symmetries=symmetries,
-        rescale=rescale,
     )
 
-    coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
+    coeffs_fname = (
+        make_base_fname(
+            Ns,
+            model_name,
+            H_params,
+            symmetries,
+            ctrls,
+            agp_order,
+            AGPtype,
+            norm_type,
+            grid_size,
+            sched,
+            append_str,
+        )
+        + "_coeffs"
+    )
+
+    # requires coeffs to first be computed and saved
+    if AGPtype == "commutator":
+        tgrid = np.loadtxt("coeffs_data/{0}_alphas_tgrid.txt".format(coeffs_fname))
+        coeffs_grid = np.loadtxt(
+            "coeffs_data/{0}_alphas_grid.txt".format(coeffs_fname), ndmin=2
+        )
+    # Chebyshev fit not implemented for H-dependent fitting
+    else:
+        raise ValueError(f"Can't plot for AGPtype {AGPtype}")
+
+    # note: returns at tau frac with linear interp
+    coeffs_interp = get_coeffs_interp(sched, sched, tgrid, coeffs_grid)
+    coeffs = coeffs_interp(tval)
 
     # now get the excitation frequencies directly from the model at a given t
     eigvals, eigvecs = ham.build_bare_H().eigh(time=tval)
@@ -89,32 +100,32 @@ def plot_coeffs_fitting(
                 freqs.append(freq)
     freqs = np.array(freqs)
 
-    x = np.linspace(1e-3, 1.2, 1000)
+    x = np.linspace(1e-3, 1.2 * max(freqs), 1000)
     y = -fit_funcs_dict[AGPtype](x, *coeffs)  # - since flipped
 
     fig, ax = plt.subplots(figsize=(9, 5))
     # ax.set_yscale("log")
-    ax.set_ylim(0, 10 / rescale)
+    ax.set_ylim(0, 10)
     ax.plot(x, 1 / x, "k--", linewidth=2, label=r"$1/\omega$")
     ax.plot(freqs, 1 / freqs, "ro", markersize=7, label=r"Excitations")
     ax.plot(x, y, "b-", linewidth=2, label=r"Fit at order {0}".format(agp_order))
     ax.set_xlabel(r"$\omega$")
     fig.legend(frameon=False, loc=[0.61, 0.65])
     plt.savefig(
-        "plots/images/universal_alphas_fitting_frac{0}_{1}.pdf".format(tau_frac, fname)
+        "plots/images/coeffs_fitting_frac{0}_{1}.pdf".format(tau_frac, coeffs_fname)
     )
 
 
 ############# params #############
 g = 0.00
-Ns = 10
-model_name = "Field_Sensing_1D"
-H_params = [1, 1, g]
+Ns = 8
+model_name = "TFIM_Disorder_1D"
+H_params = [1, 1, 0.1, 1]
 boundary_conds = "periodic"
 
-symms = ["translation_1d"]
-symms_args = [[Ns]]
-symm_nums = [0]
+symms = []
+symms_args = [[Ns, Ns]]
+symm_nums = [0, 0]
 symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
@@ -128,16 +139,12 @@ target_symmetries = {
     for i in range(len(targ_symms))
 }
 
-# model_kwargs = {"disorder_strength": 1, "disorder_seed": 0}
-model_kwargs = {"disorder_strength": 0, "disorder_seed": 0}
+model_kwargs = {}
 
 ctrls = []
 
-agp_order = 7
-# AGPtype = "commutator"
-AGPtype = "chebyshev"
-window_start = 0.1
-window_end = 5.0
+agp_order = 5
+AGPtype = "commutator"
 norm_type = "trace"
 
 grid_size = 1000
@@ -147,7 +154,7 @@ sched = SmoothSchedule(tau)  # always use tau = 1 for grid save
 
 append_str = "std"
 
-tau_frac = 0.2
+tau_frac = 0.5
 plot_coeffs_fitting(
     tau_frac,
     Ns,
@@ -159,11 +166,8 @@ plot_coeffs_fitting(
     ctrls,
     agp_order,
     AGPtype,
-    window_start,
-    window_end,
     norm_type,
     grid_size,
     sched,
     append_str,
-    load_alphas=False,
 )

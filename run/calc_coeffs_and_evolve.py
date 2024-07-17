@@ -13,25 +13,20 @@ from scripts.iterative_GS_optimization import do_iterative_evolution
 from scripts.optimize_harmonics_coeffs import optim_harmonic_coeffs
 from scripts.time_evolution import run_time_evolution
 
-###############################################################
-## this is a generic example of how to run a pre made script ##
-###############################################################
-
-
 # define the various parameters of the model/task
 Ns = 4
-model_name = "TFIM_1D"
-H_params = [1, 1]
-boundary_conds = "periodic"
+coeffs_model_name = "TFIM_Disorder_1D"
+coeffs_H_params = [1, 1, 0.1, 1]  # seed 1 and disorder strength 0.1
+coeffs_boundary_conds = "periodic"
 
-symms = ["translation_1d", "spin_inversion"]
-symms_args = [[Ns], [Ns]]
-symm_nums = [0, 0]
-symmetries = {
+symms = []  # break Z2 and translational symmetry
+symms_args = []
+symm_nums = []
+coeffs_symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
-target_symmetries = symmetries
+coeffs_target_symmetries = coeffs_symmetries
 
 model_kwargs = {}
 
@@ -45,8 +40,8 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-agp_order = 2
-AGPtype = "krylov"
+agp_order = 1
+AGPtype = "commutator"
 norm_type = "trace"
 
 grid_size = 1000
@@ -55,11 +50,11 @@ grid_size = 1000
 args = (
     ## H params
     Ns,
-    model_name,
-    H_params,
-    boundary_conds,
-    symmetries,
-    target_symmetries,
+    coeffs_model_name,
+    coeffs_H_params,
+    coeffs_boundary_conds,
+    coeffs_symmetries,
+    coeffs_target_symmetries,
     model_kwargs,
     ## schedule params
     coeffs_tau,
@@ -76,7 +71,6 @@ args = (
     grid_size,
 )
 
-
 # now define the kwargs which are specific to each script
 append_str = "std"
 
@@ -84,14 +78,28 @@ kwargs = {"append_str": append_str}
 
 calc_kry_coeffs(*args, **kwargs)
 
+Ns = 4
+evolve_model_name = "TFIM_1D"
+evolve_H_params = [1, 1]
+evolve_boundary_conds = "periodic"
+
+symms = ["translation_1d", "spin_inversion"]
+symms_args = [[Ns], [Ns]]
+symm_nums = [0, 0]
+evolve_symmetries = {
+    symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
+    for i in range(len(symms))
+}
+evolve_target_symmetries = evolve_symmetries
+
 args = (
     ## H params
     Ns,
-    model_name,
-    H_params,
-    boundary_conds,
-    symmetries,
-    target_symmetries,
+    evolve_model_name,
+    evolve_H_params,
+    evolve_boundary_conds,
+    evolve_symmetries,
+    evolve_target_symmetries,
     model_kwargs,
     ## schedule params
     evolve_tau,
@@ -111,9 +119,9 @@ args = (
 coeffs_fname = (
     make_base_fname(
         Ns,
-        model_name,
-        H_params,
-        symmetries,
+        coeffs_model_name,
+        coeffs_H_params,
+        coeffs_symmetries,
         ctrls,
         agp_order,
         AGPtype,

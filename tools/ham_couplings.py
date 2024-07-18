@@ -56,3 +56,34 @@ def turn_on_coupling(t, sched):
         sched (Schedule):   Schedule object for the lambda schedule
     """
     return sched.get_lam(t)
+
+
+def sweep_sign(t, sched):
+    """Return $2 * \lambda(t) - 1$ which sweeps the sign of the coupling
+    from -1 to +1 over the duration of the protocol
+    Parameters:
+        t (float):          Time at which to evaluate the coupling
+        sched (Schedule):   Schedule object for the lambda schedule
+    """
+    return 2 * sched.get_lam(t) - 1
+
+
+def off_on_off_sweep(t, sched):
+    """Return $1 - |2 * \lambda(t) - 1|$ which sweeps the coupling from
+    0 to 1 (halfway) and back to 0 over the duration of the protocol
+    Parameters:
+        t (float):          Time at which to evaluate the coupling
+        sched (Schedule):   Schedule object for the lambda schedule
+    """
+    return 1 - np.abs(2 * sched.get_lam(t) - 1)
+
+
+def dlam_off_on_off_sweep(t, sched):
+    """Return derivative of $1 - |2 * \lambda(t) - 1|$ which sweeps the,
+    coupling from 0 to 1 (halfway) and back to 0 over the duration of the
+    protocol, which has a discountinuity at $\lambda = 0.5$
+    Parameters:
+        t (float):          Time at which to evaluate the coupling
+        sched (Schedule):   Schedule object for the lambda schedule
+    """
+    return 2 - 4 * np.heaviside((sched.get_lam(t) - 0.5), 0.5)

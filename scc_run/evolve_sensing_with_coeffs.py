@@ -22,12 +22,12 @@ from scripts.time_evolution import run_time_evolution
 
 taskid = int(os.getenv("SGE_TASK_ID"))
 
-g_max = 0.01
+g_max = 1
 listof_gs = np.linspace(-g_max, g_max, 201)
 g = listof_gs[taskid - 1]
 
 # define the various parameters of the model/task
-Ns = 15
+Ns = 4
 model_name = "Field_Sensing_1D_Sweep"
 H_params = [1, 1, g, 0, 0]
 boundary_conds = "periodic"
@@ -95,8 +95,8 @@ args = (
 
 # now load the coefficients for the local GHZ state prep
 
-coeffs_model_name = "TFIM_1D"
-coeffs_H_params = [1, 1]
+coeffs_model_name = "Field_Sensing_1D_Sweep"
+coeffs_H_params = [1, 1, 0.0, 0.0, 0]  # [J, h, g, disorder strength, disorder seed]
 coeffs_symms = ["translation_1d", "spin_inversion"]
 coeffs_symms_args = [[Ns], [Ns]]
 coeffs_symm_nums = [0, 0]

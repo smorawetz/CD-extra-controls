@@ -23,8 +23,8 @@ Ns = listof_Ns[taskid - 1]
 agp_order = listof_agp_orders[taskid - 1]
 
 # define the various parameters of the model/task
-model_name = "TFIM_1D"
-H_params = [1, 1]
+model_name = "Field_Sensing_1D_Sweep"
+H_params = [1, 1, 0.0, 0.0, 0]  # [J, h, g, disorder strength, disorder seed]
 boundary_conds = "periodic"
 
 symms = ["translation_1d", "spin_inversion"]

@@ -93,7 +93,11 @@ def run_time_evolution(
         init_state, wfs_fname, save_states=save_wf
     )
     final_state = wf_data[-1, :]
-    # print("final state is ", final_state)
+
+    final_wf_fname = "{0}/wfs_evolved_data/{1}.txt".format(
+        os.environ["CD_CODE_DIR"], wfs_fname
+    )
+    np.savetxt(final_wf_fname, final_state)
 
     if print_fid:
         print("fidelity is ", calc_fid(targ_state, final_state))

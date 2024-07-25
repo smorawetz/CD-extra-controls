@@ -23,7 +23,9 @@ def calc_infid(
     sched,
     ctrls,
     ctrls_couplings,
+    agp_order,
     AGPtype,
+    norm_type,
     grid_size,
     base_fname,
 ):
@@ -155,7 +157,7 @@ def optim_harmonic_coeffs(
     )
 
     # do Powell optimization
-    bounds = [(-maxfields, maxfields) for _ in range(len(ctrls))]
+    bounds = [(-maxfields, maxfields) for _ in range(len(ctrls) * len(ctrls_harmonics))]
     res = scipy.optimize.minimize(
         optim_func,
         coeffs,
@@ -165,7 +167,9 @@ def optim_harmonic_coeffs(
             sched,
             ctrls,
             ctrls_couplings,
+            agp_order,
             AGPtype,
+            norm_type,
             grid_size,
             base_fname,
         ),

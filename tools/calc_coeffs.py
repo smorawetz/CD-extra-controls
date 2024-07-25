@@ -21,8 +21,8 @@ def mod_tgrid(t_grid):
     Parameters:
         t_grid (np.array):      Time grid to modify
     """
-    # t_grid[0] += (t_grid[1] - t_grid[0]) / EDGE_OFFSET_FACTOR
-    # t_grid[-1] -= (t_grid[-1] - t_grid[-2]) / EDGE_OFFSET_FACTOR
+    t_grid[0] += (t_grid[1] - t_grid[0]) / EDGE_OFFSET_FACTOR
+    t_grid[-1] -= (t_grid[-1] - t_grid[-2]) / EDGE_OFFSET_FACTOR
     return t_grid
 
 

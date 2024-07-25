@@ -60,9 +60,7 @@ def make_symmetries_str(symmetries):
 
 
 def gen_fname(model_str, symm_str, agp_str, schedname, grid_size, tau):
-    return (
-        f"{model_str}_{symm_str}_{agp_str}_{grid_size}steps_{schedname}_sched_tau{tau}"
-    )
+    return f"{model_str}_{symm_str}_{agp_str}_{grid_size}steps_{schedname}_sched_tau{tau:.6f}"
 
 
 def make_base_fname(

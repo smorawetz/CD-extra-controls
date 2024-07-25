@@ -31,7 +31,7 @@ def build_1site_controls(ham, ctrl, coupling, coupling_args):
     """
     static = []
     dynamic = [[ctrl, [[1, i] for i in range(ham.Ns)], coupling, [*coupling_args]]]
-    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **self.checks)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **ham.checks)
 
 
 def build_2site_controls_1d(ham, ctrl, coupling, coupling_args):
@@ -52,7 +52,7 @@ def build_2site_controls_1d(ham, ctrl, coupling, coupling_args):
             [*coupling_args],
         ]
     ]
-    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **self.checks)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **ham.checks)
 
 
 def build_3site_controls_1d(ham, ctrl, coupling, coupling_args):
@@ -68,9 +68,9 @@ def build_3site_controls_1d(ham, ctrl, coupling, coupling_args):
     dynamic = [
         [
             ctrl,
-            [[1, *self.triplets[i]] for i in range(len(self.triplets))],
+            [[1, *ham.triplets[i]] for i in range(len(ham.triplets))],
             coupling,
             [*coupling_args],
         ]
     ]
-    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **self.checks)
+    return quspin.operators.hamiltonian(static, dynamic, basis=ham.basis, **ham.checks)

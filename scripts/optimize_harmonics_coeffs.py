@@ -36,7 +36,9 @@ def calc_infid(
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
     # get coefficients
-    if AGPtype == "krylov":
+    if agp_order == 0:
+        pass
+    elif AGPtype == "krylov":
         tgrid, lanc_grid = calc_lanc_coeffs_grid(
             ham,
             grid_size,
@@ -84,16 +86,20 @@ def calc_infid(
 
     ctrls_write_fname = "optim_ctrls_data/" + base_fname + "_optim_ctrls_coeffs.txt"
     tgrid_fname = "optim_ctrls_data/" + base_fname + "_optim_tgrid.txt"
-    np.savetxt(tgrid_fname, tgrid)
-    if AGPtype == "krylov":
+    if agp_order == 0:
+        pass
+    elif AGPtype == "krylov":
         lanc_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_lanc_grid.txt"
         gammas_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_gammas_grid.txt"
+        np.savetxt(tgrid_fname, tgrid)
         np.savetxt(lanc_grid_fname, lanc_grid)
         np.savetxt(gammas_grid_fname, gammas_grid)
     elif AGPtype == "commutator":
         alphas_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_alphas_grid.txt"
+        np.savetxt(tgrid_fname, tgrid)
         np.savetxt(alphas_grid_fname, alphas_grid)
     optim_wf_fname = "optim_ctrls_data/" + base_fname + "_optim_final_wf.txt"
+    np.savetxt(optim_wf_fname, final_state)
 
     # write to file
     if ctrls_write_fname is not None:

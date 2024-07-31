@@ -8,7 +8,6 @@ from tools.symmetries import get_symm_op
 
 from scripts.calc_commutator_coeffs import calc_comm_coeffs
 from scripts.calc_krylov_coeffs import calc_kry_coeffs
-from scripts.iterative_GS_optimization import do_iterative_evolution
 from scripts.optimize_harmonics_coeffs import optim_harmonic_coeffs
 from scripts.time_evolution import run_time_evolution
 

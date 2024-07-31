@@ -5,7 +5,6 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
-from utils.file_naming import make_base_fname
 
 from scripts.optimize_harmonics_coeffs import optim_harmonic_coeffs
 

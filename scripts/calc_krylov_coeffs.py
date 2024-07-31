@@ -9,7 +9,8 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 from ham_controls.build_controls_ham import get_H_controls_gs
 from tools.build_ham import build_ham
 from tools.calc_coeffs import calc_lanc_coeffs_grid, calc_gammas_grid
-from utils.file_naming import make_coeffs_fname
+from utils.file_IO import save_data_agp_coeffs
+from utils.file_naming import make_data_dump_name
 
 
 def calc_kry_coeffs(
@@ -30,8 +31,6 @@ def calc_kry_coeffs(
     AGPtype,
     norm_type,
     grid_size,
-    ## not used by all scripts
-    append_str=None,
 ):
     ham = build_ham(
         model_name,
@@ -47,10 +46,6 @@ def calc_kry_coeffs(
     )
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    fname = make_coeffs_fname(
-        ham, model_name, ctrls, AGPtype, norm_type, grid_size, sched, append_str
-    )
-
     # now call function to compute alphas
     lanc_tgrid, lanc_grid = calc_lanc_coeffs_grid(
         ham,
@@ -60,8 +55,6 @@ def calc_kry_coeffs(
         norm_type,
         # TODO: fix this to work if there eare extra controls
         gs_func=ham.get_bare_inst_gstate,
-        save=True,
-        fname=fname,
     )
     ham.lanc_interp = scipy.interpolate.interp1d(lanc_tgrid, lanc_grid, axis=0)
     tgrid, gammas_grid = calc_gammas_grid(
@@ -70,11 +63,23 @@ def calc_kry_coeffs(
         sched,
         agp_order,
         norm_type,
-        # TODO: fix this to work if there eare extra controls
+        # TODO: fix this to work if there are extra controls
         gs_func=ham.get_bare_inst_gstate,
-        save=True,
-        fname=fname,
     )
-    ham.gammas_interp = scipy.interpolate.interp1d(tgrid, gammas_grid, axis=0)
 
+    names_list = make_data_dump_name(
+        Ns,
+        model_name,
+        H_params,
+        symmetries,
+        sched,
+        ctrls,
+        ctrls_couplings,
+        ctrls_args,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+    )
+    save_data_agp_coeffs(*names_list, tgrid, gammas_grid, lanc_grid=lanc_grid)
     return tgrid, lanc_grid, gammas_grid

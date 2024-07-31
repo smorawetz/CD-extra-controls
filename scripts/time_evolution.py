@@ -8,7 +8,8 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
 from tools.lin_alg_calls import calc_fid
-from utils.file_naming import make_coeffs_fname, make_evolved_wfs_fname
+from utils.file_IO import open_file, load_data_agp_coeffs, save_data_evolved_wfs
+from utils.file_naming import make_data_dump_name
 from utils.grid_utils import get_coeffs_interp
 
 
@@ -31,10 +32,11 @@ def run_time_evolution(
     norm_type,
     grid_size,
     ## not used by all scripts
-    save_wf=True,
-    coeffs_fname=None,
+    save_protocol_wf=False,
+    coeffs_file_name=None,
+    coeffs_protocol_name=None,
+    coeffs_ctrls_name=None,
     coeffs_sched=None,
-    wfs_save_append_str=None,
     print_fid=False,
 ):
     ham = build_ham(
@@ -53,15 +55,15 @@ def run_time_evolution(
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
     # load relevant coeffs for AGP
-    fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], coeffs_fname)
     if AGPtype == "commutator":
-        tgrid = np.loadtxt("{0}_alphas_tgrid.txt".format(fname))
-        alphas_grid = np.loadtxt("{0}_alphas_grid.txt".format(fname), ndmin=2)
+        tgrid, alphas_grid, _ = load_data_agp_coeffs(
+            coeffs_file_name, coeffs_protocol_name, coeffs_ctrls_name
+        )
         ham.alphas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, alphas_grid)
     elif AGPtype == "krylov":
-        tgrid = np.loadtxt("{0}_lanc_coeffs_tgrid.txt".format(fname))
-        lgrid = np.loadtxt("{0}_lanc_coeffs_grid.txt".format(fname), ndmin=2)
-        gammas_grid = np.loadtxt("{0}_gammas_grid.txt".format(fname), ndmin=2)
+        tgrid, gammas_grid, lgrid = load_data_agp_coeffs(
+            coeffs_file_name, coeffs_protocol_name, coeffs_ctrls_name
+        )
         ham.lanc_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, lgrid)
         ham.gammas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, gammas_grid)
     else:
@@ -71,33 +73,32 @@ def run_time_evolution(
         ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size
     )
 
-    init_state = ham.get_init_gstate()
-
-    wfs_fname = make_evolved_wfs_fname(
-        ham,
+    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    names_list = make_data_dump_name(
+        Ns,
         model_name,
+        H_params,
+        symmetries,
+        sched,
         ctrls,
+        ctrls_couplings,
+        ctrls_args,
+        agp_order,
         AGPtype,
         norm_type,
         grid_size,
-        sched.tau,
-        wfs_save_append_str,
     )
 
     init_state = ham.get_init_gstate()
-
     targ_state = ham.get_targ_gstate()
-    # print("targ state is ", targ_state)
 
-    t_data, wf_data = cd_protocol.matrix_evolve(
-        init_state, wfs_fname, save_states=save_wf
-    )
+    t_data, wf_data = cd_protocol.matrix_evolve(init_state)
     final_state = wf_data[-1, :]
 
-    final_wf_fname = "{0}/wfs_evolved_data/{1}.txt".format(
-        os.environ["CD_CODE_DIR"], wfs_fname
-    )
-    np.savetxt(final_wf_fname, final_state)
+    if save_protocol_wf:
+        save_data_evolved_wfs(*names_list, final_state, tgrid=t_data, full_wf=wf_data)
+    else:
+        save_data_evolved_wfs(*names_list, final_state)
 
     if print_fid:
         print("fidelity is ", calc_fid(targ_state, final_state))

@@ -69,10 +69,7 @@ args = (
     grid_size,
 )
 
-# now define the kwargs which are specific to each script
-append_str = "std"
-
-kwargs = {"append_str": append_str}
+kwargs = {}
 
 calc_kry_coeffs(*args, **kwargs)
 
@@ -114,28 +111,20 @@ args = (
     grid_size,
 )
 
-coeffs_fname = (
-    make_base_fname(
-        Ns,
-        coeffs_model_name,
-        coeffs_H_params,
-        coeffs_symmetries,
-        ctrls,
-        agp_order,
-        AGPtype,
-        norm_type,
-        grid_size,
-        coeffs_sched,
-        append_str,
-    )
-    + "_coeffs"
+coeffs_file_name = make_file_name(
+    Ns, coeffs_model_name, coeffs_H_params, coeffs_symmetries, ctrls
 )
+coeffs_protocol_name = make_protocol_name(
+    AGPtype, norm_type, agp_order, grid_size, coeffs_sched
+)
+coeffs_ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
 
 kwargs = {
-    "save_wf": True,
-    "coeffs_fname": coeffs_fname,
+    "save_protocol_wf": True,
+    "coeffs_file_name": coeffs_file_name,
+    "coeffs_protocol_name": coeffs_protocol_name,
+    "coeffs_ctrls_name": coeffs_ctrls_name,
     "coeffs_sched": coeffs_sched,
-    "wfs_save_append_str": append_str,
     "print_fid": True,
 }
 

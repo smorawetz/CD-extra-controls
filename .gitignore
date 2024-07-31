@@ -1,10 +1,15 @@
 .DS_Store
 __pycache__
 
+scc_run
+
 coeffs_data
 optim_ctrls_data
 wfs_evolved_data
 plots/data
+
+data_dump
+h5data
 
 dicts
 tests

@@ -10,7 +10,13 @@ from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
 from tools.calc_coeffs import calc_alphas_grid, calc_lanc_coeffs_grid, calc_gammas_grid
 from tools.lin_alg_calls import calc_fid
-from utils.file_naming import make_base_fname, make_coeffs_fname, make_evolved_wfs_fname
+from utils.file_IO import load_data_agp_coeffs, save_data_evolved_wfs
+from utils.file_naming import (
+    make_data_dump_name,
+    make_file_name,
+    make_protocol_name,
+    make_controls_name,
+)
 from utils.grid_utils import get_coeffs_interp
 
 
@@ -33,9 +39,12 @@ def do_iterative_evolution(
     norm_type,
     grid_size,
     ## not used by all scripts
-    coeffs_fname=None,  # needs to be trace
+    save_protocol_wf=False,
+    coeffs_file_name=None,
+    coeffs_protocol_name=None,
+    coeffs_ctrls_name=None,
     coeffs_sched=None,
-    wfs_append_str=None,
+    print_fid=False,
 ):
     # load Hamiltonian and initial coefficients from ground state
     ham = build_ham(
@@ -53,15 +62,15 @@ def do_iterative_evolution(
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
     # load relevant coeffs for AGP
-    fname = "{0}/coeffs_data/{1}".format(os.environ["CD_CODE_DIR"], coeffs_fname)
     if AGPtype == "commutator":
-        tgrid = np.loadtxt("{0}_alphas_tgrid.txt".format(fname))
-        alphas_grid = np.loadtxt("{0}_alphas_grid.txt".format(fname), ndmin=2)
+        tgrid, alphas_grid, _ = load_data_agp_coeffs(
+            coeffs_file_name, coeffs_protocol_fname, coeffs_ctrls_fname
+        )
         ham.alphas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, alphas_grid)
     elif AGPtype == "krylov":
-        tgrid = np.loadtxt("{0}_lanc_coeffs_tgrid.txt".format(fname))
-        lgrid = np.loadtxt("{0}_lanc_coeffs_grid.txt".format(fname), ndmin=2)
-        gammas_grid = np.loadtxt("{0}_gammas_grid.txt".format(fname), ndmin=2)
+        tgrid, gammas_grid, lgrid = load_data_agp_coeffs(
+            coeffs_file_name, coeffs_protocol_fname, coeffs_ctrls_fname
+        )
         ham.lanc_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, lgrid)
         ham.gammas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, gammas_grid)
     else:
@@ -72,9 +81,22 @@ def do_iterative_evolution(
     last_fid = -1
     fids = []
 
-    wfs_fname = None  # unnecessary since not save wfs at each step
+    names_list = make_data_dump_name(
+        Ns,
+        model_name,
+        H_params,
+        symmetries,
+        sched,
+        ctrls,
+        ctrls_couplings,
+        ctrls_args,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+    )
+
     i = 1  # index to track iteration number
-    # while abs(fid - last_fid) > 1e-6 and i <= 25:
     while i <= 10:
         cd_protocol = CD_Protocol(
             ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size
@@ -91,18 +113,9 @@ def do_iterative_evolution(
         last_fid = fid
         fid = calc_fid(targ_state, final_state)
         fids.append(fid)
-        print(f"step {i} fidelity is ", fid)
-        # print("final state is ", final_state)
-        fname = make_coeffs_fname(
-            ham,
-            model_name,
-            ctrls,
-            AGPtype,
-            norm_type,
-            grid_size,
-            coeffs_sched,
-            "iter_step_{0}".format(i),
-        )
+        if print_fid:
+            print(f"step {i} fidelity is ", fid)
+
         if AGPtype == "commutator":
             tgrid, alpha_grid = calc_alphas_grid(
                 ham,
@@ -111,11 +124,12 @@ def do_iterative_evolution(
                 agp_order,
                 norm_type,
                 gs_func=wf_interp,
-                save=True,
-                fname=fname,
             )
             ham.alphas_interp = scipy.interpolate.interp1d(
                 tgrid, alpha_grid, axis=0, fill_value="extrapolate"
+            )
+            save_data_agp_coeffs(
+                data_dump_fname + f"_iter_step{i}", tgrid, alphas_grid, lanc_grid=None
             )
         elif AGPtype == "krylov":
             lanc_tgrid, lanc_grid = calc_lanc_coeffs_grid(
@@ -125,8 +139,6 @@ def do_iterative_evolution(
                 agp_order,
                 norm_type,
                 gs_func=wf_interp,
-                save=True,
-                fname=fname,
             )
             ham.lanc_interp = scipy.interpolate.interp1d(
                 lanc_tgrid, lanc_grid, axis=0, fill_value="extrapolate"
@@ -138,31 +150,28 @@ def do_iterative_evolution(
                 agp_order,
                 norm_type,
                 gs_func=wf_interp,
-                save=True,
-                fname=fname,
             )
             ham.gammas_interp = scipy.interpolate.interp1d(
                 tgrid, gammas_grid, axis=0, fill_value="extrapolate"
+            )
+            save_data_agp_coeffs(
+                data_dump_fname, tgrid, gammas_grid, lanc_grid=lanc_grid
             )
         else:
             raise ValueError(f"AGPtype {AGPtype} not recognized")
         i += 1
 
-    wfs_fname = make_evolved_wfs_fname(
-        ham,
-        model_name,
-        ctrls,
-        AGPtype,
-        norm_type,
-        grid_size,
-        sched.tau,
-        wfs_append_str,
-    )
     t_data, wf_data = cd_protocol.matrix_evolve(init_state, wfs_fname, save_states=True)
     final_state = wf_data[-1, :]
     fid = calc_fid(targ_state, final_state)
     fids.append(fid)
-    print("fidelity of final iterated state is ", fid)
+    if print_fid:
+        print("fidelity of final iterated state is ", fid)
+
+    if save_protocol_wf:
+        save_data_evolved_wfs(*names_list, final_state, tgrid=t_data, full_wf=wf_data)
+    else:
+        save_data_evolved_wfs(*names_list, final_state)
 
     fname = make_base_fname(
         Ns,

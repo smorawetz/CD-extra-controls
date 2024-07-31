@@ -63,20 +63,17 @@ def schro_RHS(t, psi, ham, AGPtype, ctrls, couplings, couplings_args):
 
 def do_evolution(
     ham,
-    fname,
     AGPtype,
     ctrls,
     couplings,
     couplings_args,
     grid_size,
     init_state,
-    save_states=False,
 ):
     """Computes the time evolution (according to the Schrodinger equation)
     of some initial state according to the given Hamiltonian
     Parameters:
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
-        fname (str):                Name of file to store instantaneous wavefunctions
         AGPtype (str):              Type of approximate AGP to construct depending
                                     on the type of AGP desired
         ctrls (list):               List of control Hamiltonians
@@ -84,7 +81,6 @@ def do_evolution(
         couplings_args (list):      List of list of arguments for the coupling functions
         grid_size (int):            Number of time steps to take
         init_state (np.array):      Vector of initial wavefunction
-        save_state (bool):          Whether to save the state at each time step
     """
     dt = ham.schedule.tau / grid_size
     tgrid = np.linspace(0, ham.schedule.tau, grid_size)
@@ -94,18 +90,9 @@ def do_evolution(
     complex_ODE.set_integrator("zvode")
     complex_ODE.set_initial_value(init_state, 0)
     complex_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)
-    dirname = "{0}/wfs_evolved_data/{1}".format(os.environ["CD_CODE_DIR"], fname)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
     wfs_full, ts_full = [], []
     while complex_ODE.successful and complex_ODE.t < ham.schedule.tau:
         wfs_full.append(complex_ODE.y)
         ts_full.append(complex_ODE.t)
-        if save_states:
-            path_name = "{0}/t{1:.6f}.txt".format(dirname, complex_ODE.t)
-            np.savetxt(path_name, complex_ODE.y)
         complex_ODE.integrate(complex_ODE.t + dt)
-    if save_states:  # save final state if desired
-        path_name = "{0}/t{1:.6f}.txt".format(dirname, complex_ODE.t)
-        np.savetxt(path_name, complex_ODE.y)
     return np.array(ts_full), np.array(wfs_full)

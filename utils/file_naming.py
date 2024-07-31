@@ -24,27 +24,16 @@ def make_H_params_str(model_name, H_params):
     return param_names_dict[model_name].format(*H_params)
 
 
-def make_controls_str(ctrls):
+def make_controls_type_str(ctrls):
     if ctrls != []:
         return "_".join(ctrls)
     else:
         return "no_controls"
 
 
-def make_agp_str(AGPtype, norm_type, agp_order):
-    if agp_order == 0:
-        return "no_agp"
-    if AGPtype in AGPtype_dict.keys() and norm_type in norm_type_dict.keys():
-        return f"{AGPtype_dict[AGPtype]}_{norm_type_dict[norm_type]}_ord{agp_order}agp"
-    elif AGPtype not in AGPtype_dict.keys():
-        raise ValueError(f"AGPtype {AGPtype} not recognized")
-    elif norm_type not in norm_type_dict.keys():
-        raise ValueError(f"norm_type {norm_type} not recognized")
-
-
 def make_model_str(Ns, model_name, H_params, ctrls):
     H_params_str = make_H_params_str(model_name, H_params)
-    ctrls_str = make_controls_str(ctrls)
+    ctrls_str = make_controls_type_str(ctrls)
     return f"{model_name}_N{Ns}_{H_params_str}_{ctrls_str}"
 
 
@@ -59,66 +48,80 @@ def make_symmetries_str(symmetries):
     return "_".join(symm_strs)
 
 
-def gen_fname(model_str, symm_str, agp_str, schedname, grid_size, tau):
-    return f"{model_str}_{symm_str}_{agp_str}_{grid_size}steps_{schedname}_sched_tau{tau:.6f}"
+def make_agp_str(AGPtype, norm_type, agp_order):
+    if agp_order == 0:
+        return "no_agp"
+    if AGPtype in AGPtype_dict.keys() and norm_type in norm_type_dict.keys():
+        return f"{AGPtype_dict[AGPtype]}_{norm_type_dict[norm_type]}_ord{agp_order}agp"
+    elif AGPtype not in AGPtype_dict.keys():
+        raise ValueError(f"AGPtype {AGPtype} not recognized")
+    elif norm_type not in norm_type_dict.keys():
+        raise ValueError(f"norm_type {norm_type} not recognized")
 
 
-def make_base_fname(
+# might need to refactor if have controls other than harmonics, i.e. not sin couplings
+def make_ctrls_info_str(ctrls_couplings, ctrls_harmonics, ctrls_coeffs=None):
+    if ctrls_coeffs is not None:
+        return f"{ctrls_couplings}_harmonics_{ctrls_harmonics}_coeffs_{ctrls_coeffs}"
+    else:
+        return f"{ctrls_couplings}_harmonics_{ctrls_harmonics}"
+
+
+def make_file_name(Ns, model_name, H_params, symmetries, ctrls):
+    model_str = make_model_str(Ns, model_name, H_params, ctrls)
+    symm_str = make_symmetries_str(symmetries)
+    return f"{model_str}_{symm_str}"
+
+
+def make_protocol_name(AGPtype, norm_type, agp_order, grid_size, sched):
+    agp_str = make_agp_str(AGPtype, norm_type, agp_order)
+    schedname = scheds_name_dict[type(sched)]
+    return f"{agp_str}_{grid_size}steps_{schedname}_sched_tau{sched.tau:.6f}"
+
+
+def make_controls_name(ctrls_couplings, ctrls_args):
+    if ctrls_couplings == []:
+        return "no_controls"
+    else:
+        Nharmonics = (len(ctrls_args[0]) - 1) // 2
+        ctrls_harmonics = [ctrl_args[1 : Nharmonics + 1] for ctrl_args in ctrls_args]
+        ctrls_coeffs = [ctrl_args[Nharmonics + 1 :] for ctrl_args in ctrls_args]
+        return make_ctrls_info_str(ctrls_couplings, ctrls_harmonics, ctrls_coeffs)
+
+
+def make_controls_name_no_coeffs(ctrls_couplings, ctrls_args):
+    if ctrls_couplings == []:
+        return "no_controls"
+    else:
+        Nharmonics = (len(ctrls_args[0]) - 1) // 2
+        ctrls_harmonics = [ctrl_args[1 : Nharmonics + 1] for ctrl_args in ctrls_args]
+        return make_ctrls_info_str(ctrls_couplings, ctrls_harmonics, ctrls_coeffs=None)
+
+
+def make_data_dump_name(
     Ns,
     model_name,
     H_params,
     symmetries,
+    sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
     AGPtype,
     norm_type,
     grid_size,
-    sched,
-    append_str,
 ):
-    model_str = make_model_str(Ns, model_name, H_params, ctrls)
-    symm_str = make_symmetries_str(symmetries)
-    agp_str = make_agp_str(AGPtype, norm_type, agp_order)
-    sched_name = scheds_name_dict[type(sched)]
-    std_name = gen_fname(model_str, symm_str, agp_str, sched_name, grid_size, sched.tau)
-    return f"{std_name}_{append_str}"
+    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    protocol_name = make_protocol_name(AGPtype, norm_type, agp_order, grid_size, sched)
+    controls_name = make_controls_name(ctrls_couplings, ctrls_args)
+    return file_name, protocol_name, controls_name
 
 
-def make_coeffs_fname(
-    ham,
-    model_name,
-    ctrls,
-    AGPtype,
-    norm_type,
-    grid_size,
-    sched,
-    append_str,
-):
-    model_str = make_model_str(ham.Ns, model_name, ham.H_params, ctrls)
-    symm_str = make_symmetries_str(ham.symmetries)
-    agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
-    sched_name = scheds_name_dict[type(sched)]
-    std_name = gen_fname(model_str, symm_str, agp_str, sched_name, grid_size, sched.tau)
-    return f"{std_name}_{append_str}_coeffs"
+def combine_names(*args):
+    return "_".join(args)
 
 
-def make_evolved_wfs_fname(
-    ham,
-    model_name,
-    ctrls,
-    AGPtype,
-    norm_type,
-    grid_size,
-    tau,
-    append_str,
-):
-    model_str = make_model_str(ham.Ns, model_name, ham.H_params, ctrls)
-    symm_str = make_symmetries_str(ham.symmetries)
-    agp_str = make_agp_str(AGPtype, norm_type, ham.agp_order)
-    sched = scheds_name_dict[type(ham.schedule)]
-    std_name = gen_fname(model_str, symm_str, agp_str, sched, grid_size, tau)
-    return f"{std_name}_{append_str}_evolved_wf"
-
-
+# TODO: NEED TO MAKE SOMETHING FOR UNIVERSAL FIT SINCE DOESN'T FIT INTO MODEL HDF5 SCHEME
 def make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end):
     return f"universal_fit_{AGPtype}_ord{agp_order}_start{window_start}_end{window_end}"

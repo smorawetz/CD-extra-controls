@@ -68,20 +68,17 @@ def schro_RHS(t, stack_psi, ham, AGPtype, ctrls, couplings, couplings_args):
 
 def do_evolution(
     ham,
-    fname,
     AGPtype,
     ctrls,
     couplings,
     couplings_args,
     grid_size,
     init_state,
-    save_states=False,
 ):
     """Computes the time evolution (according to the Schrodinger equation)
     of some initial state according to the given Hamiltonian
     Parameters:
         ham (Hamiltonian_CD):       Counterdiabatic Hamiltonian of interest
-        fname (str):                Name of file to store instantaneous wavefunctions
         AGPtype (str):              Type of approximate AGP to construct depending
                                     on the type of AGP desired
         ctrls (list):               List of control Hamiltonians
@@ -89,7 +86,6 @@ def do_evolution(
         couplings_args (list):      List of list of arguments for the coupling functions
         grid_size (int):            Number of time steps to take
         init_state (np.array):      Vector of initial wavefunction
-        save_state (bool):          Whether to save the state at each time step
     """
     dt = ham.schedule.tau / grid_size
     tgrid = np.linspace(0, ham.schedule.tau, grid_size)
@@ -102,18 +98,9 @@ def do_evolution(
     real_ODE.set_integrator("vode", method="bdf")
     real_ODE.set_initial_value(stack_psi, 0)
     real_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)
-    dirname = "{0}/wfs_evolved_data/{1}".format(os.environ["CD_CODE_DIR"], fname)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
     wfs_full, ts_full = [], []
     while real_ODE.successful and real_ODE.t < ham.schedule.tau:
         wfs_full.append(real_ODE.y[:N] + 1j * real_ODE.y[N:])
         ts_full.append(real_ODE.t)
-        if save_states:
-            path_name = "{0}/t{1:.6f}.txt".format(dirname, real_ODE.t)
-            np.savetxt(path_name, real_ODE.y[:N] + 1j * real_ODE.y[N:])
         real_ODE.integrate(real_ODE.t + dt)
-    if save_states:  # save final state if desired
-        path_name = "{0}/t{1:.6f}.txt".format(dirname, real_ODE.t)
-        np.savetxt(path_name, real_ODE.y[:N] + 1j * real_ODE.y[N:])
     return np.array(ts_full), np.array(wfs_full)

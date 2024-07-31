@@ -8,7 +8,8 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 from ham_controls.build_controls_ham import get_H_controls_gs
 from tools.build_ham import build_ham
 from tools.calc_coeffs import calc_alphas_grid
-from utils.file_naming import make_coeffs_fname
+from utils.file_IO import save_data_agp_coeffs
+from utils.file_naming import make_data_dump_name
 
 
 def calc_comm_coeffs(
@@ -29,8 +30,6 @@ def calc_comm_coeffs(
     AGPtype,
     norm_type,
     grid_size,
-    ## not used by all scripts
-    append_str=None,
 ):
     ham = build_ham(
         model_name,
@@ -46,10 +45,6 @@ def calc_comm_coeffs(
     )
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    fname = make_coeffs_fname(
-        ham, model_name, ctrls, AGPtype, norm_type, grid_size, sched, append_str
-    )
-
     # now call function to compute alphas
     tgrid, alphas_grid = calc_alphas_grid(
         ham,
@@ -57,9 +52,23 @@ def calc_comm_coeffs(
         sched,
         agp_order,
         norm_type,
-        # TODO: fix this to work if there eare extra controls
+        # TODO: fix this to work if there are extra controls
         gs_func=ham.get_bare_inst_gstate,
-        save=True,
-        fname=fname,
     )
+
+    names_list = make_data_dump_name(
+        Ns,
+        model_name,
+        H_params,
+        symmetries,
+        sched,
+        ctrls,
+        ctrls_couplings,
+        ctrls_args,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+    )
+    save_data_agp_coeffs(*names_list, tgrid, alphas_grid)
     return tgrid, alphas_grid

@@ -10,9 +10,13 @@ from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
 from tools.calc_coeffs import calc_lanc_coeffs_grid, calc_alphas_grid, calc_gammas_grid
 from tools.lin_alg_calls import calc_fid
-from tools.schedules import LinearSchedule, SmoothSchedule
-from tools.symmetries import get_symm_op
-from utils.file_naming import make_base_fname
+
+from utils.file_IO import (
+    save_data_agp_coeffs,
+    save_data_optimization_fids,
+    save_data_evolved_wfs,
+)
+from utils.file_naming import make_data_dump_name, make_controls_name_no_coeffs
 from utils.grid_utils import get_coeffs_interp
 
 
@@ -27,7 +31,7 @@ def calc_infid(
     AGPtype,
     norm_type,
     grid_size,
-    base_fname,
+    fname_args_dict,
 ):
     # set coefficients in given instance
     ctrls_args = []
@@ -46,7 +50,6 @@ def calc_infid(
             agp_order,
             norm_type,
             gs_func=None,
-            save=False,
         )
         ham.lanc_interp = get_coeffs_interp(
             sched, sched, tgrid, lanc_grid
@@ -58,7 +61,6 @@ def calc_infid(
             agp_order,
             norm_type,
             gs_func=None,
-            save=False,
         )
         ham.gammas_interp = get_coeffs_interp(sched, sched, tgrid, gammas_grid)
     elif AGPtype == "commutator":
@@ -69,7 +71,6 @@ def calc_infid(
             agp_order,
             norm_type,
             gs_func=None,
-            save=False,
         )
         ham.alphas_interp = get_coeffs_interp(sched, sched, tgrid, alphas_grid)
 
@@ -80,32 +81,21 @@ def calc_infid(
     init_state = ham.get_init_gstate()
     targ_state = ham.get_targ_gstate()
 
-    t_data, wf_data = cd_protocol.matrix_evolve(init_state, None, save_states=False)
-    final_state = wf_data[-1, :]
-    fid = calc_fid(targ_state, final_state)
+    t_data, wf_data = cd_protocol.matrix_evolve(init_state)
+    final_wf = wf_data[-1, :]
+    fid = calc_fid(targ_state, final_wf)
 
-    ctrls_write_fname = "optim_ctrls_data/" + base_fname + "_optim_ctrls_coeffs.txt"
-    tgrid_fname = "optim_ctrls_data/" + base_fname + "_optim_tgrid.txt"
-    if agp_order == 0:
-        pass
-    elif AGPtype == "krylov":
-        lanc_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_lanc_grid.txt"
-        gammas_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_gammas_grid.txt"
-        np.savetxt(tgrid_fname, tgrid)
-        np.savetxt(lanc_grid_fname, lanc_grid)
-        np.savetxt(gammas_grid_fname, gammas_grid)
-    elif AGPtype == "commutator":
-        alphas_grid_fname = "optim_ctrls_data/" + base_fname + "_optim_alphas_grid.txt"
-        np.savetxt(tgrid_fname, tgrid)
-        np.savetxt(alphas_grid_fname, alphas_grid)
-    optim_wf_fname = "optim_ctrls_data/" + base_fname + "_optim_final_wf.txt"
-    np.savetxt(optim_wf_fname, final_state)
+    # now save relevant data
+    fname_args_dict["ctrls_args"] = ctrls_args
+    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    file_name, protocol_name, _ = make_data_dump_name(*fname_args_dict.values())
+    # overwrite last part of names list since don't include coeffs magnitude in fname
+    ctrls_name = make_controls_name_no_coeffs(ctrls_couplings, ctrls_args)
+    names_list = (file_name, protocol_name, ctrls_name)
 
-    # write to file
-    if ctrls_write_fname is not None:
-        data_file = open(ctrls_write_fname, "a")
-        data_file.write("{0}\t{1}\n".format(coeffs, fid))
-        data_file.close()
+    save_data_agp_coeffs(*names_list, tgrid, gammas_grid, lanc_grid=lanc_grid)
+    save_data_optimization_fids(*names_list, coeffs, fid)
+    save_data_evolved_wfs(*names_list, final_wf, tgrid=None, full_wf=None)
     print("for controls ", coeffs, " fid is ", fid)
     return 1 - fid
 
@@ -148,19 +138,20 @@ def optim_harmonic_coeffs(
 
     optim_func = calc_infid
 
-    base_fname = make_base_fname(
-        Ns,
-        model_name,
-        H_params,
-        symmetries,
-        ctrls,
-        agp_order,
-        AGPtype,
-        norm_type,
-        grid_size,
-        sched,
-        append_str,
-    )
+    fname_args_dict = {
+        "Ns": Ns,
+        "model_name": model_name,
+        "H_params": H_params,
+        "symmetries": symmetries,
+        "sched": sched,
+        "ctrls": ctrls,
+        "ctrls_couplings": ctrls_couplings,
+        "ctrls_args": None,  # will be replaced when coeffs are filled in
+        "agp_order": agp_order,
+        "AGPtype": AGPtype,
+        "norm_type": norm_type,
+        "grid_size": grid_size,
+    }
 
     # do Powell optimization
     bounds = [(-maxfields, maxfields) for _ in range(len(ctrls) * len(ctrls_harmonics))]
@@ -177,7 +168,7 @@ def optim_harmonic_coeffs(
             AGPtype,
             norm_type,
             grid_size,
-            base_fname,
+            fname_args_dict,
         ),
         bounds=bounds,
         method="Powell",

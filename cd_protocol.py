@@ -41,23 +41,20 @@ class CD_Protocol:
         self.schedule = schedule
         self.grid_size = grid_size
 
-    def matrix_evolve(self, init_state, wfs_fname, save_states=False):
+    def matrix_evolve(self, init_state):
         """Evolve `init_state` in accordance with the CD protocol
         Parameters:
             init_state (np.array):      Initial state to evolve
             wfs_fname (str):            String to save the wavefunctions
-            save_states (bool):         Whether to save the wavefunctions
         Returns:
             final_state (np.array):     Final state after evolution
         """
         return do_evolution(
             self.ham,
-            wfs_fname,
             self.AGPtype,
             self.ctrls,
             self.couplings,
             self.couplings_args,
             self.grid_size,
             init_state,
-            save_states=save_states,
         )

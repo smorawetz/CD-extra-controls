@@ -7,25 +7,25 @@ import glob
 import h5py
 import numpy as np
 
-from scripts.merge_agp_coeffs import run_merge
+from scripts.merge_data import run_agp_coeffs_merge
 
 from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
 
 
-Ns = [4]
-model_name = "TFIM_1D"
-H_params = [1, 1]
-symms = ["translation_1d", "spin_inversion"]
-symms_args = [[Ns], [Ns]]
-symm_nums = [0, 0]
+Nx = 4
+Ny = 2
+Ns = [Nx, Ny]
+model_name = "Disorder_Ising_2D"
+H_params = [1, 1, 0.0, 0]  # seed 1 and disorder strength 0.1
+symms = []  # disorder will in general break symmetry
+symms_args = []
+symm_nums = []
 symmetries = {
-    symms[i]: (
-        get_symm_op(symms[i], *symms_args[i]),
-        symm_nums[i],
-    )
+    symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
+target_symmetries = symmetries
 
 ## schedule params
 tau = 1
@@ -37,14 +37,14 @@ ctrls_couplings = []
 ctrls_args = []
 
 ## agp params
-agp_order = 2
+agp_order = 1
 # AGPtype = "commutator"
 AGPtype = "krylov"
 norm_type = "trace"
 ## simulation params
 grid_size = 1000
 
-run_merge(
+run_agp_coeffs_merge(
     Ns,
     model_name,
     H_params,

@@ -5,7 +5,6 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
-from utils.file_naming import make_base_fname
 
 from scripts.calc_commutator_coeffs import calc_comm_coeffs
 from scripts.calc_krylov_coeffs import calc_kry_coeffs
@@ -73,9 +72,20 @@ kwargs = {}
 
 calc_kry_coeffs(*args, **kwargs)
 
-Ns = 4
-evolve_model_name = "TFIM_1D"
-evolve_H_params = [1, 1]
+run_agp_coeffs_merge(
+    Ns,
+    coeffs_model_name,
+    coeffs_H_params,
+    coeffs_symmetries,
+    coeffs_sched,
+    ctrls,
+    ctrls_couplings,
+    ctrls_args,
+    agp_order,
+    AGPtype,
+    norm_type,
+    grid_size,
+)
 evolve_boundary_conds = "periodic"
 
 symms = ["translation_1d", "spin_inversion"]

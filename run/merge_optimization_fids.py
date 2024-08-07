@@ -7,7 +7,7 @@ import glob
 import h5py
 import numpy as np
 
-from scripts.merge_optimization_fids import run_merge
+from scripts.merge_data import run_optimization_fids_merge
 
 from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
@@ -45,7 +45,7 @@ norm_type = "trace"
 ## simulation params
 grid_size = 1000
 
-run_merge(
+run_optimization_fids_merge(
     Ns,
     model_name,
     H_params,

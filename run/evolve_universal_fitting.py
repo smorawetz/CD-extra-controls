@@ -8,25 +8,22 @@ import quspin
 
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
-from utils.file_naming import make_base_fname
-
-from tools.calc_universal_fit_coeffs import fit_universal_coeffs, std_fit_func
-from scripts.time_evolution_universal_coeffs import run_time_evolution_universal
+from tools.calc_universal_fit_coeffs import fit_universal_coeffs
 from utils.file_naming import make_fit_coeffs_fname
+
+from scripts.time_evolution_universal_coeffs import run_time_evolution_universal
 
 ###############################################################
 ## this is a generic example of how to run a pre made script ##
 ###############################################################
 
-g = 0.00
-
 # define the various parameters of the model/task
-Ns = 10
-model_name = "Field_Sensing_1D"
-H_params = [1, 1, g]
+Ns = [2]
+model_name = "TFIM_Disorder_1D"
+H_params = [1, 1, 0.1, 0]  # seed 0 and disorder strength 0.1
 boundary_conds = "periodic"
 
-symms = ["translation_1d"]
+symms = []
 symms_args = [[Ns]]
 symm_nums = [0]
 symmetries = {
@@ -56,21 +53,21 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-agp_order = 9
-AGPtype = "commutator"
+agp_order = 3
+AGPtype = "chebyshev"
 norm_type = "trace"
-window_start = 0.5
-window_end = 4.0
+window_start = 0.25
+window_end = 1.0
 
-fit_func = std_fit_func
+rescale = 1 / window_end
 
-alphas = fit_universal_coeffs(fit_func, agp_order, window_start, window_end)
+coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
+
 coeffs_fname = make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end)
-
 np.savetxt(
-    "{0}/coeffs_data/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname), alphas
+    "{0}/universal_coeffs/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
+    coeffs,
 )
-
 grid_size = 1000
 
 # have generic list of args that get used for every function
@@ -100,12 +97,11 @@ args = (
 
 # now load coefficients for the universal fitting
 
-wfs_append_str = "universal_g{0:.6f}".format(g)
-
 kwargs = {
-    "save_wf": False,
-    "coeffs_fname": coeffs_fname,
-    "wfs_save_append_str": wfs_append_str,
+    "rescale": rescale,
+    "window_start": window_start,
+    "window_end": window_end,
+    "save_protocol_wf": False,
     "print_fid": True,
 }
 

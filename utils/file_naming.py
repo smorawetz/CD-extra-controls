@@ -85,6 +85,16 @@ def make_protocol_name(AGPtype, norm_type, agp_order, grid_size, sched):
     return f"{agp_str}_{grid_size}steps_{schedname}_sched_tau{sched.tau:.6f}"
 
 
+def make_universal_protocol_name(
+    AGPtype, norm_type, agp_order, window_start, window_end, grid_size, sched
+):
+    agp_str = make_agp_str(
+        AGPtype, norm_type, agp_order
+    ) + "_window{0:.4f}-{1:.4f}".format(window_start, window_end)
+    schedname = scheds_name_dict[type(sched)]
+    return f"{agp_str}_{grid_size}steps_{schedname}_sched_tau{sched.tau:.6f}"
+
+
 def make_controls_name(ctrls_couplings, ctrls_args):
     if ctrls_couplings == []:
         return "no_controls"
@@ -128,6 +138,5 @@ def combine_names(*args):
     return "_".join(args)
 
 
-# TODO: NEED TO MAKE SOMETHING FOR UNIVERSAL FIT SINCE DOESN'T FIT INTO MODEL HDF5 SCHEME
 def make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end):
-    return f"universal_fit_{AGPtype}_ord{agp_order}_start{window_start}_end{window_end}"
+    return f"universal_fit_{AGPtype}_ord{agp_order}_start{window_start:.4f}_end{window_end:.4f}"

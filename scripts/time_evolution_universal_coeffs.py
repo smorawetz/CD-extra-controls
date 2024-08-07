@@ -8,7 +8,13 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
 from tools.lin_alg_calls import calc_fid
-from utils.file_naming import make_coeffs_fname, make_evolved_wfs_fname
+from utils.file_IO import save_data_evolved_wfs
+from utils.file_naming import (
+    make_fit_coeffs_fname,
+    make_file_name,
+    make_universal_protocol_name,
+    make_controls_name,
+)
 from utils.grid_utils import get_universal_coeffs_func
 
 
@@ -30,11 +36,11 @@ def run_time_evolution_universal(
     AGPtype,
     norm_type,
     grid_size,
-    rescale,
     ## not used by all scripts
-    save_wf=True,
-    coeffs_fname=None,
-    wfs_save_append_str=None,
+    rescale=1,
+    window_start=0.5,
+    window_end=1.0,
+    save_protocol_wf=False,
     print_fid=False,
 ):
     ham = build_ham(
@@ -53,8 +59,9 @@ def run_time_evolution_universal(
     # add the controls
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
+    coeffs_fname = make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end)
     coeffs = np.loadtxt(
-        "{0}/coeffs_data/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
+        "{0}/universal_coeffs/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
         ndmin=1,
     )
 
@@ -67,29 +74,25 @@ def run_time_evolution_universal(
         ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size
     )
 
-    init_state = ham.get_init_gstate()
+    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
 
-    wfs_fname = make_evolved_wfs_fname(
-        ham,
-        model_name,
-        ctrls,
-        AGPtype,
-        norm_type,
-        grid_size,
-        sched.tau,
-        wfs_save_append_str,
+    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    protocol_name = make_universal_protocol_name(
+        AGPtype, norm_type, agp_order, window_start, window_end, grid_size, sched
     )
+    controls_name = make_controls_name(ctrls_couplings, ctrls_args)
+    names_list = [file_name, protocol_name, controls_name]
 
     init_state = ham.get_init_gstate()
-
     targ_state = ham.get_targ_gstate()
-    # print("targ state is ", targ_state)
 
-    t_data, wf_data = cd_protocol.matrix_evolve(
-        init_state, wfs_fname, save_states=save_wf
-    )
+    t_data, wf_data = cd_protocol.matrix_evolve(init_state)
     final_state = wf_data[-1, :]
-    # print("final state is ", final_state)
+
+    if save_protocol_wf:
+        save_data_evolved_wfs(*names_list, final_state, tgrid=t_data, full_wf=wf_data)
+    else:
+        save_data_evolved_wfs(*names_list, final_state)
 
     if print_fid:
         print("fidelity is ", calc_fid(targ_state, final_state))

@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def neighbours_1d(N, boundary_conds):
     """Get neighbouring pairs of sites in a 1D chain"""
     if boundary_conds == "periodic":
@@ -37,3 +40,23 @@ def all_connections_1d(N, boundary_conds):
     else:
         raise ValueError("{0} is not a valid boundary condition".format(boundary_conds))
     return pairs, pair_distances
+
+
+def neighbours_2d(Nx, Ny, boundary_conds):
+    """Get neighbouring pairs of sites on a 2D lattice"""
+    Ns = Nx * Ny
+    sites = np.arange(Ns)
+    r_nbrs = (sites + 1) % Nx + (sites // Nx) * Nx  # right neighbours
+    u_nbrs = (sites + Nx) % (Ns)  # up neighbours
+    if boundary_conds == "periodic":
+        x_nbrs = [[sites[i], r_nbrs[i]] for i in range(Ns)]
+        y_nbrs = [[sites[i], u_nbrs[i]] for i in range(Ns)]
+        return x_nbrs + y_nbrs
+    elif boundary_conds == "open":
+        r_inds = (sites + 1) % Nx != 0
+        u_inds = (sites + Nx) // Ns != 1
+        x_nbrs = [[sites[r_inds][i], r_nbrs[r_inds][i]] for i in range(sum(r_inds))]
+        y_nbrs = [[sites[u_inds][i], u_nbrs[u_inds][i]] for i in range(sum(u_inds))]
+        return x_nbrs + y_nbrs
+    else:
+        raise ValueError("{0} is not a valid boundary condition".format(boundary_conds))

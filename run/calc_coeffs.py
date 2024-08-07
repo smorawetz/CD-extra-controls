@@ -10,7 +10,7 @@ from scripts.calc_commutator_coeffs import calc_comm_coeffs
 from scripts.calc_krylov_coeffs import calc_kry_coeffs
 
 # define the various parameters of the model/task
-Ns = 4
+Ns = [4]
 coeffs_model_name = "TFIM_1D"
 coeffs_H_params = [1, 1]  # seed 1 and disorder strength 0.1
 coeffs_boundary_conds = "periodic"

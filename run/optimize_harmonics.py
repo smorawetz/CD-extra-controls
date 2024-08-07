@@ -9,7 +9,7 @@ from tools.symmetries import get_symm_op
 from scripts.optimize_harmonics_coeffs import optim_harmonic_coeffs
 
 # define the various parameters of the model/task
-Ns = 4
+Ns = [4]
 model_name = "TFIM_1D"
 H_params = [1, 1]  # seed 1 and disorder strength 0.1
 boundary_conds = "periodic"

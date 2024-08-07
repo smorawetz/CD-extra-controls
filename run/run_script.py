@@ -17,7 +17,7 @@ from scripts.time_evolution import run_time_evolution
 
 
 # define the various parameters of the model/task
-Ns = 3
+Ns = [3]
 model_name = "TFIM_1D"
 H_params = [1, 1]
 boundary_conds = "periodic"

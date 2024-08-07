@@ -13,7 +13,7 @@ from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
 
 
-Ns = 4
+Ns = [4]
 model_name = "TFIM_1D"
 H_params = [1, 1]
 symms = ["translation_1d", "spin_inversion"]

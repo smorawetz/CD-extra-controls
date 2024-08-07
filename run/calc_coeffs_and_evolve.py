@@ -12,7 +12,7 @@ from scripts.calc_krylov_coeffs import calc_kry_coeffs
 from scripts.time_evolution import run_time_evolution
 
 # define the various parameters of the model/task
-Ns = 4
+Ns = [4]
 coeffs_model_name = "TFIM_Disorder_1D"
 coeffs_H_params = [1, 1, 0.1, 1]  # seed 1 and disorder strength 0.1
 coeffs_boundary_conds = "periodic"

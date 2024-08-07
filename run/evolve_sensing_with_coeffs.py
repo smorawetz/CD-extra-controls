@@ -18,7 +18,7 @@ from scripts.time_evolution import run_time_evolution
 g = 0.01
 
 # define the various parameters of the model/task
-Ns = 3
+Ns = [3]
 model_name = "Field_Sensing_1D"
 H_params = [1, 1, g]
 boundary_conds = "periodic"

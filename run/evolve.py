@@ -12,7 +12,7 @@ from utils.file_naming import make_file_name, make_protocol_name, make_controls_
 from scripts.time_evolution import run_time_evolution
 
 # define the various parameters of the model/task
-Ns = 4
+Ns = [4]
 model_name = "TFIM_1D"
 H_params = [1, 1]
 boundary_conds = "periodic"

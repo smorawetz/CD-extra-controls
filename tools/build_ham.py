@@ -28,7 +28,7 @@ def build_ham(
     which encodes the desired annealing protocol
     Parameters:
         model_name (str):           Name of the model encoding annealing protocol
-        Ns (int):                   Number of sites in the system
+        Ns (list):                  List of the number of sites along all dimensions
         H_params (list):            List of Hamiltonian parameters
         boundary_conds (str):       Boundary conditions for the system
         model_kwargs (dict):        Dictionary of model-specific parameters
@@ -41,7 +41,7 @@ def build_ham(
     """
     ham_class = models_dict[model_name]
     return ham_class(
-        Ns,
+        *Ns,
         H_params,
         boundary_conds,
         agp_order,

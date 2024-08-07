@@ -34,7 +34,13 @@ def make_controls_type_str(ctrls):
 def make_model_str(Ns, model_name, H_params, ctrls):
     H_params_str = make_H_params_str(model_name, H_params)
     ctrls_str = make_controls_type_str(ctrls)
-    return f"{model_name}_N{Ns}_{H_params_str}_{ctrls_str}"
+    if len(Ns) == 1:
+        N_str = f"N{Ns[0]}"
+    elif len(Ns) == 2:
+        N_str = f"Nx{Ns[0]}_Ny{Ns[1]}"
+    else:
+        raise ValueError(f"Not built to recognize models with dim > 2")
+    return f"{model_name}_{N_str}_{H_params_str}_{ctrls_str}"
 
 
 def make_symmetries_str(symmetries):

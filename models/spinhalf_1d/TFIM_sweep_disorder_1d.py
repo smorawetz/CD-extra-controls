@@ -11,10 +11,10 @@ from tools.ham_couplings import turn_off_coupling, turn_on_coupling
 from tools.connections import neighbours_1d
 
 
-class TFIM_Annealing_Disorder_1D(SpinHalf_1D):
+class TFIM_Sweep_Disorder_1D(SpinHalf_1D):
     """Class for 1D transverse field Ising model encoding local annealing
-    problem between magnetic field polarized state at $\lambda = 0$ and
-    ferromagnetic state at $\lambda = 1$, with some on-site disorder present"""
+    problem where a magnetic field is tuned from an initial to a final value,
+    in the presence of Ising interactions and on-site disorder."""
 
     def __init__(
         self,
@@ -28,18 +28,17 @@ class TFIM_Annealing_Disorder_1D(SpinHalf_1D):
         target_symmetries={},
         rescale=1,
     ):
-        J, hx, disorder_strength, _ = map(lambda x: x * rescale, H_params)
+        J, hi, hf, disorder_strength, _ = map(lambda x: x * rescale, H_params)
         disorder_seed = H_params[-1]
 
         np.random.seed(disorder_seed)
-        on_site_disorder = rescale * np.random.uniform(
-            -disorder_strength, disorder_strength, Ns
-        )
+        on_site_disorder = np.random.uniform(-disorder_strength, disorder_strength, Ns)
 
         pairs = neighbours_1d(Ns, boundary_conds)
         self.J_terms = [[-J, *pairs[i]] for i in range(len(pairs))]
-        self.hx_terms = [[-hx, i] for i in range(Ns)]
-        self.flipped_hx_terms = [[hx, i] for i in range(Ns)]
+        self.hi_terms = [[-hi, i] for i in range(Ns)]
+        self.hf_terms = [[-hf, i] for i in range(Ns)]
+        self.dlam_hx_terms = [[hi - hf, i] for i in range(Ns)]
         self.disorder_terms = [[on_site_disorder[i], i] for i in range(Ns)]
 
         super().__init__(
@@ -57,26 +56,21 @@ class TFIM_Annealing_Disorder_1D(SpinHalf_1D):
     def build_H0(self):
         """Build QuSpin Hamiltonian for H0, which is component being
         "turned on" in annealing problem"""
-        s = [["zz", self.J_terms], ["z", self.disorder_terms]]
-        d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
+        return None
 
     def build_H1(self):
-        """Method specific to this spin model to calculate
-        the bare Hamiltonian (no controls or AGP)
-        """
-        s = [["x", self.hx_terms], ["z", self.disorder_terms]]
-        d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
+        """Build QuSpin Hamiltonian for H0, which is component being
+        "turned off" in annealing problem"""
+        return None
 
     def build_bare_H(self):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        s = [["z", self.disorder_terms]]
+        s = [["zz", self.J_terms], ["z", self.disorder_terms]]
         d = [
-            ["zz", self.J_terms, turn_on_coupling, [self.schedule]],
-            ["x", self.hx_terms, turn_off_coupling, [self.schedule]],
+            ["x", self.hi_terms, turn_off_coupling, [self.schedule]],
+            ["x", self.hf_terms, turn_on_coupling, [self.schedule]],
         ]
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
@@ -84,7 +78,7 @@ class TFIM_Annealing_Disorder_1D(SpinHalf_1D):
         """Method for this particular spin model to calculate
         the $\lambda$ derivative of the Hamiltonian
         """
-        s = [["zz", self.J_terms], ["x", self.flipped_hx_terms]]
+        s = [["x", self.dlam_hx_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
@@ -93,6 +87,6 @@ class TFIM_Annealing_Disorder_1D(SpinHalf_1D):
         Hamiltonian after annealing is complete, in the
         most symmetric possible basis to get the ground state easier
         """
-        s = [["zz", self.J_terms]]
+        s = [["zz", self.J_terms], ["z", self.disorder_terms], ["x", self.hf_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.targ_basis, **self.checks)

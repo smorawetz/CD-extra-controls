@@ -93,7 +93,8 @@ def calc_infid(
     ctrls_name = make_controls_name_no_coeffs(ctrls_couplings, ctrls_args)
     names_list = (file_name, protocol_name, ctrls_name)
 
-    save_data_agp_coeffs(*names_list, tgrid, gammas_grid, lanc_grid=lanc_grid)
+    if agp_order > 0:
+        save_data_agp_coeffs(*names_list, tgrid, gammas_grid, lanc_grid=lanc_grid)
     save_data_optimization_fids(*names_list, coeffs, fid)
     save_data_evolved_wfs(*names_list, final_wf, tgrid=None, full_wf=None)
     print("for controls ", coeffs, " fid is ", fid)

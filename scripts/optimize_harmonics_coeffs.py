@@ -171,7 +171,7 @@ def optim_harmonic_coeffs(
             fname_args_dict,
         ),
         bounds=bounds,
-        method="Powell",
+        method="Nelder-Mead",
         options={
             "disp": True,
             "xtol": 1e-4,

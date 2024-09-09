@@ -20,8 +20,8 @@ def build_ham(
     agp_order,
     norm_type,
     sched,
-    symmetries=[],
-    target_symmetries=[],
+    symmetries={},
+    target_symmetries={},
     rescale=1,
 ):
     """Build the CD_Hamiltonian object corresponding to the Hamiltonian

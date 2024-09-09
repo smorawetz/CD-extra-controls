@@ -61,7 +61,7 @@ class Hamiltonian_CD(Base_Hamiltonian):
         self.ctrls_couplings = []
         self.ctrls_args = []
 
-        self.checks = {"check_herm": False, "check_symm": False}
+        self.checks = {"check_pcon": False, "check_herm": False, "check_symm": False}
 
         super().__init__(
             Ns,

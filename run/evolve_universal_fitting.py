@@ -11,7 +11,7 @@ from tools.symmetries import get_symm_op
 from tools.calc_universal_fit_coeffs import fit_universal_coeffs
 from utils.file_naming import make_fit_coeffs_fname
 
-from scripts.time_evolution_universal_coeffs import run_time_evolution_universal
+from scripts.time_evolution_universal import run_time_evolution_universal
 
 ###############################################################
 ## this is a generic example of how to run a pre made script ##
@@ -24,8 +24,8 @@ H_params = [1, 1, 0.1, 0]  # seed 0 and disorder strength 0.1
 boundary_conds = "periodic"
 
 symms = []
-symms_args = [[Ns]]
-symm_nums = [0]
+symms_args = [[Ns], [Ns]]
+symm_nums = [0, 0]
 symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
@@ -61,13 +61,14 @@ window_end = 1.0
 
 rescale = 1 / window_end
 
-coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
+if agp_order > 0:
+    coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
+    coeffs_fname = make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end)
+    np.savetxt(
+        "{0}/universal_coeffs/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
+        coeffs,
+    )
 
-coeffs_fname = make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end)
-np.savetxt(
-    "{0}/universal_coeffs/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
-    coeffs,
-)
 grid_size = 1000
 
 # have generic list of args that get used for every function

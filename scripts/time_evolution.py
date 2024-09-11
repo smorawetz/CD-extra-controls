@@ -55,18 +55,18 @@ def run_time_evolution(
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
     # load relevant coeffs for AGP
-    if AGPtype == "commutator":
+    if AGPtype == "commutator" and agp_order > 0:
         tgrid, alphas_grid, _ = load_data_agp_coeffs(
             coeffs_file_name, coeffs_protocol_name, coeffs_ctrls_name
         )
         ham.alphas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, alphas_grid)
-    elif AGPtype == "krylov":
+    elif AGPtype == "krylov" and agp_order > 0:
         tgrid, gammas_grid, lgrid = load_data_agp_coeffs(
             coeffs_file_name, coeffs_protocol_name, coeffs_ctrls_name
         )
         ham.lanc_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, lgrid)
         ham.gammas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, gammas_grid)
-    else:
+    elif agp_order > 0:
         raise ValueError(f"AGPtype {AGPtype} not recognized")
 
     cd_protocol = CD_Protocol(

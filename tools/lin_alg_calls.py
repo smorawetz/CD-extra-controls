@@ -16,4 +16,6 @@ def calc_fid(psi1, psi2):
         psi1 (np.array):    First state
         psi2 (np.array):    Second state
     """
-    return np.abs(np.dot(np.conj(psi1), psi2)) ** 2
+    norm1 = np.abs(np.dot(np.conj(psi1), psi1))
+    norm2 = np.abs(np.dot(np.conj(psi2), psi2))
+    return np.abs(np.dot(np.conj(psi1), psi2)) ** 2 / norm1 / norm2

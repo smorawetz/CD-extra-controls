@@ -8,7 +8,10 @@ from tools.symmetries import get_symm_op
 
 from scripts.calc_commutator_coeffs import calc_comm_coeffs
 from scripts.calc_krylov_coeffs import calc_kry_coeffs
+from scripts.merge_data import run_agp_coeffs_merge
 from scripts.time_evolution import run_time_evolution
+
+from utils.file_naming import make_file_name, make_protocol_name, make_controls_name
 
 # define the various parameters of the model/task
 Ns = [4]
@@ -130,7 +133,7 @@ coeffs_protocol_name = make_protocol_name(
 coeffs_ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
 
 kwargs = {
-    "save_protocol_wf": True,
+    "save_protocol_wf": False,
     "coeffs_file_name": coeffs_file_name,
     "coeffs_protocol_name": coeffs_protocol_name,
     "coeffs_ctrls_name": coeffs_ctrls_name,

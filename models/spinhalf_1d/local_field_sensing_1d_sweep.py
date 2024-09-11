@@ -33,9 +33,7 @@ class Local_Field_Sensing_1D_Sweep(SpinHalf_1D):
         disorder_seed = H_params[-1]
 
         np.random.seed(disorder_seed)
-        on_site_disorder = rescale * np.random.uniform(
-            -disorder_strength, disorder_strength, Ns
-        )
+        on_site_disorder = np.random.uniform(-disorder_strength, disorder_strength, Ns)
 
         pairs = neighbours_1d(Ns, boundary_conds)
         self.J_terms = [[-J, *pairs[i]] for i in range(len(pairs))]

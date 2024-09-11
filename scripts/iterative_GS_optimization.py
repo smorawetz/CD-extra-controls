@@ -172,18 +172,4 @@ def do_iterative_evolution(
         save_data_evolved_wfs(*names_list, final_state, tgrid=t_data, full_wf=wf_data)
     else:
         save_data_evolved_wfs(*names_list, final_state)
-
-    fname = make_base_fname(
-        Ns,
-        model_name,
-        H_params,
-        symmetries,
-        ctrls,
-        agp_order,
-        AGPtype,
-        norm_type,
-        grid_size,
-        sched,
-        "iterative",
-    )
     return fids, fname

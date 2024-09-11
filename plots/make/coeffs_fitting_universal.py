@@ -41,22 +41,8 @@ def plot_coeffs_fitting(
     norm_type,
     grid_size,
     sched,
-    append_str,
 ):
     tval = tau * tau_frac  # when to plot
-    fname = make_base_fname(
-        Ns,
-        model_name,
-        H_params,
-        symmetries,
-        ctrls,
-        agp_order,
-        AGPtype,
-        norm_type,
-        grid_size,
-        sched,
-        append_str,
-    )
     # rescale = 1
     rescale = 1 / window_end
     # employ CD Hamiltonian to for excitation frequencies, possibly alphas
@@ -74,7 +60,12 @@ def plot_coeffs_fitting(
         rescale=rescale,
     )
 
-    coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
+    coeffs = fit_universal_coeffs(
+        agp_order,
+        AGPtype,
+        window_start,
+        window_end,
+    )
 
     # now get the excitation frequencies directly from the model at a given t
     eigvals, eigvecs = ham.build_bare_H().eigh(time=tval)
@@ -88,7 +79,7 @@ def plot_coeffs_fitting(
                 freqs.append(freq)
     freqs = np.array(freqs)
 
-    x = np.linspace(1e-3, 1.2, 1000)
+    x = np.linspace(1e-3, window_end * rescale, 1000)
     y = -fit_funcs_dict[AGPtype](x, *coeffs)  # - since flipped
 
     fig, ax = plt.subplots(figsize=(9, 5))
@@ -98,9 +89,16 @@ def plot_coeffs_fitting(
     ax.plot(freqs, 1 / freqs, "ro", markersize=7, label=r"Excitations")
     ax.plot(x, y, "b-", linewidth=2, label=r"Fit at order {0}".format(agp_order))
     ax.set_xlabel(r"$\omega$")
+    ax.set_title(
+        r"$\delta = {0}, \Delta = {1}, n = {2}$".format(
+            window_start, window_end, agp_order
+        )
+    )
     fig.legend(frameon=False, loc=[0.61, 0.65])
     plt.savefig(
-        "plots/images/coeffs_universal_fitting_frac{0}_{1}.pdf".format(tau_frac, fname)
+        "plots/images/coeffs_universal_fitting_delta{0}_Delta{1}_ord{2}.pdf".format(
+            window_start, window_end, agp_order
+        )
     )
 
 
@@ -163,5 +161,4 @@ plot_coeffs_fitting(
     norm_type,
     grid_size,
     sched,
-    append_str,
 )

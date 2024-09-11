@@ -95,7 +95,8 @@ def do_evolution(
     stack_psi = np.hstack((init_state.real, init_state.imag))
 
     real_ODE = scipy.integrate.ode(schro_RHS)
-    real_ODE.set_integrator("vode", method="bdf")
+    # real_ODE.set_integrator("vode", method="bdf")
+    real_ODE.set_integrator("vode")
     real_ODE.set_initial_value(stack_psi, 0)
     real_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)
     wfs_full, ts_full = [], []

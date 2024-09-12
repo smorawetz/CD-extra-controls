@@ -293,6 +293,91 @@ def load_data_evolved_wfs(file_name, protocol_name, ctrls_name, get_full_wf=Fals
     return final_wf, tgrid, full_wf
 
 
+def save_data_evolved_wfs_blocks(
+    file_name,
+    protocol_name,
+    ctrls_name,
+    final_wf_blocks,
+):
+    """Saves the raw data from the evolving the intial wavefunction under some control
+    scheme with an approximate AGP under the tags file_name, protocol_name, ctrls_name
+    Parameters:
+        file_name (str):                name of the HDF5 file
+        protocol_name (str):            name of the protocol which indexes subgroup
+        ctrls_name (str):               name of the controls scheme which indexes dataset
+        final_wf_blocks (np.ndarray):   array with first column as k blocks, later
+                                        columns are components of wavefunction
+    """
+    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
+    evolved_wfs_path = "{0}/evolved_wfs/{1}".format(save_dirname, full_info_fname)
+    np.savetxt("{0}_final_wf_blocks.txt".format(evolved_wfs_path), final_wf_blocks)
+    return None
+
+
+def load_raw_data_evolved_wfs_blocks(file_name, protocol_name, ctrls_name):
+    """Loads the raw data from the evolving the intial wavefunction under some control
+    scheme with an approximate AGP under the tags file_name, protocol_name, ctrls_name
+    Parameters:
+        file_name (str):            name of the HDF5 file
+        protocol_name (str):        name of the protocol which indexes subgroup
+        ctrls_name (str):           name of the controls scheme which indexes dataset
+    """
+    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
+    evolved_wfs_path = "{0}/evolved_wfs/{1}".format(save_dirname, full_info_fname)
+    final_wf_blocks = np.loadtxt(
+        "{0}_final_wf_blocks.txt".format(evolved_wfs_path), dtype=np.complex128
+    )
+    tgrid = None
+    full_wf = None
+    return final_wf_blocks, tgrid, full_wf
+
+
+def merge_data_evolved_wfs_blocks(
+    file_name, protocol_name, ctrls_name, final_wf_blocks, tgrid=None, full_wf=None
+):
+    """Merges the raw data from the extra controls optimization into an HDF5 file
+    file_name, in the optimization_fids group under the protocol_name subgroup, and dataset
+    files indexed by the controls scheme controls_name
+    Parameters:
+        file_name (str):                name of the HDF5 file
+        protocol_name (str):            name of the protocol which indexes subgroup
+        ctrls_name (str):               name of the controls scheme which indexes dataset
+        final_wf_blocks (np.ndarray):   final wavefunction after evolution with given control
+    """
+    f = open_file(file_name)
+    protocol_grp = f.require_group("evolved_wfs/{0}".format(protocol_name))
+    final_wf_dataset = protocol_grp.require_dataset(
+        "{0}_final_wf_blocks".format(ctrls_name),
+        final_wf_blocks.shape,
+        final_wf_blocks.dtype,
+    )
+    final_wf_dataset[:] = final_wf_blocks
+    f.close()
+    return None
+
+
+def load_data_evolved_wfs_blocks(
+    file_name, protocol_name, ctrls_name, get_full_wf=False
+):
+    """Loads the data from the evolved wavefunctions from an HDF5 file
+    file_name, in the agp_coeffs group under the protocol_name subgroup, and dataset
+    files indexed by the controls scheme controls_name
+    Parameters:
+        file_name (str):            name of the HDF5 file
+        protocol_name (str):        name of the protocol which indexes subgroup
+        ctrls_name (str):           name of the controls scheme which indexes dataset
+    """
+    f = open_file(file_name, mode="r")
+    protocol_grp = f.require_group("evolved_wfs/{0}".format(protocol_name))
+    final_wf_dataset = protocol_grp["{0}_final_wf_blocks".format(ctrls_name)]
+    final_wf_blocks = final_wf_dataset[:]
+    tgrid = None
+    full_wf = None
+    return final_wf_blocks, tgrid, full_wf
+
+
 def delete_data_dump_files(
     Ns,
     model_name,

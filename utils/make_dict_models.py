@@ -32,7 +32,7 @@ param_names_dict = {
     "LR_Ising_1D": "J{0}_hx{1}_alpha{2}",
     "Field_Sensing_1D": "J{0}_hx{1}_hz{2:.6f}",
     "Field_Sensing_1D_Sweep": "J{0}_hx{1}_hz{2:.6f}",
-    "TFIM_k_Block_Annealing_1D": "J{0}_hx{1}_k{0:.6f}",
+    "TFIM_k_Block_Annealing_1D": "J{0}_hx{1}",  # doesn't include k in file naming
     "Disorder_Ising_2D": "J{0}_hx{1}_disorder{2:.6f}_seed{3}",
 }
 

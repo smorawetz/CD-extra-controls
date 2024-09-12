@@ -12,6 +12,8 @@ from utils.file_IO import (
     load_raw_data_agp_coeffs,
     merge_data_evolved_wfs,
     load_raw_data_evolved_wfs,
+    merge_data_evolved_wfs_blocks,
+    load_raw_data_evolved_wfs_blocks,
     merge_data_optimization_fids,
     load_raw_data_optimization_fids,
 )
@@ -134,6 +136,48 @@ def run_universal_evolved_wfs_merge(
     names_list = [file_name, protocol_name, controls_name]
     final_wf, tgrid, full_wf = load_raw_data_evolved_wfs(*names_list)
     merge_data_evolved_wfs(*names_list, final_wf, tgrid, full_wf)
+
+
+def run_universal_evolved_wfs_blocks_merge(
+    Ns,
+    model_name,
+    H_params,
+    symmetries,
+    ## schedule params
+    sched,
+    ## controls params
+    ctrls,
+    ctrls_couplings,
+    ctrls_args,
+    ## agp params
+    agp_order,
+    AGPtype,
+    norm_type,
+    window_start,
+    window_end,
+    ## simulation params
+    grid_size,
+):
+    file_name, _, controls_name = make_data_dump_name(
+        Ns,
+        model_name,
+        H_params,
+        symmetries,
+        sched,
+        ctrls,
+        ctrls_couplings,
+        ctrls_args,
+        agp_order,
+        AGPtype,
+        norm_type,
+        grid_size,
+    )
+    protocol_name = make_universal_protocol_name(
+        AGPtype, norm_type, agp_order, window_start, window_end, grid_size, sched
+    )
+    names_list = [file_name, protocol_name, controls_name]
+    final_wf, tgrid, full_wf = load_raw_data_evolved_wfs_blocks(*names_list)
+    merge_data_evolved_wfs_blocks(*names_list, final_wf, tgrid, full_wf)
 
 
 def run_optimization_fids_merge(

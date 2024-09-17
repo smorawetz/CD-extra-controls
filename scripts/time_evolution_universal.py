@@ -42,6 +42,7 @@ def run_time_evolution_universal(
     window_end=1.0,
     save_protocol_wf=False,
     print_fid=False,
+    print_states=False,
 ):
     ham = build_ham(
         model_name,
@@ -59,16 +60,11 @@ def run_time_evolution_universal(
     # add the controls
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    if agp_order > 0:
-        coeffs_fname = make_fit_coeffs_fname(
-            AGPtype, agp_order, window_start, window_end
-        )
-        coeffs = np.loadtxt(
-            "{0}/universal_coeffs/{1}.txt".format(
-                os.environ["CD_CODE_DIR"], coeffs_fname
-            ),
-            ndmin=1,
-        )
+    coeffs_fname = make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end)
+    coeffs = np.loadtxt(
+        "{0}/universal_coeffs/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
+        ndmin=1,
+    )
 
     if AGPtype == "commutator" and agp_order > 0:
         ham.alphas_interp = get_universal_coeffs_func(coeffs)
@@ -100,8 +96,9 @@ def run_time_evolution_universal(
         save_data_evolved_wfs(*names_list, final_state)
 
     if print_fid:
-        print(init_state)
-        print(final_state)
-        print(targ_state)
         print("fidelity is ", calc_fid(targ_state, final_state))
+    if print_states:
+        print("init state is\n", init_state)
+        print("final state is\n", final_state)
+        print("target state is\n", targ_state)
     return final_state

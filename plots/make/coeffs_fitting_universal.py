@@ -16,7 +16,6 @@ from tools.build_ham import build_ham
 from tools.calc_universal_fit_coeffs import fit_universal_coeffs
 from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
-from utils.file_naming import make_base_fname
 
 with open("{0}/dicts/fit_funcs.pkl".format(os.environ["CD_CODE_DIR"]), "rb") as f:
     fit_funcs_dict = pickle.load(f)

@@ -38,6 +38,7 @@ def run_time_evolution(
     coeffs_ctrls_name=None,
     coeffs_sched=None,
     print_fid=False,
+    print_states=False,
 ):
     ham = build_ham(
         model_name,
@@ -102,4 +103,8 @@ def run_time_evolution(
 
     if print_fid:
         print("fidelity is ", calc_fid(targ_state, final_state))
+    if print_states:
+        print("init state is\n", init_state)
+        print("final state is\n", final_state)
+        print("target state is\n", targ_state)
     return final_state

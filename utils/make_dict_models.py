@@ -16,10 +16,7 @@ from models.spinhalf_1d.local_field_sensing_1d_sweep import Local_Field_Sensing_
 from models.spinless_fermion_1d.TFIM_k_block_annealing_1d import (
     TFIM_k_Block_Annealing_1D,
 )
-from models.spinless_fermion_1d.random_TFIM_1d import TFIM_k_Block_Random_1D
-from models.spinless_fermion_1d.TFIM_fermion_annealing_1d import (
-    TFIM_Fermion_Annealing_1D,
-)
+from models.spinless_fermion_1d.TFIM_cell_random_k_block import TFIM_Cell_Random_k_Block
 
 from models.spinhalf_2d.disorder_Ising_2d import Disorder_Ising_2D
 
@@ -31,9 +28,8 @@ models_dict = {
     "LR_Ising_1D": LR_Ising_Annealing_1D,
     "Field_Sensing_1D": Local_Field_Sensing_1D,
     "Field_Sensing_1D_Sweep": Local_Field_Sensing_1D_Sweep,
-    "TFIM_Fermion_1D": TFIM_Fermion_Annealing_1D,
     "TFIM_k_Block_Annealing_1D": TFIM_k_Block_Annealing_1D,
-    "TFIM_k_Block_Random_Annealing_1D": TFIM_k_Block_Random_1D,
+    "TFIM_k_Block_Cell_Random": TFIM_Cell_Random_k_Block,
     "Disorder_Ising_2D": Disorder_Ising_2D,
 }
 param_names_dict = {
@@ -44,9 +40,8 @@ param_names_dict = {
     "LR_Ising_1D": "J{0}_hx{1}_alpha{2}",
     "Field_Sensing_1D": "J{0}_hx{1}_hz{2:.6f}",
     "Field_Sensing_1D_Sweep": "J{0}_hx{1}_hz{2:.6f}",
-    "TFIM_Fermion_1D": "J{0}_hx{1}_Nd{2}",
     "TFIM_k_Block_Annealing_1D": "J{0}_hx{1}",  # doesn't include k in file naming
-    "TFIM_k_Block_Random_Annealing_1D": "J{0}_hx{1}_Nd{2}",  # J and h are to draw from uniform [0, *]
+    "TFIM_k_Block_Cell_Random": "J{0}_hx{1}_seed{2}",  # h is to draw from uniform [0, 2 * hx]
     "Disorder_Ising_2D": "J{0}_hx{1}_disorder{2:.6f}_seed{3}",
 }
 

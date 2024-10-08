@@ -29,23 +29,17 @@ class TFIM_Random_Annealing_1D(SpinHalf_1D):
         rescale=1,
     ):
 
-        J, hx, _ = map(lambda x: x * rescale, H_params)
-        Nd = H_params[2]
+        J, hx, _, _ = map(lambda x: x * rescale, H_params)
+        Nc = H_params[2]
+        seed = H_params[3]
         pairs = neighbours_1d(Ns, boundary_conds)
 
-        Nd = len(hi_coeffs) - 1
-        ms = np.arange(Nd + 1)
+        np.random.seed(seed)
+        disord_cell = hx * np.random.rand(Nc)
 
-        self.J_terms = [
-            [sum(Jij_coeffs * np.cos(2 * np.pi * i / 2**ms)), i, (i + 1) % Ns]
-            for i in range(Ns)
-        ]
-        self.hx_terms = [
-            [sum(hi_coeffs * np.cos(2 * np.pi * i / 2**ms)), i] for i in range(Ns)
-        ]
-        self.flipped_hx_terms = [
-            [-sum(hi_coeffs * np.cos(2 * np.pi * i / 2**ms)), i] for i in range(Ns)
-        ]
+        self.J_terms = [[-J, i, (i + 1) % Ns] for i in range(Ns)]
+        self.hx_terms = [[disord_cell[i % Nc], i] for i in range(Ns)]
+        self.flipped_hx_terms = [[-disord_cell[i % Nc], i] for i in range(Ns)]
 
         super().__init__(
             Ns,

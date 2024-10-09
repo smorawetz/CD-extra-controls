@@ -89,6 +89,8 @@ def run_time_evolution_universal_blocks(
             ham.alphas_interp = get_universal_coeffs_func(coeffs)
         elif AGPtype == "chebyshev" and agp_order > 0:
             ham.polycoeffs_interp = get_universal_coeffs_func(coeffs)
+        else:
+            raise ValueError("AGPtype {0} is not supported".format(AGPtype))
 
         cd_protocol = CD_Protocol(
             ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size

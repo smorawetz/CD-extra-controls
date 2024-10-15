@@ -11,6 +11,16 @@ def neighbours_1d(N, boundary_conds):
         raise ValueError("{0} is not a valid boundary condition".format(boundary_conds))
 
 
+def next_neighbours_1d(N, boundary_conds):
+    """Get next neighbouring pairs of sites in a 1D chain"""
+    if boundary_conds == "periodic":
+        return [[i, (i + 2) % N] for i in range(N)]
+    elif boundary_conds == "open":
+        return [[i, i + 2] for i in range(N - 2)]
+    else:
+        raise ValueError("{0} is not a valid boundary condition".format(boundary_conds))
+
+
 def triplets_1d(N, boundary_conds):
     """Get all triplets of neighbouring spins (3 in a row) in a 1D chain"""
     if boundary_conds == "periodic":

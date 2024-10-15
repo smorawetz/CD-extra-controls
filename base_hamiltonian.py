@@ -119,3 +119,35 @@ class Base_Hamiltonian:
         idx = eigvals.argsort()[0]
         inst_gs = eigvecs[:, idx]
         return inst_gs
+
+    def get_spectral_function(self, t, ground_state=False, central_50=False):
+        """Returns two arrays of points, corresponding to excitation frequencies
+        $\omega$ and the value of the spectral function $\Phi(\omega)$ at these
+        excitations, at a given instant of time
+        Parameters:
+            t (float):              Time at which to calculate the spectral function
+            ground_state (bool):    Whether or not to return for the whole spectrum
+                                    or just excitations connected to the ground state
+        Returns:
+            omegas (np.array):      The excitation frequencies
+            phis (np.array):        The spectral function evaluated at omegas
+        """
+        E, V = self.bareH.eigh(time=t)
+        inds = E.argsort()[::1]
+        if central_50:
+            inds = inds[int(0.25 * len(inds)) : int(0.75 * len(inds))]
+        E = E[inds]
+        V = V[:, inds]
+        N = len(inds)
+        E_mat = E[np.repeat(np.arange(0, N), N).reshape(N, N)]
+        E_mat = E_mat - E_mat.T  # gives Mij = Ei - Ej
+        dH_mat = self.dlamH.toarray(time=t)
+        dH2_mat = np.matmul(np.conjugate(V.transpose()), np.matmul(dH_mat, V))
+        dH2_mat = np.abs(dH2_mat) ** 2
+        if ground_state:
+            omegas = E_mat[1:, 0]
+            phis = dH2_mat[1:, 0]
+        else:
+            omegas = E_mat[np.tril_indices(len(E), -1)]
+            phis = dH2_mat[np.tril_indices(len(E), -1)]
+        return omegas, phis

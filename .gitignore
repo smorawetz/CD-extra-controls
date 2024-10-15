@@ -10,6 +10,8 @@ plots/data
 
 data_dump
 h5data
+universal_coeffs
+spec_fn_data
 
 dicts
 tests

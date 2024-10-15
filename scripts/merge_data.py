@@ -16,9 +16,13 @@ from utils.file_IO import (
     load_raw_data_evolved_wfs_blocks,
     merge_data_optimization_fids,
     load_raw_data_optimization_fids,
+    merge_data_spec_fn,
+    load_raw_data_spec_fn,
 )
 from utils.file_naming import (
+    make_controls_name,
     make_data_dump_name,
+    make_file_name,
     make_universal_protocol_name,
     combine_names,
 )
@@ -216,3 +220,22 @@ def run_optimization_fids_merge(
     names_list = (file_name, protocol_name, ctrls_name)
     coeffs, fids = load_raw_data_optimization_fids(*names_list)
     merge_data_optimization_fids(*names_list, coeffs, fids)
+
+
+def run_spectral_functions_merge(
+    lam,
+    Ns,
+    model_name,
+    H_params,
+    symmetries,
+    ## schedule params
+    sched,
+    ## controls params
+    ctrls,
+    ctrls_couplings,
+    ctrls_args,
+):
+    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
+    freqs, spec_fn = load_raw_data_spec_fn(file_name, ctrls_name, lam)
+    merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam)

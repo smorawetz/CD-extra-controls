@@ -9,6 +9,8 @@ import numpy as np
 
 from utils.file_naming import combine_names
 
+DATA_DIR = os.environ["DATA_DIR"]
+
 
 def open_file(file_name, mode="a"):
     return h5py.File("h5data/{0}.h5".format(file_name), mode)
@@ -27,7 +29,7 @@ def save_data_agp_coeffs(
         coeff_grid (np.ndarray):    grid of AGP coefficients
         lanc_grid (np.ndarray):     grid of Lanczos coefficients, if needed
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     ctrls_free_fname = combine_names(file_name, protocol_name)
     tgrid_path = "{0}/agp_coeffs/{1}_tgrid.txt".format(save_dirname, ctrls_free_fname)
@@ -47,7 +49,7 @@ def load_raw_data_agp_coeffs(file_name, protocol_name, ctrls_name):
         protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     ctrls_free_fname = combine_names(file_name, protocol_name)
     tgrid_path = "{0}/agp_coeffs/{1}_tgrid.txt".format(save_dirname, ctrls_free_fname)
@@ -123,7 +125,7 @@ def save_data_optimization_fids(file_name, protocol_name, ctrls_name, coeffs, fi
         ctrls_name (str):           name of the controls scheme which indexes dataset
         coeffs (np.ndarray):        coefficients of the control scheme
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     optim_list_fname = "{0}/ctrls_optim/{1}.txt".format(save_dirname, full_info_fname)
     with open(optim_list_fname, "a") as data_file:
@@ -139,7 +141,7 @@ def load_raw_data_optimization_fids(file_name, protocol_name, ctrls_name):
         ctrls_name (str):           name of the controls scheme which indexes dataset
     """
     pass
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     optim_list_fname = "{0}/ctrls_optim/{1}.txt".format(save_dirname, full_info_fname)
     data_file = np.loadtxt(optim_list_fname)
@@ -194,7 +196,7 @@ def save_data_evolved_wfs(
         full_wf (np.ndarray):       wavefunction at all points at a given time,
                                     associated with points on tgrid
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     tgrid_fname = combine_names(file_name, protocol_name)
     evolved_wfs_path = "{0}/evolved_wfs/{1}".format(save_dirname, full_info_fname)
@@ -214,7 +216,7 @@ def load_raw_data_evolved_wfs(file_name, protocol_name, ctrls_name):
         protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     tgrid_fname = combine_names(file_name, protocol_name)
     evolved_wfs_path = "{0}/evolved_wfs/{1}".format(save_dirname, full_info_fname)
@@ -308,7 +310,7 @@ def save_data_evolved_wfs_blocks(
         final_wf_blocks (np.ndarray):   array with first column as k blocks, later
                                         columns are components of wavefunction
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     evolved_wfs_path = "{0}/evolved_wfs/{1}".format(save_dirname, full_info_fname)
     np.savetxt("{0}_final_wf_blocks.txt".format(evolved_wfs_path), final_wf_blocks)
@@ -323,7 +325,7 @@ def load_raw_data_evolved_wfs_blocks(file_name, protocol_name, ctrls_name):
         protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     evolved_wfs_path = "{0}/evolved_wfs/{1}".format(save_dirname, full_info_fname)
     final_wf_blocks = np.loadtxt(
@@ -388,7 +390,7 @@ def save_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam):
         spec_fn (np.ndarray):       spectral function (y axis of spectral function plot)
         lam (np.float):             value of lambda at which spectral function is evaluated
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, ctrls_name)
     data_path = "{0}/spec_fn_data/{1}".format(save_dirname, full_info_fname)
     np.savetxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam), freqs)
@@ -404,7 +406,7 @@ def load_raw_data_spec_fn(file_name, ctrls_name, lam):
         ctrls_name (str):           name of the controls scheme which indexes dataset
         lam (np.float):             value of lambda at which spectral function is evaluated
     """
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, ctrls_name)
     data_path = "{0}/spec_fn_data/{1}".format(save_dirname, full_info_fname)
     freqs = np.loadtxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam))
@@ -489,7 +491,7 @@ def delete_data_dump_files(
         norm_type,
         grid_size,
     )
-    save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
+    save_dirname = "{0}/data_dump".format(DATA_DIR)
     agp_coeffs_path = "{0}/agp_coeffs/{1}".format(save_dirname, data_dump_fname)
     ctrls_optim_path = "{0}/ctrls_optim/{1}".format(save_dirname, data_dump_fname)
     evolved_wfs_path = "{0}/evolved_wfs/{1}".format(save_dirname, data_dump_fname)

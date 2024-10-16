@@ -13,7 +13,7 @@ DATA_DIR = os.environ["DATA_DIR"]
 
 
 def open_file(file_name, mode="a"):
-    return h5py.File("h5data/{0}.h5".format(file_name), mode)
+    return h5py.File("{0}/h5data/{1}.h5".format(DATA_DIR, file_name), mode)
 
 
 def save_data_agp_coeffs(

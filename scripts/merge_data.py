@@ -14,6 +14,8 @@ from utils.file_IO import (
     load_raw_data_evolved_wfs,
     merge_data_evolved_wfs_blocks,
     load_raw_data_evolved_wfs_blocks,
+    load_raw_data_opt_windows,
+    merge_data_opt_windows,
     merge_data_optimization_fids,
     load_raw_data_optimization_fids,
     merge_data_spec_fn,
@@ -239,3 +241,22 @@ def run_spectral_functions_merge(
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
     freqs, spec_fn = load_raw_data_spec_fn(file_name, ctrls_name, lam)
     merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam)
+
+
+def run_opt_windows_merge(
+    lam,
+    Ns,
+    model_name,
+    H_params,
+    symmetries,
+    ## schedule params
+    sched,
+    ## controls params
+    ctrls,
+    ctrls_couplings,
+    ctrls_args,
+):
+    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
+    window_arr = load_raw_data_opt_windows(file_name, ctrls_name, lam)
+    merge_data_opt_windows(file_name, ctrls_name, window_arr, lam)

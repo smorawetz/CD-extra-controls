@@ -5,7 +5,6 @@ import pickle
 sys.path.append(os.environ["CD_CODE_DIR"])
 
 import numpy as np
-import matplotlib.pyplot as plt
 import quspin
 
 with open("{0}/dicts/fit_funcs.pkl".format(os.environ["CD_CODE_DIR"]), "rb") as f:
@@ -100,7 +99,7 @@ def find_window(
     clean_window_end = omega0
 
     # slowly increment upper window until epsilon condition is reached
-    for window_end in np.linspace(clean_window_end, Ns[0] * clean_window_end, 101):
+    for window_end in np.arange(clean_window_end, 3 * clean_window_end + 0.1, 0.1):
         window_start = clean_window_start / clean_window_end * window_end
         cost = calc_max_cost(
             omega_pts,

@@ -13,7 +13,11 @@ with open("{0}/dicts/fit_funcs.pkl".format(os.environ["CD_CODE_DIR"]), "rb") as 
 from tools.calc_universal_fit_coeffs import fit_universal_coeffs
 from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
-from utils.file_naming import make_file_name, make_controls_name
+from utils.file_naming import (
+    make_file_name,
+    make_controls_name,
+    make_fitting_protocol_name,
+)
 from utils.file_IO import load_data_spec_fn, save_data_opt_windows
 
 CUTOFF = 1e-16
@@ -61,6 +65,7 @@ def find_window(
 ):
     # load small size spectral function ED data
     file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    protocol_name = make_fitting_protocol_name(AGPtype, agp_order, sched)
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
 
     tval = sched.get_t(lamval)
@@ -114,7 +119,7 @@ def find_window(
             break
 
     window_arr = np.array([window_start, window_end])
-    save_data_opt_windows(file_name, ctrls_name, window_arr, lamval)
+    save_data_opt_windows(file_name, protocol_name, ctrls_name, window_arr, lamval)
     return window_start, window_end
 
 

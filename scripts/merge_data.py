@@ -26,6 +26,7 @@ from utils.file_naming import (
     make_data_dump_name,
     make_file_name,
     make_universal_protocol_name,
+    make_fitting_protocol_name,
     combine_names,
 )
 
@@ -255,8 +256,12 @@ def run_opt_windows_merge(
     ctrls,
     ctrls_couplings,
     ctrls_args,
+    ## AGP params
+    AGPtype,
+    agp_order,
 ):
     file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    protocol_name = make_fitting_protocol_name(AGPtype, agp_order, sched)
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
-    window_arr = load_raw_data_opt_windows(file_name, ctrls_name, lam)
-    merge_data_opt_windows(file_name, ctrls_name, window_arr, lam)
+    window_arr = load_raw_data_opt_windows(file_name, protocol_name, ctrls_name, lam)
+    merge_data_opt_windows(file_name, protocol_name, ctrls_name, window_arr, lam)

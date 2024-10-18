@@ -457,49 +457,56 @@ def load_data_spec_fn(file_name, ctrls_name, lam):
     return freqs, spec_fn
 
 
-def save_data_opt_windows(file_name, ctrls_name, window_arr, lam):
+def save_data_opt_windows(file_name, protocol_name, ctrls_name, window_arr, lam):
     """Saves the raw data from optimizing the window in which to fit the approximate
     AGP for a given model
     Parameters:
         file_name (str):            name of the HDF5 file
+        protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
         window_arr (np.ndarray):    array of [window_start, window_end]
         lam (np.float):             value of lambda at which optimal fit is obtained
     """
     save_dirname = "{0}/data_dump".format(DATA_DIR)
-    full_info_fname = combine_names(file_name, ctrls_name)
+    full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     data_path = "{0}/MB_fitting_windows/{1}".format(save_dirname, full_info_fname)
     np.savetxt("{0}_window_range_lam{1:.6f}.txt".format(data_path, lam), window_arr)
     return None
 
 
-def load_raw_data_opt_windows(file_name, ctrls_name, lam):
+def load_raw_data_opt_windows(file_name, protocol_name, ctrls_name, lam):
     """Loads the raw data from optimizing the window in which to fit the approximate
     AGP for a given model
     Parameters:
         file_name (str):            name of the HDF5 file
+        protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
         lam (np.float):             value of lambda at which optimal fit is obtained
     """
     save_dirname = "{0}/data_dump".format(DATA_DIR)
-    full_info_fname = combine_names(file_name, ctrls_name)
+    full_info_fname = combine_names(file_name, protocol_name, ctrls_name)
     data_path = "{0}/MB_fitting_windows/{1}".format(save_dirname, full_info_fname)
     window_arr = np.loadtxt("{0}_window_range_lam{1:.6f}.txt".format(data_path, lam))
     return window_arr
 
 
-def merge_data_opt_windows(file_name, ctrls_name, window_arr, lam):
+def merge_data_opt_windows(file_name, protocol_name, ctrls_name, window_arr, lam):
     """Merges the raw data from the optimal fitting into an HDF5 file
     file_name, in the optimization_fids group under the protocol_name subgroup, and dataset
     files indexed by the controls scheme controls_name
     Parameters:
         file_name (str):            name of the HDF5 file
+        protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
         window_arr (np.ndarray):    array of [window_start, window_end]
         lam (np.float):             value of lambda at which spectral function is evaluated
     """
     f = open_file(file_name)
-    protocol_grp = f.require_group("MB_fitting_windows/")
+    protocol_grp = f.require_group(
+        "MB_fitting_windows/{0}".format(
+            protocol_name,
+        )
+    )
     window_arr_dataset = protocol_grp.require_dataset(
         "{0}_window_range_lam{1:.6f}".format(ctrls_name, lam),
         window_arr.shape,
@@ -510,17 +517,18 @@ def merge_data_opt_windows(file_name, ctrls_name, window_arr, lam):
     return None
 
 
-def load_data_opt_windows(file_name, ctrls_name, lam):
+def load_data_opt_windows(file_name, protocol_name, ctrls_name, lam):
     """Loads the data from the optimal fitting from an HDF5 file
     file_name, in the agp_coeffs group under the protocol_name subgroup, and dataset
     files indexed by the controls scheme controls_name
     Parameters:
         file_name (str):            name of the HDF5 file
+        protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
         lam (np.float):             value of lambda at which AGP fitting is evaluated
     """
     f = open_file(file_name, mode="r")
-    protocol_grp = f.require_group("MB_fitting_windows/")
+    protocol_grp = f.require_group("MB_fitting_windows/{0}".format(protocol_name))
     window_arr_dataset = protocol_grp[
         "{0}_window_range_lam{1:.6f}".format(ctrls_name, lam)
     ]

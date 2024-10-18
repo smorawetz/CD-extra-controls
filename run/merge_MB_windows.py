@@ -39,6 +39,10 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
+# AGP params
+agp_order = 5
+AGPtype = "chebyshev"
+
 Nlamvals = 101
 lamvals = np.linspace(0, 1, Nlamvals)
 
@@ -53,4 +57,6 @@ for lamval in lamvals:
         ctrls,
         ctrls_couplings,
         ctrls_args,
+        AGPtype,
+        agp_order,
     )

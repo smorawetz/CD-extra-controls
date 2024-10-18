@@ -65,6 +65,15 @@ def make_agp_str(AGPtype, norm_type, agp_order):
         raise ValueError(f"norm_type {norm_type} not recognized")
 
 
+def make_univ_agp_str(AGPtype, agp_order):
+    if agp_order == 0:
+        return "no_agp"
+    if AGPtype in AGPtype_dict.keys():
+        return f"{AGPtype_dict[AGPtype]}_ord{agp_order}agp"
+    elif AGPtype not in AGPtype_dict.keys():
+        raise ValueError(f"AGPtype {AGPtype} not recognized")
+
+
 # might need to refactor if have controls other than harmonics, i.e. not sin couplings
 def make_ctrls_info_str(ctrls_couplings, ctrls_harmonics, ctrls_coeffs=None):
     if ctrls_coeffs is not None:
@@ -93,6 +102,12 @@ def make_universal_protocol_name(
     ) + "_window{0:.4f}-{1:.4f}".format(window_start, window_end)
     schedname = scheds_name_dict[type(sched)]
     return f"{agp_str}_{grid_size}steps_{schedname}_sched_tau{sched.tau:.6f}"
+
+
+def make_fitting_protocol_name(AGPtype, agp_order, sched):
+    agp_str = make_univ_agp_str(AGPtype, agp_order)
+    schedname = scheds_name_dict[type(sched)]
+    return f"{agp_str}_{schedname}_sched_tau{sched.tau:.6f}"
 
 
 def make_controls_name(ctrls_couplings, ctrls_args):

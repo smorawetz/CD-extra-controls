@@ -101,4 +101,4 @@ def run_time_evolution_universal(
         print("init state is\n", init_state)
         print("final state is\n", final_state)
         print("target state is\n", targ_state)
-    return final_state
+    return final_state, targ_state

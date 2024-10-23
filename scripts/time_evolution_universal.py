@@ -7,6 +7,7 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 
 from cd_protocol import CD_Protocol
 from tools.build_ham import build_ham
+from tools.calc_universal_fit_coeffs import fit_universal_coeffs
 from tools.lin_alg_calls import calc_fid
 from utils.file_IO import save_data_evolved_wfs
 from utils.file_naming import (
@@ -60,11 +61,7 @@ def run_time_evolution_universal(
     # add the controls
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    coeffs_fname = make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end)
-    coeffs = np.loadtxt(
-        "{0}/universal_coeffs/{1}.txt".format(os.environ["CD_CODE_DIR"], coeffs_fname),
-        ndmin=1,
-    )
+    coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
 
     if AGPtype == "commutator" and agp_order > 0:
         ham.alphas_interp = get_universal_coeffs_func(coeffs)

@@ -55,6 +55,7 @@ def run_time_evolution_universal_blocks(
     )
     target_wfs_dict = {}  # populate with k: targ_wf
     final_wfs_dict = {}  # populate with k: final_wf
+    fid = 1
     for k in kblocks:
         H_params[-1] = k
         ham = build_ham(
@@ -102,6 +103,9 @@ def run_time_evolution_universal_blocks(
         t_data, wf_data = cd_protocol.matrix_evolve(init_state)
         final_state = wf_data[-1, :]
 
+        if print_fid:
+            fid *= calc_fid(final_state, targ_state)
+
         target_wfs_dict[k] = targ_state
         final_wfs_dict[k] = final_state
 
@@ -125,5 +129,8 @@ def run_time_evolution_universal_blocks(
     names_list = [file_name, protocol_name, controls_name]
 
     save_data_evolved_wfs_blocks(*names_list, final_wf)
+
+    if print_fid:
+        print("Fidelity: {0}".format(fid))
 
     return final_wf, target_wf

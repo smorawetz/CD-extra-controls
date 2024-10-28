@@ -99,7 +99,7 @@ def make_universal_protocol_name(
 ):
     agp_str = make_agp_str(
         AGPtype, norm_type, agp_order
-    ) + "_window{0:.4f}-{1:.4f}".format(window_start, window_end)
+    ) + "_window{0:.8f}-{1:.8f}".format(window_start, window_end)
     schedname = scheds_name_dict[type(sched)]
     return f"{agp_str}_{grid_size}steps_{schedname}_sched_tau{sched.tau:.6f}"
 
@@ -154,4 +154,4 @@ def combine_names(*args):
 
 
 def make_fit_coeffs_fname(AGPtype, agp_order, window_start, window_end):
-    return f"universal_fit_{AGPtype}_ord{agp_order}_start{window_start:.4f}_end{window_end:.4f}"
+    return f"universal_fit_{AGPtype}_ord{agp_order}_start{window_start:.8f}_end{window_end:.8f}"

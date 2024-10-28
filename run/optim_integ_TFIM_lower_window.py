@@ -28,7 +28,7 @@ from scripts.time_evolution_universal_blocks import run_time_evolution_universal
 J = 1
 h = 1
 # define the various parameters of the model/task
-full_Ns = [100]
+full_Ns = [250]
 block_Ns = [2]
 model_name = "TFIM_k_Block_Annealing_1D"
 H_params = [J, h, None]
@@ -45,7 +45,7 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-agp_order = 10
+agp_order = 2
 AGPtype = "chebyshev"
 norm_type = "trace"
 # window_start = 0.5
@@ -121,14 +121,16 @@ def optim_func(log_window_start, args, kwargs):
     with open(optim_list_fname, "a") as data_file:
         np.savetxt(data_file, np.expand_dims(np.array([*window_arr, fid]), axis=0))
     print("delta1: ", window_start, "delta2: ", window_end, "fid: ", fid)
-    return 1 - fid
+    # minimize -log(fid) since easier with small numbers and log is monotonic
+    return -np.log(fid)
 
 
-init_window_start = 0
+init_window_start = 1
 
 scipy.optimize.minimize_scalar(
     optim_func,
     args=(args, kwargs),
-    method="brent",
+    bracket=(1, 0),
+    method="golden",
     options={"disp": True},
 )

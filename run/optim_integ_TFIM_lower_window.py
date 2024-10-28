@@ -28,7 +28,7 @@ from scripts.time_evolution_universal_blocks import run_time_evolution_universal
 J = 1
 h = 1
 # define the various parameters of the model/task
-full_Ns = [250]
+full_Ns = [100]
 block_Ns = [2]
 model_name = "TFIM_k_Block_Annealing_1D"
 H_params = [J, h, None]
@@ -45,7 +45,7 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-agp_order = 2
+agp_order = 48
 AGPtype = "chebyshev"
 norm_type = "trace"
 # window_start = 0.5
@@ -125,12 +125,10 @@ def optim_func(log_window_start, args, kwargs):
     return -np.log(fid)
 
 
-init_window_start = 1
-
 scipy.optimize.minimize_scalar(
     optim_func,
     args=(args, kwargs),
-    bracket=(1, 0),
+    bracket=(0, -1),
     method="golden",
     options={"disp": True},
 )

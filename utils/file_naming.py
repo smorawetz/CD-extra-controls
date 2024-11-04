@@ -15,7 +15,11 @@ with open(f"{env_dir}/dicts/model_param_names.pkl", "rb") as f:
 norm_type_dict = {"trace": "infT", "ground_state": "zeroT"}
 AGPtype_dict = {"commutator": "comm", "krylov": "kry", "chebyshev": "cheby"}
 
-symmetries_names_dict = {"translation_1d": "K{0}", "spin_inversion": "Z{0}"}
+symmetries_names_dict = {
+    "translation_1d": "K{0}",
+    "spin_inversion": "Z{0}",
+    "m": "m{0}",
+}
 
 scheds_name_dict = {LinearSchedule: "lin", SmoothSchedule: "smooth"}
 
@@ -48,9 +52,14 @@ def make_symmetries_str(symmetries):
         return "no_symm"
     symm_strs = []
     for symmetry in symmetries:  # is a dict of (key: (op, num))
-        symm_strs.append(
-            symmetries_names_dict[symmetry].format(symmetries[symmetry][1])
-        )
+        if type(symmetries[symmetry]) == float:  # accounts for mag keyword
+            symm_strs.append(
+                symmetries_names_dict[symmetry].format(symmetries[symmetry])
+            )
+        else:
+            symm_strs.append(
+                symmetries_names_dict[symmetry].format(symmetries[symmetry][1])
+            )
     return "_".join(symm_strs)
 
 

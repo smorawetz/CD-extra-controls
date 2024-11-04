@@ -11,6 +11,7 @@ from models.spinhalf_1d.NNN_TFIM_annealing_1d import NNN_TFIM_Annealing_1D
 from models.spinhalf_1d.LTFIM_annealing_1d import LTFIM_Annealing_1D
 from models.spinhalf_1d.TFIM_sweep_disorder_1d import TFIM_Sweep_Disorder_1D
 from models.spinhalf_1d.LR_Ising_annealing_1d import LR_Ising_Annealing_1D
+from models.spinhalf_1d.XXZ_annealing_1d import XXZ_Annealing_1D
 from models.spinhalf_1d.local_field_sensing_1d import Local_Field_Sensing_1D
 from models.spinhalf_1d.local_field_sensing_1d_sweep import Local_Field_Sensing_1D_Sweep
 
@@ -28,6 +29,7 @@ models_dict = {
     "LTFIM_1D": LTFIM_Annealing_1D,
     "TFIM_Sweep_Disorder_1D": TFIM_Sweep_Disorder_1D,
     "LR_Ising_1D": LR_Ising_Annealing_1D,
+    "XXZ_1D": XXZ_Annealing_1D,
     "Field_Sensing_1D": Local_Field_Sensing_1D,
     "Field_Sensing_1D_Sweep": Local_Field_Sensing_1D_Sweep,
     "TFIM_k_Block_Annealing_1D": TFIM_k_Block_Annealing_1D,
@@ -41,6 +43,7 @@ param_names_dict = {
     "LTFIM_1D": "J{0}_hx{1}_hz{2}",
     "TFIM_Sweep_Disorder_1D": "J{0}_hi{1}_hf{2}_disorder{3:.6f}_seed{4}",
     "LR_Ising_1D": "J{0}_hx{1}_alpha{2}",
+    "XXZ_1D": "J{0}_Delta{1}",
     "Field_Sensing_1D": "J{0}_hx{1}_hz{2:.6f}",
     "Field_Sensing_1D_Sweep": "J{0}_hx{1}_hz{2:.6f}",
     "TFIM_k_Block_Annealing_1D": "J{0}_hx{1}",  # doesn't include k in file naming

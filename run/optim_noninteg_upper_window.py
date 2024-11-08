@@ -26,12 +26,11 @@ from scripts.time_evolution_universal import run_time_evolution_universal
 ###############################################################
 
 J = 1
-J2 = 0.25
-h = 1
+Delta = 1
 # define the various parameters of the model/task
-Ns = [10]
-model_name = "NNN_TFIM_1D"
-H_params = [J, J2, h]
+Ns = [12]
+model_name = "XXZ_1D"
+H_params = [J, Delta]
 boundary_conds = "periodic"
 symms = ["translation_1d", "spin_inversion"]
 symms_args = [[Ns], [Ns]]
@@ -40,6 +39,7 @@ symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
+symmetries["m"] = 0.0
 target_symmetries = symmetries
 
 model_kwargs = {}
@@ -54,14 +54,16 @@ ctrls_args = []
 
 opt_deltas = np.loadtxt("TFIM_clean_opt_deltas.txt")
 
-agp_order = 1
+agp_order = 10
 AGPtype = "chebyshev"
 norm_type = "trace"
 base_window_start = opt_deltas[agp_order - 1]
-# window_end = 4.0
-# rescale = 1 / window_end
 
-grid_size = 2000
+# choosing 4.0 below means keeping the same ratio of delta2 / delta1 as TFIM
+single_part_exc = 4.0
+single_part_rescale = single_part_exc / 4.0
+
+grid_size = 1000
 
 # have generic list of args that get used for every function
 args = (
@@ -90,7 +92,6 @@ args = (
 
 # now load coefficients for the universal fitting
 # NOTE: want to optimize the windows so fill w/ None to start
-
 kwargs = {
     "rescale": None,
     "window_start": None,
@@ -112,7 +113,7 @@ optim_list_fname = "{0}/window_optim/{1}.txt".format(save_dirname, full_info_fna
 
 def optim_func(log_window_end, base_window_start, args, kwargs):
     window_end = np.exp(log_window_end)
-    window_start = base_window_start * window_end / 4.0
+    window_start = base_window_start * window_end * single_part_rescale / 4.0
     kwargs["rescale"] = 1 / window_end
     kwargs["window_start"] = window_start
     kwargs["window_end"] = window_end
@@ -128,10 +129,25 @@ def optim_func(log_window_end, base_window_start, args, kwargs):
     return -np.log(fid)
 
 
-scipy.optimize.minimize_scalar(
-    optim_func,
-    args=(base_window_start, args, kwargs),
-    bracket=(np.log(4 + agp_order), np.log(3 + agp_order)),
-    method="golden",
-    options={"disp": True},
-)
+def homebrow_optim(optim_func, base_window_start, args, kwargs, init_delta2, stepsize):
+    window_end = init_delta2
+    current_val = 999999  # - log F will never be less than 0
+    while True:
+        nlogfid = optim_func(np.log(window_end), base_window_start, args, kwargs)
+        if nlogfid > current_val:  # first peak in [window_end, window_end + stepsize]
+            break
+        else:
+            current_val = nlogfid
+            window_end -= stepsize
+    print("now going to optimize within this range")
+    # then do simple scipy optim to find best value within this range
+    scipy.optimize.minimize_scalar(
+        optim_func,
+        args=(base_window_start, args, kwargs),
+        bounds=(np.log(window_end), np.log(window_end + stepsize)),
+        method="bounded",
+        options={"disp": True},
+    )
+
+
+homebrow_optim(optim_func, base_window_start, args, kwargs, 30, 0.1)

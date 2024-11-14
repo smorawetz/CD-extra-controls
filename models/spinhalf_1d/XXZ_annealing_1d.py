@@ -31,8 +31,8 @@ class XXZ_Annealing_1D(SpinHalf_1D):
         J, Delta = map(lambda x: x * rescale, H_params)
         pairs = neighbours_1d(Ns, boundary_conds)
         self.Delta_terms = [[-Delta, *pairs[i]] for i in range(len(pairs))]
-        self.J_terms = [[-J / 2, *pairs[i]] for i in range(len(pairs))]
-        self.flipped_J_terms = [[J / 2, *pairs[i]] for i in range(len(pairs))]
+        self.J_terms = [[-J / 4, *pairs[i]] for i in range(len(pairs))]
+        self.flipped_J_terms = [[J / 4, *pairs[i]] for i in range(len(pairs))]
 
         super().__init__(
             Ns,

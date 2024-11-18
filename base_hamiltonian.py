@@ -139,15 +139,16 @@ class Base_Hamiltonian:
         E = E[inds]
         V = V[:, inds]
         N = len(inds)
-        E_mat = E[np.repeat(np.arange(0, N), N).reshape(N, N)]
-        E_mat = E_mat - E_mat.T  # gives Mij = Ei - Ej
         dH_mat = self.dlamH.toarray(time=t)
-        dH2_mat = np.matmul(np.conjugate(V.transpose()), np.matmul(dH_mat, V))
-        dH2_mat = np.abs(dH2_mat) ** 2
         if ground_state:
-            omegas = E_mat[1:, 0]
-            phis = dH2_mat[1:, 0]
+            omegas = E[1:] - E[0]
+            dHvec = np.matmul(np.conjugate(V[:, 0]), np.matmul(dH_mat, V[:, 1:]))
+            phis = np.abs(dHvec) ** 2
         else:
+            E_mat = E[np.repeat(np.arange(0, N), N).reshape(N, N)]
+            E_mat = E_mat - E_mat.T  # gives Mij = Ei - Ej
+            dH2_mat = np.matmul(np.conjugate(V.transpose()), np.matmul(dH_mat, V))
+            dH2_mat = np.abs(dH2_mat) ** 2
             omegas = E_mat[np.tril_indices(len(E), -1)]
             phis = dH2_mat[np.tril_indices(len(E), -1)]
         return omegas, phis

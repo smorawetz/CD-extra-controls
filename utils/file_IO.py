@@ -380,7 +380,7 @@ def load_data_evolved_wfs_blocks(
     return final_wf_blocks, tgrid, full_wf
 
 
-def save_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam):
+def save_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=False):
     """Saves the raw data from computing the spectral function spec_fn for a given
     model etc. at frequencies freqs at a value lam
     Parameters:
@@ -389,32 +389,44 @@ def save_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam):
         freqs (np.ndarray):         frequencies (x axis of spectral function plot)
         spec_fn (np.ndarray):       spectral function (y axis of spectral function plot)
         lam (np.float):             value of lambda at which spectral function is evaluated
+        ground_state (bool):        if True, the spectral function is evaluated for matrix
+                                    elements connecting the ground state
     """
     save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, ctrls_name)
     data_path = "{0}/spec_fn_data/{1}".format(save_dirname, full_info_fname)
-    np.savetxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam), freqs)
-    np.savetxt("{0}_spec_fn_lam{1:.6f}.txt".format(data_path, lam), spec_fn)
+    if ground_state:
+        np.savetxt("{0}_GS_freqs_lam{1:.6f}.txt".format(data_path, lam), freqs)
+        np.savetxt("{0}_GS_spec_fn_lam{1:.6f}.txt".format(data_path, lam), spec_fn)
+    else:
+        np.savetxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam), freqs)
+        np.savetxt("{0}_spec_fn_lam{1:.6f}.txt".format(data_path, lam), spec_fn)
     return None
 
 
-def load_raw_data_spec_fn(file_name, ctrls_name, lam):
+def load_raw_data_spec_fn(file_name, ctrls_name, lam, ground_state=False):
     """Loads the raw data from computing the spectral function spec_fn for a given
     model etc. at frequencies freqs at a value lam
     Parameters:
         file_name (str):            name of the HDF5 file
         ctrls_name (str):           name of the controls scheme which indexes dataset
         lam (np.float):             value of lambda at which spectral function is evaluated
+        ground_state (bool):        if True, the spectral function is evaluated for matrix
+                                    elements connecting the ground state
     """
     save_dirname = "{0}/data_dump".format(DATA_DIR)
     full_info_fname = combine_names(file_name, ctrls_name)
     data_path = "{0}/spec_fn_data/{1}".format(save_dirname, full_info_fname)
-    freqs = np.loadtxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam))
-    spec_fn = np.loadtxt("{0}_spec_fn_lam{1:.6f}.txt".format(data_path, lam))
+    if ground_state:
+        freqs = np.loadtxt("{0}_GS_freqs_lam{1:.6f}.txt".format(data_path, lam))
+        spec_fn = np.loadtxt("{0}_GS_spec_fn_lam{1:.6f}.txt".format(data_path, lam))
+    else:
+        freqs = np.loadtxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam))
+        spec_fn = np.loadtxt("{0}_spec_fn_lam{1:.6f}.txt".format(data_path, lam))
     return freqs, spec_fn
 
 
-def merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam):
+def merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=False):
     """Merges the raw data from the spectral function calculation into an HDF5 file
     file_name, in the optimization_fids group under the protocol_name subgroup, and dataset
     files indexed by the controls scheme controls_name
@@ -424,22 +436,36 @@ def merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam):
         freqs (np.ndarray):         frequencies (x axis of spectral function plot)
         spec_fn (np.ndarray):       spectral function (y axis of spectral function plot)
         lam (np.float):             value of lambda at which spectral function is evaluated
+        ground_state (bool):        if True, the spectral function is evaluated for matrix
+                                    elements connecting the ground state
     """
     f = open_file(file_name)
     protocol_grp = f.require_group("spec_fns/")
-    freqs_dataset = protocol_grp.require_dataset(
-        "{0}_freqs_lam{1:.6f}".format(ctrls_name, lam), freqs.shape, freqs.dtype
-    )
+    if ground_state:
+        freqs_dataset = protocol_grp.require_dataset(
+            "{0}_GS_freqs_lam{1:.6f}".format(ctrls_name, lam), freqs.shape, freqs.dtype
+        )
+        spec_fn_dataset = protocol_grp.require_dataset(
+            "{0}_GS_spec_fn_lam{1:.6f}".format(ctrls_name, lam),
+            spec_fn.shape,
+            spec_fn.dtype,
+        )
+    else:
+        freqs_dataset = protocol_grp.require_dataset(
+            "{0}_freqs_lam{1:.6f}".format(ctrls_name, lam), freqs.shape, freqs.dtype
+        )
+        spec_fn_dataset = protocol_grp.require_dataset(
+            "{0}_spec_fn_lam{1:.6f}".format(ctrls_name, lam),
+            spec_fn.shape,
+            spec_fn.dtype,
+        )
     freqs_dataset[:] = freqs
-    spec_fn_dataset = protocol_grp.require_dataset(
-        "{0}_spec_fn_lam{1:.6f}".format(ctrls_name, lam), spec_fn.shape, spec_fn.dtype
-    )
     spec_fn_dataset[:] = spec_fn
     f.close()
     return None
 
 
-def load_data_spec_fn(file_name, ctrls_name, lam):
+def load_data_spec_fn(file_name, ctrls_name, lam, ground_state=False):
     """Loads the data from the spectral function from an HDF5 file
     file_name, in the agp_coeffs group under the protocol_name subgroup, and dataset
     files indexed by the controls scheme controls_name
@@ -447,12 +473,20 @@ def load_data_spec_fn(file_name, ctrls_name, lam):
         file_name (str):            name of the HDF5 file
         ctrls_name (str):           name of the controls scheme which indexes dataset
         lam (np.float):             value of lambda at which spectral function is evaluated
+        ground_state (bool):        if True, the spectral function is evaluated for matrix
+                                    elements connecting the ground state
     """
     f = open_file(file_name, mode="r")
     protocol_grp = f.require_group("spec_fns/")
-    freqs_dataset = protocol_grp["{0}_freqs_lam{1:.6f}".format(ctrls_name, lam)]
+    if ground_state:
+        freqs_dataset = protocol_grp["{0}_GS_freqs_lam{1:.6f}".format(ctrls_name, lam)]
+        spec_fn_dataset = protocol_grp[
+            "{0}_GS_spec_fn_lam{1:.6f}".format(ctrls_name, lam)
+        ]
+    else:
+        freqs_dataset = protocol_grp["{0}_freqs_lam{1:.6f}".format(ctrls_name, lam)]
+        spec_fn_dataset = protocol_grp["{0}_spec_fn_lam{1:.6f}".format(ctrls_name, lam)]
     freqs = freqs_dataset[:]
-    spec_fn_dataset = protocol_grp["{0}_spec_fn_lam{1:.6f}".format(ctrls_name, lam)]
     spec_fn = spec_fn_dataset[:]
     return freqs, spec_fn
 

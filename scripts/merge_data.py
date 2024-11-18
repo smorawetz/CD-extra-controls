@@ -237,11 +237,17 @@ def run_spectral_functions_merge(
     ctrls,
     ctrls_couplings,
     ctrls_args,
+    ## optional params
+    ground_state=False,
 ):
     file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
-    freqs, spec_fn = load_raw_data_spec_fn(file_name, ctrls_name, lam)
-    merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam)
+    freqs, spec_fn = load_raw_data_spec_fn(
+        file_name, ctrls_name, lam, ground_state=ground_state
+    )
+    merge_data_spec_fn(
+        file_name, ctrls_name, freqs, spec_fn, lam, ground_state=ground_state
+    )
 
 
 def run_opt_windows_merge(

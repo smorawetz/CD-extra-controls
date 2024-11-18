@@ -13,8 +13,8 @@ from tools.schedules import SmoothSchedule
 from tools.symmetries import get_symm_op
 
 
-Ns = [8]
-model_name = "TFIM_1D"
+Ns = [12]
+model_name = "XXZ_1D"
 H_params = [1, 1]
 boundary_conds = "periodic"
 
@@ -28,6 +28,7 @@ symmetries = {
     )
     for i in range(len(symms))
 }
+symmetries["m"] = 0.0
 
 model_kwargs = {}
 
@@ -39,7 +40,9 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-lamval = 0.5
+lamval = 0.2
+
+ground_state = True
 
 run_spectral_functions_merge(
     lamval,
@@ -51,4 +54,5 @@ run_spectral_functions_merge(
     ctrls,
     ctrls_couplings,
     ctrls_args,
+    ground_state=ground_state,
 )

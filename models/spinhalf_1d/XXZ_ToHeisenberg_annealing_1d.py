@@ -30,9 +30,13 @@ class XXZ_ToHeisenberg_Annealing_1D(SpinHalf_1D):
 
         J, Delta = map(lambda x: x * rescale, H_params)
         pairs = neighbours_1d(Ns, boundary_conds)
-        self.pm_terms = [[-J / 4, *pairs[i]] for i in range(len(pairs))]
-        self.flipped_pm_terms = [[J / 4, *pairs[i]] for i in range(len(pairs))]
-        self.zz_terms = [[-Delta, *pairs[i]] for i in range(len(pairs))]
+        self.static_J_terms = [[-J / 6, *pairs[i]] for i in range(len(pairs))]
+        self.dynamic_Delta_terms = [[-Delta / 3, *pairs[i]] for i in range(len(pairs))]
+        self.dynamic_J_terms = [[-J / 12, *pairs[i]] for i in range(len(pairs))]
+        self.dlam_Delta_terms = [[-Delta / 3, *pairs[i]] for i in range(len(pairs))]
+        self.dlam_J_terms = [[J / 12, *pairs[i]] for i in range(len(pairs))]
+        self.final_Delta_terms = [[-Delta / 3, *pairs[i]] for i in range(len(pairs))]
+        self.final_J_terms = [[-J / 6, *pairs[i]] for i in range(len(pairs))]
 
         super().__init__(
             Ns,
@@ -49,27 +53,26 @@ class XXZ_ToHeisenberg_Annealing_1D(SpinHalf_1D):
     def build_H0(self):
         """Build QuSpin Hamiltonian for H0, which is component being
         "turned on" in annealing problem"""
-        s = [["+-", self.pm_terms], ["-+", self.pm_terms]]
-        d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
+        return None
 
     def build_H1(self):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        s = [["zz", self.zz_terms]]
-        d = []
-        return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
+        return None
 
     def build_bare_H(self):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        s = []
+        s = [
+            ["+-", self.static_J_terms],
+            ["-+", self.static_J_terms],
+        ]
         d = [
-            ["zz", self.zz_terms, turn_on_coupling, [self.schedule]],
-            ["+-", self.pm_terms, turn_off_coupling, [self.schedule]],
-            ["-+", self.pm_terms, turn_off_coupling, [self.schedule]],
+            ["zz", self.dynamic_Delta_terms, turn_on_coupling, [self.schedule]],
+            ["+-", self.dynamic_J_terms, turn_off_coupling, [self.schedule]],
+            ["-+", self.dynamic_J_terms, turn_off_coupling, [self.schedule]],
         ]
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
@@ -78,8 +81,9 @@ class XXZ_ToHeisenberg_Annealing_1D(SpinHalf_1D):
         the $\lambda$ derivative of the Hamiltonian
         """
         s = [
-            ["+-", self.flipped_pm_terms],
-            ["-+", self.flipped_pm_terms],
+            ["zz", self.dlam_Delta_terms],
+            ["+-", self.dlam_J_terms],
+            ["-+", self.dlam_J_terms],
         ]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
@@ -89,6 +93,10 @@ class XXZ_ToHeisenberg_Annealing_1D(SpinHalf_1D):
         Hamiltonian after annealing is complete, in the
         most symmetric possible basis to get the ground state easier
         """
-        s = [["zz", self.zz_terms]]
+        s = [
+            ["zz", self.final_Delta_terms],
+            ["+-", self.final_J_terms],
+            ["-+", self.final_J_terms],
+        ]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.targ_basis, **self.checks)

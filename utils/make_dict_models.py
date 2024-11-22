@@ -19,6 +19,9 @@ from models.spinhalf_1d.XXZ_ToHeisenberg_annealing_1d import (
 from models.spinhalf_1d.XXZ_NearHeisenberg_annealing_1d import (
     XXZ_NearHeisenberg_Annealing_1D,
 )
+from models.spinhalf_1d.XXZ_Delta1ToDelta2_annealing_1d import (
+    XXZ_Delta1ToDelta2_Annealing_1D,
+)
 from models.spinhalf_1d.XXZ_HalfHeisenberg_annealing_1d import (
     XXZ_HalfHeisenberg_Annealing_1D,
 )
@@ -44,6 +47,7 @@ models_dict = {
     "XXZ_ToHeisenberg_1D": XXZ_ToHeisenberg_Annealing_1D,
     "XXZ_HalfHeisenberg_1D": XXZ_HalfHeisenberg_Annealing_1D,
     "XXZ_NearHeisenberg_1D": XXZ_NearHeisenberg_Annealing_1D,
+    "XXZ_Delta1ToDelta2_1D": XXZ_Delta1ToDelta2_Annealing_1D,
     "Field_Sensing_1D": Local_Field_Sensing_1D,
     "Field_Sensing_1D_Sweep": Local_Field_Sensing_1D_Sweep,
     "TFIM_k_Block_Annealing_1D": TFIM_k_Block_Annealing_1D,
@@ -62,6 +66,7 @@ param_names_dict = {
     "XXZ_ToHeisenberg_1D": "J{0}_Delta{1}",
     "XXZ_HalfHeisenberg_1D": "J{0}_Delta{1}",
     "XXZ_NearHeisenberg_1D": "J{0}_Delta{1}",
+    "XXZ_Delta1ToDelta2_1D": "J{0}_Delta{1}",
     "Field_Sensing_1D": "J{0}_hx{1}_hz{2:.6f}",
     "Field_Sensing_1D_Sweep": "J{0}_hx{1}_hz{2:.6f}",
     "TFIM_k_Block_Annealing_1D": "J{0}_hx{1}",  # doesn't include k in file naming

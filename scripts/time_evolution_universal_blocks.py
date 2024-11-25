@@ -86,9 +86,9 @@ def run_time_evolution_universal_blocks(
             )
 
         # universal can only be commutator (straight polynomial) or chebyshev
-        if AGPtype == "commutator" and agp_order > 0:
+        if "commutator" in AGPtype and agp_order > 0:
             ham.alphas_interp = get_universal_coeffs_func(coeffs)
-        elif AGPtype == "chebyshev" and agp_order > 0:
+        elif "chebyshev" in AGPtype and agp_order > 0:
             ham.polycoeffs_interp = get_universal_coeffs_func(coeffs)
         else:
             raise ValueError("AGPtype {0} is not supported".format(AGPtype))

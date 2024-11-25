@@ -13,7 +13,13 @@ with open(f"{env_dir}/dicts/model_param_names.pkl", "rb") as f:
     param_names_dict = pickle.load(f)
 
 norm_type_dict = {"trace": "infT", "ground_state": "zeroT"}
-AGPtype_dict = {"commutator": "comm", "krylov": "kry", "chebyshev": "cheby"}
+AGPtype_dict = {
+    "commutator": "comm",
+    "commutator_alt": "comm_alt",
+    "krylov": "kry",
+    "chebyshev": "cheby",
+    "chebyshev_alt": "cheby_alt",
+}
 
 symmetries_names_dict = {
     "translation_1d": "K{0}",

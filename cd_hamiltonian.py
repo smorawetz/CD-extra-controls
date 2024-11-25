@@ -208,11 +208,11 @@ class Hamiltonian_CD(Base_Hamiltonian):
             Hmat (np.array):            Matrix representation of the bare Hamiltonian
             dlamHmat (np.array):        Matrix representation of dlamH
         """
-        if AGPtype == "commutator":
+        if "commutator" in AGPtype:
             return self.build_agp_mat_commutator(t, Hmat, dlamHmat)
-        elif AGPtype == "krylov":
+        elif "krylov" in AGPtype:
             return self.build_agp_mat_krylov(t, Hmat, dlamHmat)
-        elif AGPtype == "chebyshev":
+        elif "chebyshev" in AGPtype:
             return self.build_agp_mat_cheby(t, Hmat, dlamHmat)
         else:
             raise ValueError("Invalid type for AGP construction")

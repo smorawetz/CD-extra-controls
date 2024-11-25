@@ -31,7 +31,40 @@ def fit_universal_coeffs(agp_order, AGPtype, min_freq, max_freq, print_err=False
     """
     # assuming H rescaled by 1 / max_freq
     x = np.linspace(min_freq / max_freq, 1, FIT_PTS)
-    y = -1 / x
+    if "_alt" in AGPtype:
+        y = -np.ones_like(x)
+    else:
+        y = -1 / x
+    fit_func = fit_funcs_dict[AGPtype]
+    opt_coeffs, _ = curve_fit(fit_func, x, y, p0=np.zeros(agp_order))
+    if print_err:
+        fit_poly = fit_func(x, *opt_coeffs)
+        error = np.sum((fit_poly - y) ** 2) / FIT_PTS
+        print(error)
+    return opt_coeffs
+
+
+def fit_universal_coeffs_no_rescale(
+    agp_order, AGPtype, min_freq, max_freq, print_err=False
+):
+    """Calculate the coefficients from trying to fit -1/x by some basis choice of odd
+    polynomials in the window [window_start, window_end]
+    Parameters:
+        agp_order (int):        Order of the AGP, i.e. number of odd polynomials
+                                to attempt to fit 1/x with
+        AGPtype (str):          Type of approximate AGP to construct, cannot be
+                                'krylov' since this always depends on system
+                                details and cannot be universal
+        min_freq (float):       Point to start the fitting window of 1/x, must be > 0
+        max_freq (float):       Point to end the fitting window of 1/x, assumed to
+                                be > min_freq
+        print_err (bool):       Whether or not to print squared error per datapoint
+    """
+    x = np.linspace(min_freq, max_freq, FIT_PTS)
+    if "_alt" in AGPtype:
+        y = -np.ones_like(x)
+    else:
+        y = -1 / x
     fit_func = fit_funcs_dict[AGPtype]
     opt_coeffs, _ = curve_fit(fit_func, x, y, p0=np.zeros(agp_order))
     if print_err:

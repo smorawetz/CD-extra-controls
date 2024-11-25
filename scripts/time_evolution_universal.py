@@ -63,9 +63,9 @@ def run_time_evolution_universal(
 
     coeffs = fit_universal_coeffs(agp_order, AGPtype, window_start, window_end)
 
-    if AGPtype == "commutator" and agp_order > 0:
+    if "commutator" in AGPtype and agp_order > 0:
         ham.alphas_interp = get_universal_coeffs_func(coeffs)
-    elif AGPtype == "chebyshev" and agp_order > 0:
+    elif "chebyshev" in AGPtype and agp_order > 0:
         ham.polycoeffs_interp = get_universal_coeffs_func(coeffs)
 
     cd_protocol = CD_Protocol(

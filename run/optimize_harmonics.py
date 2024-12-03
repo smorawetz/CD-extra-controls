@@ -6,10 +6,13 @@ sys.path.append(os.environ["CD_CODE_DIR"])
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
 
-from scripts.optimize_harmonics_coeffs import optim_harmonic_coeffs
+from scripts.optimize_harmonics_coeffs import (
+    optim_harmonic_coeffs,
+    optim_harmonic_coeffs_line,
+)
 
 # define the various parameters of the model/task
-Ns = [4]
+Ns = [8]
 model_name = "TFIM_1D"
 H_params = [1, 1]  # seed 1 and disorder strength 0.1
 boundary_conds = "periodic"
@@ -33,7 +36,7 @@ ctrls = ["Hc1", "Hc2"]
 ctrls_couplings = ["sin", "sin"]
 ctrls_harmonics = [1]
 
-agp_order = 1
+agp_order = 0
 AGPtype = "krylov"
 norm_type = "trace"
 
@@ -68,4 +71,5 @@ maxfields = 3
 
 kwargs = {"append_str": append_str, "maxfields": maxfields}
 
-optim_harmonic_coeffs(*args, **kwargs)
+# optim_harmonic_coeffs(*args, **kwargs)
+optim_harmonic_coeffs_line(*args, **kwargs)

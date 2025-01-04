@@ -56,7 +56,7 @@ class TFIM_Cell_Random_k_Block(Spinless_Fermion_1D):
         # start loop over states in k block with k0
         k = k0
         # find index in range [0, full_Ns - 1] for this state k0
-        n = int(((full_Ns * k / np.pi - 1) / 2 + full_Ns / 2) % full_Ns)
+        n = int(np.round(((full_Ns * k / np.pi - 1) / 2 + full_Ns / 2) % full_Ns))
 
         nvals = []
         kvals = []

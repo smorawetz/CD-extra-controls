@@ -10,7 +10,7 @@ from tools.build_ham import build_ham
 from tools.schedules import LinearSchedule, SmoothSchedule
 from tools.symmetries import get_symm_op
 
-EDGE_OFFSET_FACTOR = 1000
+EDGE_OFFSET_FACTOR = 100
 
 
 def mod_tgrid(t_grid):

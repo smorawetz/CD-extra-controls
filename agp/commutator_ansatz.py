@@ -68,6 +68,21 @@ def compute_Rs(agp_order, calc_R, commutators, args):
     return Rmat, Rvec
 
 
+def combine_Rs_blocks(listof_Rmats, listof_Rvecs):
+    """Combine a list of R matrices and R vectors corresponding to
+    those in separate blcoks (of Hamiltonian) into a single R matrix and
+    R vector for use in the alpha coefficient calculation
+    Parameters:
+        listof_Rmats (list):        List of R matrices
+        listof_Rvecs (list):        List of R vectors
+    """
+    Rmat, Rvec = listof_Rmats[0], listof_Rvecs[0]
+    for j in range(1, len(listof_Rvecs)):
+        Rmat = Rmat + listof_Rmats[j]
+        Rvec = Rvec + listof_Rvecs[j]
+    return Rmat, Rvec
+
+
 def get_alphas(agp_order, H, dlam_H, norm_type, gstate=None):
     """Compute the alphas for the AGP ansatz given a Hamiltonian matrix
     and a matrix for dlam_H. Can compute for both infinite temperature

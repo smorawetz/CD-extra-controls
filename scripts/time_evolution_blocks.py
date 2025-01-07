@@ -120,6 +120,6 @@ def run_time_evolution_blocks(
     save_data_evolved_wfs_blocks(*names_list, final_wf)
 
     if print_fid:
-        print("Fidelity: {0}".format(fid))
+        print("Log fidelity: {0}".format(np.log(fid)))
 
     return final_wf, target_wf

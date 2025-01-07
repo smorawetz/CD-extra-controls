@@ -93,7 +93,7 @@ def run_time_evolution_universal(
         save_data_evolved_wfs(*names_list, final_state)
 
     if print_fid:
-        print("fidelity is ", calc_fid(targ_state, final_state))
+        print("Log fidelity:", np.log(calc_fid(targ_state, final_state)))
     if print_states:
         print("init state is\n", init_state)
         print("final state is\n", final_state)

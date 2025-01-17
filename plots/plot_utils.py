@@ -7,14 +7,15 @@ def std_settings():
     params = {
         "text.usetex": True,
         "font.family": "serif",
-        "legend.fontsize": 20,
+        "legend.fontsize": 24,
         "axes.labelsize": 28,
-        "xtick.labelsize": 14,
-        "ytick.labelsize": 14,
+        "xtick.labelsize": 16,
+        "ytick.labelsize": 16,
         "lines.linewidth": 1,
         "patch.edgecolor": "black",
         "pgf.rcfonts": False,
         "font.size": 18,
+        "figure.figsize": (9, 6),
     }
     plt.rcParams.update(params)
     plt.style.use("science")

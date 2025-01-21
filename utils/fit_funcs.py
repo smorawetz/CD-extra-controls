@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import chebyt
+from scipy.special import chebyt, jv
 
 
 def std_fit_func(x, *alphas):
@@ -52,5 +52,18 @@ def cheby_fit_func_alt(x, *coeffs):
     """
     y = 0
     for n, coeff in enumerate(coeffs):
-        y += coeff * chebyt(2 * n + 1)(x) * x
+        y += coeff * chebyt(2 * n + 2)(x) * x
+    return y
+
+
+def bessel_fit_func(x, *coeffs):
+    """Return the value of the fitting function, when fit with Chebyshev
+    polynomials.
+    Parameters:
+        x (np.ndarray):         Point at which to evaluate the function
+        *coeffs (float):        Coefficients of the Chebyshev polynomials
+    """
+    y = 0
+    for n, coeff in enumerate(coeffs):
+        y += coeff * jv(2 * n + 1, x)
     return y

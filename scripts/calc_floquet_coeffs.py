@@ -11,7 +11,13 @@ from scipy.optimize import curve_fit
 sys.path.append(os.environ["CD_CODE_DIR"])
 
 from utils.file_IO import save_data_agp_coeffs
-from utils.file_naming import make_data_dump_name, make_model_str
+from utils.file_naming import (
+    make_data_dump_name,
+    make_model_str,
+    make_file_name,
+    make_FE_protocol_name,
+    make_controls_name,
+)
 
 with open("{0}/dicts/fit_funcs.pkl".format(os.environ["CD_CODE_DIR"]), "rb") as f:
     fit_funcs_dict = pickle.load(f)
@@ -22,22 +28,33 @@ REG = 1e-8
 
 
 def min_coeffs(
-    mu,
-    omega0,
+    ## used by all scripts
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
+    target_symmetries,
+    model_kwargs,
+    tau,
     sched,
     ctrls,
+    ctrls_couplings,
+    ctrls_args,
     agp_order,
+    AGPtype,
+    norm_type,
     grid_size,
+    # used by this script in particular
+    mu=1.0,
+    omega0=1.0,
+    spec_fn_Ns=None,
 ):
     # NOTE: may want to account for drawing spectral function from
     # smaller system size than current N at some point
     lam_data = np.loadtxt(
         "data_dump/spec_fn_data/{0}_lam_data.txt".format(
-            make_model_str(Ns, model_name, H_params, ctrls)
+            make_model_str(spec_fn_Ns, model_name, H_params, ctrls)
         )
     )
     omega_data = np.loadtxt(
@@ -80,5 +97,15 @@ def min_coeffs(
         )
         betas_grid[j, :] = opt_coeffs
 
-    # NOTE: may want to put some data saving in here
+    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    protocol_name = make_FE_protocol_name(
+        agp_order,
+        0.0,  # this omega does not change coefficients so just pass None
+        mu,
+        omega0,
+        grid_size,
+        sched,
+    )
+    controls_name = make_controls_name(ctrls_couplings, ctrls_args)
+    save_data_agp_coeffs(file_name, protocol_name, controls_name, tgrid, betas_grid)
     return tgrid, betas_grid

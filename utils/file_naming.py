@@ -80,6 +80,12 @@ def make_agp_str(AGPtype, norm_type, agp_order):
         raise ValueError(f"norm_type {norm_type} not recognized")
 
 
+def make_FE_agp_str(agp_order, omega, mu, omega0):
+    if agp_order == 0:
+        return "no_agp"
+    return f"FE_ord{agp_order}agp_omega{omega:.6f}_mu{mu:.6f}_omega0{omega0:.6f}"
+
+
 def make_univ_agp_str(AGPtype, agp_order):
     if agp_order == 0:
         return "no_agp"
@@ -115,6 +121,13 @@ def make_universal_protocol_name(
     agp_str = make_agp_str(
         AGPtype, norm_type, agp_order
     ) + "_window{0:.8f}-{1:.8f}".format(window_start, window_end)
+    schedname = scheds_name_dict[type(sched)]
+    return f"{agp_str}_{grid_size}steps_{schedname}_sched_tau{sched.tau:.6f}"
+
+
+def make_FE_protocol_name(agp_order, omega, mu, omega0, grid_size, sched):
+    # replace agp_str with something Floquet like and add mu and omega0
+    agp_str = make_FE_agp_str(agp_order, omega, mu, omega0)
     schedname = scheds_name_dict[type(sched)]
     return f"{agp_str}_{grid_size}steps_{schedname}_sched_tau{sched.tau:.6f}"
 

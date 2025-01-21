@@ -26,8 +26,9 @@ from utils.file_naming import (
     make_controls_name_no_coeffs,
     make_data_dump_name,
     make_file_name,
-    make_universal_protocol_name,
+    make_FE_protocol_name,
     make_fitting_protocol_name,
+    make_universal_protocol_name,
     combine_names,
 )
 
@@ -66,6 +67,42 @@ def run_agp_coeffs_merge(
     )
     tgrid, coeff_grid, lanc_grid = load_raw_data_agp_coeffs(*names_list)
     merge_data_agp_coeffs(*names_list, tgrid, coeff_grid, lanc_grid=lanc_grid)
+
+
+def run_FE_agp_coeffs_merge(
+    Ns,
+    model_name,
+    H_params,
+    symmetries,
+    ## schedule params
+    sched,
+    ## controls params
+    ctrls,
+    ctrls_couplings,
+    ctrls_args,
+    ## agp params
+    agp_order,
+    AGPtype,
+    norm_type,
+    ## simulation params
+    grid_size,
+    ## optiponal params specific to this
+    mu=1.0,
+    omega0=1.0,
+):
+    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    protocol_name = make_FE_protocol_name(
+        agp_order,
+        0.0,  # this omega does not change coefficients so just pass None
+        mu,
+        omega0,
+        grid_size,
+        sched,
+    )
+    controls_name = make_controls_name(ctrls_couplings, ctrls_args)
+    names_list = (file_name, protocol_name, controls_name)
+    tgrid, coeff_grid, _ = load_raw_data_agp_coeffs(*names_list)
+    merge_data_agp_coeffs(*names_list, tgrid, coeff_grid)
 
 
 def run_evolved_wfs_merge(

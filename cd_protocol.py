@@ -41,11 +41,13 @@ class CD_Protocol:
         self.schedule = schedule
         self.grid_size = grid_size
 
-    def matrix_evolve(self, init_state):
+    def matrix_evolve(self, init_state, omega=None):
         """Evolve `init_state` in accordance with the CD protocol
         Parameters:
             init_state (np.array):      Initial state to evolve
             wfs_fname (str):            String to save the wavefunctions
+            omega (float):              Floquet frequency if realizing Hamiltonian
+                                        by Floquet-engineering
         Returns:
             final_state (np.array):     Final state after evolution
         """
@@ -57,4 +59,5 @@ class CD_Protocol:
             self.couplings_args,
             self.grid_size,
             init_state,
+            omega=omega,
         )

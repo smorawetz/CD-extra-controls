@@ -230,6 +230,46 @@ class Hamiltonian_CD(Base_Hamiltonian):
         lamdot = self.schedule.get_lamdot(t)
         return lamdot * self.build_agp_mat(t, AGPtype, Hmat, dlamHmat)
 
+    def build_FE_H_term(self, t, omega, Hmat):
+        """Build a matrix corresponding to the high-frequency oscillating Hamiltonian, which
+        in the rotating frame will realize the required commutator structure
+        Parametes:
+            t (float):          Time at which to build the Hamiltonian
+            omega (float):      Frequency of the oscillating term
+            omega0 (float):     Reference frequency (related to system excitation energy)
+            Hmat (np.array):    Matrix representation of the bare Hamiltonian
+        """
+        return omega / self.omega0 * np.cos(omega * t) * Hmat
+
+    # MAYBE: BETAS SHOULD BE SAVED INTERNALLY SOMEWHERE SO DON"T NEED TO PASS AS ARG
+    def build_FE_dlamH_term(self, t, omega, dlamHmat):
+        """Build a matrix corresponding the high-frequency oscillating (lambda-derivative)
+        of the Hamiltonian which realizes commutator structure in the rotating frame
+        Parameters:
+            t (float):              Time at which to build the Hamiltonian
+            omega (float):          Frequency of the oscillating term
+            dlamHmat (np.array):    Matrix representation of dlamH
+        """
+        lamdot = self.schedule.get_lamdot(t)
+        coeff = 0
+        for n in range(len(self.betas_interp(0))):
+            coeff += self.betas_interp(t)[n] * np.sin((2 * n + 1) * omega * t)
+        return lamdot * coeff * dlamHmat
+
+    def build_FE_cd_term_mat(self, t, omega, Hmat, dlamHmat):
+        """Build the matrix represent the Floquet-engineered counterdiabatic Hamiltonian,
+        which is just $\dot{\lambda}$ multiplied by the AGP.
+        Parameters:
+            t (float):              Time at which to build the Hamiltonian
+            omega (float):          Frequency of the oscillating term
+            omega0 (float):     Reference frequency (related to system excitation energy)
+            Hmat (np.array):    Matrix representation of the bare Hamiltonian
+            dlamHmat (np.array):    Matrix representation of dlamH
+        """
+        return self.build_FE_H_term(t, omega, Hmat) + self.build_FE_dlamH_term(
+            t, omega, dlamHmat
+        )
+
     def build_cons_G_mat(self, t, AGPtype, Hmat, dlamHmat):
         """Build the matrix representing the (approximately) conserved quantity
         $G_\lambda$, whose off-diagonal elements (in the energy eigenbasis) are

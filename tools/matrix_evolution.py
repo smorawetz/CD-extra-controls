@@ -39,7 +39,31 @@ def build_Hcd(t, ham, AGPtype, ctrls, ctrls_couplings, ctrls_args):
     return Hmats
 
 
-def schro_RHS(t, stack_psi, ham, AGPtype, ctrls, couplings, couplings_args):
+def build_Hcd_FE(t, ham, omega, ctrls, ctrls_couplings, ctrls_args):
+    """Returns a list of (sparse or dense) matrices, which are within $H_{CD}$
+    in order to do matrix-vector multiplication on the wavefunction
+    Parameters:
+        t (float):                      Time at which to build the Hamiltonian
+        ham (Hamiltonian_CD):           Counterdiabatic Hamiltonian of interest
+        omega (float):                  The Floquet frequency in the Floquet
+                                        -engineered Hamiltonian
+        ctrls (listof str):             List of control Hamiltonians
+        ctrls_couplings (listof str):   List of strings indexing coupling functions
+                                        for control terms
+        ctrls_args (list):              List of list of arguments for the coupling
+                                        functions
+
+    """
+    # need to get bare H, controls, and AGP term
+    bareH = build_H_controls_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
+    dlamH = build_dlamH_controls_mat(ham, t, ctrls, ctrls_couplings, ctrls_args)
+    Hmats = [bareH]
+    if ham.agp_order > 0:  # may want to evolve without AGP
+        Hmats.append(ham.build_FE_cd_term_mat(t, omega, bareH, dlamH))
+    return Hmats
+
+
+def schro_RHS(t, stack_psi, ham, AGPtype, ctrls, couplings, couplings_args, omega=None):
     """Compute the right hand side of the Schrodinger equation,
     i.e. -i * H_cd * psi
     Parameters:
@@ -52,8 +76,12 @@ def schro_RHS(t, stack_psi, ham, AGPtype, ctrls, couplings, couplings_args):
         ctrls (list):               List of control Hamiltonians
         couplings (list):           List of coupling functions for control terms
         couplings_args (list):      List of list of arguments for the coupling functions
+        omega (float):              The Floquet frequency if realizing by Floquet engineering
     """
-    Hcd = build_Hcd(t, ham, AGPtype, ctrls, couplings, couplings_args)
+    if AGPtype == "floquet":
+        Hcd = build_Hcd_FE(t, ham, omega, ctrls, couplings, couplings_args)
+    else:
+        Hcd = build_Hcd(t, ham, AGPtype, ctrls, couplings, couplings_args)
     N = len(stack_psi) // 2
     stack_psi = stack_psi.reshape(len(stack_psi), 1)
     delta_psi = np.zeros_like(stack_psi)
@@ -67,13 +95,7 @@ def schro_RHS(t, stack_psi, ham, AGPtype, ctrls, couplings, couplings_args):
 
 
 def do_evolution(
-    ham,
-    AGPtype,
-    ctrls,
-    couplings,
-    couplings_args,
-    grid_size,
-    init_state,
+    ham, AGPtype, ctrls, couplings, couplings_args, grid_size, init_state, omega=None
 ):
     """Computes the time evolution (according to the Schrodinger equation)
     of some initial state according to the given Hamiltonian
@@ -86,6 +108,7 @@ def do_evolution(
         couplings_args (list):      List of list of arguments for the coupling functions
         grid_size (int):            Number of time steps to take
         init_state (np.array):      Vector of initial wavefunction
+        omega (float):              The Floquet frequency if realizing by Floquet engineering
     """
     dt = ham.schedule.tau / grid_size
     tgrid = np.linspace(0, ham.schedule.tau, grid_size)
@@ -98,7 +121,7 @@ def do_evolution(
     # real_ODE.set_integrator("vode", method="bdf")
     real_ODE.set_integrator("vode")
     real_ODE.set_initial_value(stack_psi, 0)
-    real_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args)
+    real_ODE.set_f_params(ham, AGPtype, ctrls, couplings, couplings_args, omega)
     wfs_full, ts_full = [], []
     while real_ODE.successful and real_ODE.t < ham.schedule.tau:
         wfs_full.append(real_ODE.y[:N] + 1j * real_ODE.y[N:])

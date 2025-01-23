@@ -27,7 +27,7 @@ REG = 1e-8
 # NPTS = 1000
 
 
-def min_coeffs(
+def get_floquet_coeffs(
     ## used by all scripts
     Ns,
     model_name,
@@ -59,12 +59,12 @@ def min_coeffs(
     )
     omega_data = np.loadtxt(
         "data_dump/spec_fn_data/{0}_omega_data.txt".format(
-            make_model_str(Ns, model_name, H_params, ctrls)
+            make_model_str(spec_fn_Ns, model_name, H_params, ctrls)
         )
     )
     spec_fn_grid_data = np.loadtxt(
         "data_dump/spec_fn_data/{0}_spec_fn_grid.txt".format(
-            make_model_str(Ns, model_name, H_params, ctrls)
+            make_model_str(spec_fn_Ns, model_name, H_params, ctrls)
         )
     )
 

@@ -38,6 +38,9 @@ from models.spinless_fermion_1d.TFIM_cell_random_k_block import TFIM_Cell_Random
 
 from models.spinhalf_2d.disorder_Ising_2d import Disorder_Ising_2D
 
+from models.largeS_1d.sensing_squeezing import Sensing_Spin_Squeezing
+from models.largeS_1d.sensing_squeezing_endFM import Sensing_Spin_Squeezing_EndFM
+
 models_dict = {
     "TFIM_1D": TFIM_Annealing_1D,
     "TFIM_Random_1D": TFIM_Random_Annealing_1D,
@@ -57,6 +60,8 @@ models_dict = {
     "TFIM_k_Block_Annealing_1D": TFIM_k_Block_Annealing_1D,
     "TFIM_k_Block_Cell_Random": TFIM_Cell_Random_k_Block,
     "Disorder_Ising_2D": Disorder_Ising_2D,
+    "Large_S_Sensing": Sensing_Spin_Squeezing,
+    "Large_S_Sensing_EndFM": Sensing_Spin_Squeezing_EndFM,
 }
 param_names_dict = {
     "TFIM_1D": "J{0}_hx{1}",
@@ -77,6 +82,8 @@ param_names_dict = {
     "TFIM_k_Block_Annealing_1D": "J{0}_hx{1}",  # doesn't include k in file naming
     "TFIM_k_Block_Cell_Random": "J{0}_hx{1}_seed{2}",  # h is to draw from uniform [0, 2 * hx]
     "Disorder_Ising_2D": "J{0}_hx{1}_disorder{2:.6f}_seed{3}",
+    "Large_S_Sensing": "chi{0}_h{1}_g{2:.6f}",
+    "Large_S_Sensing_EndFM": "chi{0}_h{1}_g{2:.6f}",
 }
 
 with open("{0}/dicts/models.pkl".format(os.environ["CD_CODE_DIR"]), "wb") as f:

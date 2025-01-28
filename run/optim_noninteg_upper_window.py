@@ -28,18 +28,19 @@ from scripts.time_evolution_universal import run_time_evolution_universal
 J = 1
 Delta = 1
 # define the various parameters of the model/task
-Ns = [12]
-model_name = "XXZ_1D"
-H_params = [J, Delta]
+Ns = [20]
+model_name = "Large_S_Sensing_EndFM"
+H_params = [1, 1, 0.1]  # seed 0 and disorder strength 0.1
 boundary_conds = "periodic"
-symms = ["translation_1d", "spin_inversion"]
+
+symms = []
 symms_args = [[Ns], [Ns]]
 symm_nums = [0, 0]
 symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
-symmetries["m"] = 0.0
+# symmetries["m"] = 0.0
 target_symmetries = symmetries
 
 model_kwargs = {}
@@ -54,7 +55,7 @@ ctrls_args = []
 
 opt_deltas = np.loadtxt("TFIM_clean_opt_deltas.txt")
 
-agp_order = 10
+agp_order = 20
 AGPtype = "chebyshev"
 norm_type = "trace"
 base_window_start = opt_deltas[agp_order - 1]
@@ -129,25 +130,33 @@ def optim_func(log_window_end, base_window_start, args, kwargs):
     return -np.log(fid)
 
 
-def homebrow_optim(optim_func, base_window_start, args, kwargs, init_delta2, stepsize):
+MAX_DEC = 2
+
+
+def homebrew_optim(optim_func, base_window_start, args, kwargs, init_delta2, stepsize):
     window_end = init_delta2
     current_val = 999999  # - log F will never be less than 0
+    n_dec = 0  # number of consecutive decreasing steps
     while True:
         nlogfid = optim_func(np.log(window_end), base_window_start, args, kwargs)
-        if nlogfid > current_val:  # first peak in [window_end, window_end + stepsize]
+        if nlogfid > current_val:
+            n_dec += 1
+        current_val = nlogfid
+        window_end -= stepsize
+        if n_dec == MAX_DEC:
             break
-        else:
-            current_val = nlogfid
-            window_end -= stepsize
     print("now going to optimize within this range")
     # then do simple scipy optim to find best value within this range
     scipy.optimize.minimize_scalar(
         optim_func,
         args=(base_window_start, args, kwargs),
-        bounds=(np.log(window_end), np.log(window_end + stepsize)),
+        bounds=(
+            np.log(window_end - MAX_DEC * stepsize),
+            np.log(window_end + MAX_DEC * stepsize),
+        ),
         method="bounded",
         options={"disp": True},
     )
 
 
-homebrow_optim(optim_func, base_window_start, args, kwargs, 30, 0.1)
+homebrew_optim(optim_func, base_window_start, args, kwargs, 30, 0.1)

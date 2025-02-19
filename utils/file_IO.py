@@ -270,7 +270,9 @@ def merge_data_evolved_wfs(
     return None
 
 
-def load_data_evolved_wfs(file_name, protocol_name, ctrls_name, get_full_wf=False):
+def load_data_evolved_wfs(
+    file_name, protocol_name, ctrls_name, get_tgrid=False, get_full_wf=False
+):
     """Loads the data from the evolved wavefunctions from an HDF5 file
     file_name, in the agp_coeffs group under the protocol_name subgroup, and dataset
     files indexed by the controls scheme controls_name
@@ -278,19 +280,22 @@ def load_data_evolved_wfs(file_name, protocol_name, ctrls_name, get_full_wf=Fals
         file_name (str):            name of the HDF5 file
         protocol_name (str):        name of the protocol which indexes subgroup
         ctrls_name (str):           name of the controls scheme which indexes dataset
+        get_tgrid (bool):           if True, return the values of t at each point on grid
         get_full_wf (bool):         if True, returns the full wavefunction at all points
     """
     f = open_file(file_name, mode="r")
     protocol_grp = f.require_group("evolved_wfs/{0}".format(protocol_name))
     final_wf_dataset = protocol_grp["{0}_final_wf".format(ctrls_name)]
     final_wf = final_wf_dataset[:]
-    if get_full_wf:
+    if get_tgrid:
         tgrid_dataset = protocol_grp["tgrid"]
         tgrid = tgrid_dataset[:]
+    else:
+        tgrid = None
+    if get_full_wf:
         full_wf_dataset = protocol_grp["{0}_full_wf".format(ctrls_name)]
         full_wf = full_wf_dataset[:]
     else:
-        tgrid = None
         full_wf = None
     return final_wf, tgrid, full_wf
 

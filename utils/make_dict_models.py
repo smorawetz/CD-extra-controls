@@ -41,7 +41,12 @@ from models.spinhalf_2d.disorder_Ising_2d import Disorder_Ising_2D
 from models.largeS_1d.sensing_squeezing import Sensing_Spin_Squeezing
 from models.largeS_1d.sensing_squeezing_endFM import Sensing_Spin_Squeezing_EndFM
 from models.largeS_1d.sensing_squeezing_endQCP import Sensing_Spin_Squeezing_EndQCP
-from models.largeS_1d.KZ_sensing_squeezing_endFM import KZ_Sensing_Spin_Squeezing_EndFM
+from models.largeS_1d.KZ_sensing_squeezing_sweep_long import (
+    KZ_Sensing_Spin_Squeezing_Sweep_Long,
+)
+from models.largeS_1d.KZ_sensing_squeezing_endFM import (
+    KZ_Sensing_Spin_Squeezing_EndFM,
+)
 
 models_dict = {
     "TFIM_1D": TFIM_Annealing_1D,
@@ -65,6 +70,7 @@ models_dict = {
     "Large_S_Sensing": Sensing_Spin_Squeezing,
     "Large_S_Sensing_EndFM": Sensing_Spin_Squeezing_EndFM,
     "Large_S_Sensing_EndQCP": Sensing_Spin_Squeezing_EndFM,
+    "KZ_Large_S_Sensing_Sweep_Long": KZ_Sensing_Spin_Squeezing_Sweep_Long,
     "KZ_Large_S_Sensing_EndFM": KZ_Sensing_Spin_Squeezing_EndFM,
 }
 param_names_dict = {
@@ -89,6 +95,7 @@ param_names_dict = {
     "Large_S_Sensing": "chi{0}_h{1}_g{2:.6f}",
     "Large_S_Sensing_EndFM": "chi{0}_h{1}_g{2:.6f}",
     "Large_S_Sensing_EndQCP": "chi{0}_h{1}_g{2:.6f}",
+    "KZ_Large_S_Sensing_Sweep_Long": "chi{0}_h{1}_g{2:.6f}",
     "KZ_Large_S_Sensing_EndFM": "chi{0}_h{1}_g{2:.6f}",
 }
 

@@ -11,7 +11,7 @@ from tools.ham_couplings import sweep_sign, turn_on_coupling, turn_off_coupling
 from tools.connections import neighbours_1d
 
 
-class KZ_Sensing_Spin_Squeezing_EndFM(LargeS_1D):
+class KZ_Sensing_Spin_Squeezing_Sweep_Long(LargeS_1D):
     """Class for a large-S spin, with a single particle. There is a nonlinear
     interaction term (corresponding to Ising interactions in infinite-dimensional
     Ising chain) and a transverse field which is swept from twice the nonlinear term
@@ -35,9 +35,9 @@ class KZ_Sensing_Spin_Squeezing_EndFM(LargeS_1D):
         chi = chi / S  # rescale so H is extensive in S
 
         self.chi_terms = [[-chi / 2, 0, 0]]  # divide by 2 so QCP at h = chi
-        self.h_terms = [[-h / 2, 0]]  # divide by 2 since will sum + and -
-        self.flipped_h_terms = [[h / 2, 0]]  # divide by 2 since will sum + and -
-        self.g_terms = [[-g, 0]]
+        self.h_terms = [[-h / 2, 0]]  # div by 2 for +, -
+        self.g_terms = [[g, 0]]
+        self.double_g_terms = [[2 * g, 0]]
 
         super().__init__(
             Ns,
@@ -67,23 +67,15 @@ class KZ_Sensing_Spin_Squeezing_EndFM(LargeS_1D):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        s = [["z", self.g_terms]]
-        d = [
-            ["zz", self.chi_terms, turn_on_coupling, [self.schedule]],
-            ["+", self.h_terms, turn_off_coupling, [self.schedule]],
-            ["-", self.h_terms, turn_off_coupling, [self.schedule]],
-        ]
+        s = [["+", self.h_terms], ["-", self.h_terms], ["zz", self.chi_terms]]
+        d = [["z", self.g_terms, sweep_sign, [self.schedule]]]
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
     def build_dlam_H(self):
         """Method for this particular spin model to calculate
         the $\lambda$ derivative of the Hamiltonian
         """
-        s = [
-            ["zz", self.chi_terms],
-            ["+", self.flipped_h_terms],
-            ["-", self.flipped_h_terms],
-        ]
+        s = [["z", self.double_g_terms]]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.basis, **self.checks)
 
@@ -92,6 +84,11 @@ class KZ_Sensing_Spin_Squeezing_EndFM(LargeS_1D):
         Hamiltonian after annealing is complete, in the
         most symmetric possible basis to get the ground state easier
         """
-        s = [["zz", self.chi_terms], ["z", self.g_terms]]
+        s = [
+            ["+", self.h_terms],
+            ["-", self.h_terms],
+            ["zz", self.chi_terms],
+            ["z", self.g_terms],
+        ]
         d = []
         return quspin.operators.hamiltonian(s, d, basis=self.targ_basis, **self.checks)

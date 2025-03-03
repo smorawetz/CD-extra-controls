@@ -3,7 +3,8 @@ import sys
 
 sys.path.append(os.environ["CD_CODE_DIR"])
 
-from tools.matrix_evolution import do_evolution
+from tools.matrix_evolution import do_evolution as reg_do_evolution
+from tools.matrix_evolution_crank_nicholson import do_evolution as cn_do_evolution
 
 
 class CD_Protocol:
@@ -41,23 +42,36 @@ class CD_Protocol:
         self.schedule = schedule
         self.grid_size = grid_size
 
-    def matrix_evolve(self, init_state, omega=None):
+    def matrix_evolve(self, init_state, omega=None, dt=0.01):
         """Evolve `init_state` in accordance with the CD protocol
         Parameters:
             init_state (np.array):      Initial state to evolve
             wfs_fname (str):            String to save the wavefunctions
             omega (float):              Floquet frequency if realizing Hamiltonian
                                         by Floquet-engineering
+            dt (float):                 Time step size for Crank-Nicolson
         Returns:
             final_state (np.array):     Final state after evolution
         """
-        return do_evolution(
-            self.ham,
-            self.AGPtype,
-            self.ctrls,
-            self.couplings,
-            self.couplings_args,
-            self.grid_size,
-            init_state,
-            omega=omega,
-        )
+        if self.ham.schedule.tau < 100:
+            return reg_do_evolution(
+                self.ham,
+                self.AGPtype,
+                self.ctrls,
+                self.couplings,
+                self.couplings_args,
+                self.grid_size,
+                init_state,
+                omega=omega,
+            )
+        else:
+            return cn_do_evolution(
+                self.ham,
+                self.AGPtype,
+                self.ctrls,
+                self.couplings,
+                self.couplings_args,
+                self.grid_size,
+                init_state,
+                dt=dt,
+            )

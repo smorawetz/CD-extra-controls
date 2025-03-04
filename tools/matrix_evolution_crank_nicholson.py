@@ -90,9 +90,12 @@ def do_evolution(
     psi = init_state
     t = 0
     wfs_full, ts_full = [], []
+    i = 0
     while t < sched.tau:
-        wfs_full.append(np.asarray(psi).flatten())
-        ts_full.append(t)
+        if i % (ham.schedule.tau / dt / grid_size) == 0:
+            wfs_full.append(np.asarray(psi).flatten())
+            ts_full.append(t)
         psi = CN_step(t, dt, psi, ham, AGPtype, ctrls, couplings, couplings_args)
         t += dt
+        i += 1
     return np.array(ts_full), np.array(wfs_full)

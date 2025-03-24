@@ -35,8 +35,8 @@ class KZ_Sensing_Spin_Squeezing_EndFM(LargeS_1D):
         chi = chi / S  # rescale so H is extensive in S
 
         self.chi_terms = [[-chi / 2, 0, 0]]  # divide by 2 so QCP at h = chi
-        self.h_terms = [[-h / 2, 0]]  # divide by 2 since will sum + and -
-        self.flipped_h_terms = [[h / 2, 0]]  # divide by 2 since will sum + and -
+        self.h_terms = [[-h, 0]]  # mult by 2 since start at 2h, div by 2 since +/-
+        self.flipped_h_terms = [[h, 0]]
         self.g_terms = [[-g, 0]]
 
         super().__init__(
@@ -67,9 +67,8 @@ class KZ_Sensing_Spin_Squeezing_EndFM(LargeS_1D):
         """Method specific to this spin model to calculate
         the bare Hamiltonian (no controls or AGP)
         """
-        s = [["z", self.g_terms]]
+        s = [["z", self.g_terms], ["zz", self.chi_terms]]
         d = [
-            ["zz", self.chi_terms, turn_on_coupling, [self.schedule]],
             ["+", self.h_terms, turn_off_coupling, [self.schedule]],
             ["-", self.h_terms, turn_off_coupling, [self.schedule]],
         ]
@@ -80,7 +79,6 @@ class KZ_Sensing_Spin_Squeezing_EndFM(LargeS_1D):
         the $\lambda$ derivative of the Hamiltonian
         """
         s = [
-            ["zz", self.chi_terms],
             ["+", self.flipped_h_terms],
             ["-", self.flipped_h_terms],
         ]

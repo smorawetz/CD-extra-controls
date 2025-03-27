@@ -54,11 +54,17 @@ def CN_step(t, dt, psi, ham, AGPtype, ctrls, couplings, couplings_args):
         psi (np.array):             Wavefunction to evolve
     """
     H = sum(build_Hcd(t, ham, AGPtype, ctrls, couplings, couplings_args))
-    I = np.eye(H.shape[0])
+    if ham.sparse:
+        I = scipy.sparse.eye(H.shape[0])
+    else:
+        I = np.eye(H.shape[0])
     psi = psi.reshape(len(psi), 1)
     A = I - 1j * dt / 2 * H
     B = I + 1j * dt / 2 * H
-    return np.linalg.solve(A, (B @ psi))
+    if ham.sparse:
+        return scipy.sparse.linalg.spsolve(A, B @ psi)
+    else:
+        return np.linalg.solve(A, (B @ psi))
 
 
 def do_evolution(
@@ -69,7 +75,7 @@ def do_evolution(
     couplings_args,
     grid_size,
     init_state,
-    dt=0.01,
+    dt=0.001,
 ):
     """Computes the time evolution (according to the Schrodinger equation)
     of some initial state according to the given Hamiltonian

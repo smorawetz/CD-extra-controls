@@ -42,7 +42,7 @@ class CD_Protocol:
         self.schedule = schedule
         self.grid_size = grid_size
 
-    def matrix_evolve(self, init_state, omega=None, dt=0.01):
+    def matrix_evolve(self, init_state, omega=None, dt=0.001):
         """Evolve `init_state` in accordance with the CD protocol
         Parameters:
             init_state (np.array):      Initial state to evolve
@@ -53,7 +53,7 @@ class CD_Protocol:
         Returns:
             final_state (np.array):     Final state after evolution
         """
-        if self.ham.schedule.tau < 100:
+        if self.ham.schedule.tau < 10:
             return reg_do_evolution(
                 self.ham,
                 self.AGPtype,

@@ -12,6 +12,8 @@ from utils.file_IO import open_file, load_data_agp_coeffs, save_data_evolved_wfs
 from utils.file_naming import make_data_dump_name
 from utils.grid_utils import get_coeffs_interp
 
+# can use QuSpin builtin methods since have no need to construct commutators
+
 
 def run_time_evolution_noCD(
     ## used by all scripts
@@ -51,25 +53,6 @@ def run_time_evolution_noCD(
     # add the controls
     ham.init_controls(ctrls, ctrls_couplings, ctrls_args)
 
-    # load relevant coeffs for AGP
-    if AGPtype == "commutator" and agp_order > 0:
-        tgrid, alphas_grid, _ = load_data_agp_coeffs(
-            coeffs_file_name, coeffs_protocol_name, coeffs_ctrls_name
-        )
-        ham.alphas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, alphas_grid)
-    elif AGPtype == "krylov" and agp_order > 0:
-        tgrid, gammas_grid, lgrid = load_data_agp_coeffs(
-            coeffs_file_name, coeffs_protocol_name, coeffs_ctrls_name
-        )
-        ham.lanc_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, lgrid)
-        ham.gammas_interp = get_coeffs_interp(coeffs_sched, sched, tgrid, gammas_grid)
-    elif agp_order > 0:
-        raise ValueError(f"AGPtype {AGPtype} not recognized")
-
-    cd_protocol = CD_Protocol(
-        ham, AGPtype, ctrls, ctrls_couplings, ctrls_args, sched, grid_size
-    )
-
     save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
     names_list = make_data_dump_name(
         Ns,
@@ -89,8 +72,10 @@ def run_time_evolution_noCD(
     init_state = ham.get_init_gstate()
     targ_state = ham.get_targ_gstate()
 
-    t_data, wf_data = cd_protocol.matrix_evolve(init_state)
-    final_state = wf_data[-1, :]
+    t_data = np.linspace(0, tau, grid_size)
+    wf_data = ham.bareH.evolve(init_state, t_data[0], t_data)
+
+    final_state = wf_data[:, -1]
 
     if save_protocol_wf:
         save_data_evolved_wfs(*names_list, final_state, tgrid=t_data, full_wf=wf_data)

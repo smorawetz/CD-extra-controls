@@ -132,23 +132,36 @@ class Base_Hamiltonian:
             omegas (np.array):      The excitation frequencies
             phis (np.array):        The spectral function evaluated at omegas
         """
-        E, V = self.bareH.eigh(time=t)
-        inds = E.argsort()[::1]
+
+        E, V = np.linalg.eigh(self.bareH.toarray(time=t))
+        idx = E.argsort()[::1]  # sort the eigenvalues in ascending order
         if central_50:
-            inds = inds[int(0.25 * len(inds)) : int(0.75 * len(inds))]
-        E = E[inds]
-        V = V[:, inds]
-        N = len(inds)
-        dH_mat = self.dlamH.toarray(time=t)
+            idx = idx[int(0.25 * len(idx)) : int(0.75 * len(idx))]
+        E = E[idx]
+        V = V[:, idx]
+
+        N = E.shape[0]
+
+        E_matrix = E[np.repeat(np.arange(0, N), N).reshape(N, N)]
+        E_matrix = E_matrix - E_matrix.transpose()
+
+        wH = np.diff(E)
+        # in computing average, throw away small matrix elements
+        nonzero_diffs_inds = np.abs(wH) > 1e-10
+        wH = np.array(wH[nonzero_diffs_inds])
+        wH = np.exp(np.mean(np.log(wH)))
+        print("Average excitation frequency: ", wH)
+
+        dH = np.matmul(
+            np.conjugate(V.transpose()), np.matmul(self.dlamH.toarray(time=t), V)
+        )
+        dH2 = np.abs(np.asarray(dH)) ** 2
+
         if ground_state:
-            omegas = E[1:] - E[0]
-            dHvec = np.matmul(np.conjugate(V[:, 0]), np.matmul(dH_mat, V[:, 1:]))
-            phis = np.abs(dHvec) ** 2
+            omegas = E_matrix[:, 0]
+            phis = dH2[:, 0]
         else:
-            E_mat = E[np.repeat(np.arange(0, N), N).reshape(N, N)]
-            E_mat = E_mat - E_mat.T  # gives Mij = Ei - Ej
-            dH2_mat = np.matmul(np.conjugate(V.transpose()), np.matmul(dH_mat, V))
-            dH2_mat = np.abs(dH2_mat) ** 2
-            omegas = E_mat[np.tril_indices(len(E), -1)]
-            phis = dH2_mat[np.tril_indices(len(E), -1)]
+            omegas = E_matrix[np.tril_indices(len(E), -1)].reshape(-1)
+            phis = dH2[np.tril_indices(len(E), -1)].reshape(-1)
+
         return omegas, phis

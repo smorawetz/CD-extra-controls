@@ -164,4 +164,4 @@ class Base_Hamiltonian:
             omegas = E_matrix[np.tril_indices(len(E), -1)].reshape(-1)
             phis = dH2[np.tril_indices(len(E), -1)].reshape(-1)
 
-        return omegas, phis
+        return E, omegas, phis

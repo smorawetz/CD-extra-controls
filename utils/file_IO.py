@@ -385,12 +385,15 @@ def load_data_evolved_wfs_blocks(
     return final_wf_blocks, tgrid, full_wf
 
 
-def save_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=False):
-    """Saves the raw data from computing the spectral function spec_fn for a given
+def save_data_spec_fn(
+    file_name, ctrls_name, Es, freqs, spec_fn, lam, ground_state=False
+):
+    """Saves the raw data from computing the spejtral function spec_fn for a given
     model etc. at frequencies freqs at a value lam
     Parameters:
         file_name (str):            name of the HDF5 file
         ctrls_name (str):           name of the controls scheme which indexes dataset
+        Es (np.ndarray):            energies of the system at which spectral function is evaluated
         freqs (np.ndarray):         frequencies (x axis of spectral function plot)
         spec_fn (np.ndarray):       spectral function (y axis of spectral function plot)
         lam (np.float):             value of lambda at which spectral function is evaluated
@@ -401,9 +404,11 @@ def save_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=F
     full_info_fname = combine_names(file_name, ctrls_name)
     data_path = "{0}/spec_fn_data/{1}".format(save_dirname, full_info_fname)
     if ground_state:
+        np.savetxt("{0}_GS_Es_lam{1:.6f}.txt".format(data_path, lam), Es)
         np.savetxt("{0}_GS_freqs_lam{1:.6f}.txt".format(data_path, lam), freqs)
         np.savetxt("{0}_GS_spec_fn_lam{1:.6f}.txt".format(data_path, lam), spec_fn)
     else:
+        np.savetxt("{0}_Es_lam{1:.6f}.txt".format(data_path, lam), Es)
         np.savetxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam), freqs)
         np.savetxt("{0}_spec_fn_lam{1:.6f}.txt".format(data_path, lam), spec_fn)
     return None
@@ -423,21 +428,26 @@ def load_raw_data_spec_fn(file_name, ctrls_name, lam, ground_state=False):
     full_info_fname = combine_names(file_name, ctrls_name)
     data_path = "{0}/spec_fn_data/{1}".format(save_dirname, full_info_fname)
     if ground_state:
+        Es = np.loadtxt("{0}_GS_Es_lam{1:.6f}.txt".format(data_path, lam))
         freqs = np.loadtxt("{0}_GS_freqs_lam{1:.6f}.txt".format(data_path, lam))
         spec_fn = np.loadtxt("{0}_GS_spec_fn_lam{1:.6f}.txt".format(data_path, lam))
     else:
+        Es = np.loadtxt("{0}_Es_lam{1:.6f}.txt".format(data_path, lam))
         freqs = np.loadtxt("{0}_freqs_lam{1:.6f}.txt".format(data_path, lam))
         spec_fn = np.loadtxt("{0}_spec_fn_lam{1:.6f}.txt".format(data_path, lam))
-    return freqs, spec_fn
+    return Es, freqs, spec_fn
 
 
-def merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=False):
+def merge_data_spec_fn(
+    file_name, ctrls_name, Es, freqs, spec_fn, lam, ground_state=False
+):
     """Merges the raw data from the spectral function calculation into an HDF5 file
     file_name, in the optimization_fids group under the protocol_name subgroup, and dataset
     files indexed by the controls scheme controls_name
     Parameters:
         file_name (str):            name of the HDF5 file
         ctrls_name (str):           name of the controls scheme which indexes dataset
+        Es (np.ndarray):            energies of the system at which spectral function is evaluated
         freqs (np.ndarray):         frequencies (x axis of spectral function plot)
         spec_fn (np.ndarray):       spectral function (y axis of spectral function plot)
         lam (np.float):             value of lambda at which spectral function is evaluated
@@ -447,6 +457,9 @@ def merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=
     f = open_file(file_name)
     protocol_grp = f.require_group("spec_fns/")
     if ground_state:
+        Es_dataset = protocol_grp.require_dataset(
+            "{0}_GS_Es_lam{1:.6f}".format(ctrls_name, lam), Es.shape, Es.dtype
+        )
         freqs_dataset = protocol_grp.require_dataset(
             "{0}_GS_freqs_lam{1:.6f}".format(ctrls_name, lam), freqs.shape, freqs.dtype
         )
@@ -456,6 +469,9 @@ def merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=
             spec_fn.dtype,
         )
     else:
+        Es_dataset = protocol_grp.require_dataset(
+            "{0}_Es_lam{1:.6f}".format(ctrls_name, lam), Es.shape, Es.dtype
+        )
         freqs_dataset = protocol_grp.require_dataset(
             "{0}_freqs_lam{1:.6f}".format(ctrls_name, lam), freqs.shape, freqs.dtype
         )
@@ -464,6 +480,7 @@ def merge_data_spec_fn(file_name, ctrls_name, freqs, spec_fn, lam, ground_state=
             spec_fn.shape,
             spec_fn.dtype,
         )
+    Es_dataset[:] = Es
     freqs_dataset[:] = freqs
     spec_fn_dataset[:] = spec_fn
     f.close()
@@ -484,16 +501,19 @@ def load_data_spec_fn(file_name, ctrls_name, lam, ground_state=False):
     f = open_file(file_name, mode="r")
     protocol_grp = f.require_group("spec_fns/")
     if ground_state:
+        Es_dataset = protocol_grp["{0}_GS_Es_lam{1:.6f}".format(ctrls_name, lam)]
         freqs_dataset = protocol_grp["{0}_GS_freqs_lam{1:.6f}".format(ctrls_name, lam)]
         spec_fn_dataset = protocol_grp[
             "{0}_GS_spec_fn_lam{1:.6f}".format(ctrls_name, lam)
         ]
     else:
+        Es_dataset = protocol_grp["{0}_Es_lam{1:.6f}".format(ctrls_name, lam)]
         freqs_dataset = protocol_grp["{0}_freqs_lam{1:.6f}".format(ctrls_name, lam)]
         spec_fn_dataset = protocol_grp["{0}_spec_fn_lam{1:.6f}".format(ctrls_name, lam)]
+    Es = Es_dataset[:]
     freqs = freqs_dataset[:]
     spec_fn = spec_fn_dataset[:]
-    return freqs, spec_fn
+    return Es, freqs, spec_fn
 
 
 def save_data_opt_windows(file_name, protocol_name, ctrls_name, window_arr, lam):

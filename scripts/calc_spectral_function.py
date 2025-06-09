@@ -23,6 +23,7 @@ def calc_spectral_function(
     model_kwargs,
     sched,
     ground_state=False,
+    central_50=False,
 ):
     ham = build_ham(
         model_name,
@@ -33,14 +34,16 @@ def calc_spectral_function(
         0,  # no agp
         "trace",  # doesn't matter if no agp
         sched,
-        symmetries={},
-        target_symmetries={},
+        symmetries=symmetries,
+        target_symmetries={},  # target symmetries not needed for spectral function
     )
     tval = sched.get_t(lamval)
-    freqs, spec_fn = ham.get_spectral_function(tval, ground_state=ground_state)
+    Es, freqs, spec_fn = ham.get_spectral_function(
+        tval, ground_state=ground_state, central_50=central_50
+    )
     file_name = make_file_name(Ns, model_name, H_params, symmetries, [])  # [] = no ctrl
     controls_name = make_controls_name([], [])  # assuming no extra controls
     save_data_spec_fn(
-        file_name, controls_name, freqs, spec_fn, lamval, ground_state=ground_state
+        file_name, controls_name, Es, freqs, spec_fn, lamval, ground_state=ground_state
     )
-    return freqs, spec_fn
+    return Es, freqs, spec_fn

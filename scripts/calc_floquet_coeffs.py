@@ -90,7 +90,7 @@ def get_floquet_coeffs(
         weight /= np.sum(weight)
         opt_coeffs, _ = curve_fit(
             fit_func,
-            x,
+            x / omega0,
             y,
             p0=np.zeros(agp_order),
             sigma=1 / weight,

@@ -81,7 +81,7 @@ args = (
 )
 
 mu = 1.0
-omega0 = 1.0
+omega0 = 0.5
 spec_fn_Ns = [10]
 
 kwargs = {
@@ -100,6 +100,7 @@ fig, ax = plt.subplots(figsize=(8, 6))
 ax.plot(
     x, fit_funcs_dict["bessel"](x / omega0, *betas_grid[grid_size // 2, :]), linewidth=3
 )
+print(betas_grid[grid_size // 2, :])
 ax.plot(x, -1 / x, "k--", linewidth=3)
-ax.set_ylim(-25, 25)
-plt.savefig("test_fit.png")
+ax.set_ylim(-5, 5)
+plt.savefig("test_fit_w0{0:.6f}.png".format(omega0))

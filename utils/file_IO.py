@@ -599,6 +599,7 @@ def delete_data_dump_files(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ctrls,
     ctrls_couplings,
@@ -609,7 +610,9 @@ def delete_data_dump_files(
     grid_size,
     sched,
 ):
-    h5fname = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    h5fname = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     f = open_file(file_name)
     if "agp_coeffs" not in f or "ctrls_optim" not in f or "evolved_wfs" not in f.keys():
         print("some data is missing in the HDF5 file!!")
@@ -620,6 +623,7 @@ def delete_data_dump_files(
         model_name,
         H_params,
         sched,
+        boundary_conds,
         symmetries,
         ctrls,
         ctrls_couplings,

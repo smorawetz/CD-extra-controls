@@ -74,7 +74,9 @@ def run_time_evolution_universal(
 
     save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
 
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     protocol_name = make_universal_protocol_name(
         AGPtype, norm_type, agp_order, window_start, window_end, grid_size, sched
     )

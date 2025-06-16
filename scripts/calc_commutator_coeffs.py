@@ -60,6 +60,7 @@ def calc_comm_coeffs(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,

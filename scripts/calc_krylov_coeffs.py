@@ -71,6 +71,7 @@ def calc_kry_coeffs(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,

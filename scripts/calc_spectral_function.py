@@ -41,7 +41,9 @@ def calc_spectral_function(
     Es, freqs, spec_fn = ham.get_spectral_function(
         tval, ground_state=ground_state, central_50=central_50
     )
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, [])  # [] = no ctrl
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, [], boundary_conds
+    )  # [] = no ctrl
     controls_name = make_controls_name([], [])  # assuming no extra controls
     save_data_spec_fn(
         file_name, controls_name, Es, freqs, spec_fn, lamval, ground_state=ground_state

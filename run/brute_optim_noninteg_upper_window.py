@@ -103,7 +103,7 @@ kwargs = {
 # define dirname
 save_dirname = "{0}/data_dump".format(os.environ["DATA_DIR"])
 # define file and controls name to be used in saving data
-file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls, boundary_conds)
 protocol_name = make_fitting_protocol_name(AGPtype, agp_order, evolve_sched)
 controls_name = make_controls_name(ctrls_couplings, ctrls_args)
 # define things needed to save data

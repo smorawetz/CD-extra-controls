@@ -41,16 +41,21 @@ def make_controls_type_str(ctrls):
         return "no_controls"
 
 
-def make_model_str(Ns, model_name, H_params, ctrls):
+def make_boundary_conds_str(boundary_conds):
+    return f"bc_{boundary_conds}"
+
+
+def make_model_str(Ns, model_name, H_params, ctrls, boundary_conds):
     H_params_str = make_H_params_str(model_name, H_params)
     ctrls_str = make_controls_type_str(ctrls)
+    bcs_str = make_boundary_conds_str(boundary_conds)
     if len(Ns) == 1:
         N_str = f"N{Ns[0]}"
     elif len(Ns) == 2:
         N_str = f"Nx{Ns[0]}_Ny{Ns[1]}"
     else:
         raise ValueError(f"Not built to recognize models with dim > 2")
-    return f"{model_name}_{N_str}_{H_params_str}_{ctrls_str}"
+    return f"{model_name}_{N_str}_{H_params_str}_{ctrls_str}_{bcs_str}"
 
 
 def make_symmetries_str(symmetries):
@@ -103,8 +108,8 @@ def make_ctrls_info_str(ctrls_couplings, ctrls_harmonics, ctrls_coeffs=None):
         return f"{ctrls_couplings}_harmonics_{ctrls_harmonics}"
 
 
-def make_file_name(Ns, model_name, H_params, symmetries, ctrls):
-    model_str = make_model_str(Ns, model_name, H_params, ctrls)
+def make_file_name(Ns, model_name, H_params, symmetries, ctrls, boundary_conds):
+    model_str = make_model_str(Ns, model_name, H_params, ctrls, boundary_conds)
     symm_str = make_symmetries_str(symmetries)
     return f"{model_str}_{symm_str}"
 
@@ -161,6 +166,7 @@ def make_data_dump_name(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     sched,
     ctrls,
@@ -171,7 +177,9 @@ def make_data_dump_name(
     norm_type,
     grid_size,
 ):
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     protocol_name = make_protocol_name(AGPtype, norm_type, agp_order, grid_size, sched)
     controls_name = make_controls_name(ctrls_couplings, ctrls_args)
     return file_name, protocol_name, controls_name

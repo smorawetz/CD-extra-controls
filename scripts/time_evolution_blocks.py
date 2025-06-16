@@ -106,6 +106,7 @@ def run_time_evolution_blocks(
         full_Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,

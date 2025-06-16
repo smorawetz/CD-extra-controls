@@ -85,6 +85,7 @@ def do_iterative_evolution(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,

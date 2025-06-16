@@ -115,6 +115,7 @@ fname_args_dict = {
     "Ns": Ns,
     "model_name": model_name,
     "H_params": H_params,
+    "boundary_conds": boundary_conds,
     "symmetries": symmetries,
     "sched": sched,
     "ctrls": ctrls,

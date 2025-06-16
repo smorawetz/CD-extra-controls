@@ -113,6 +113,7 @@ def calc_comm_coeffs_blocks(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,

@@ -64,7 +64,9 @@ def find_window(
     sched,
 ):
     # load small size spectral function ED data
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     protocol_name = make_fitting_protocol_name(AGPtype, agp_order, sched)
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
 

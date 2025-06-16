@@ -73,7 +73,9 @@ args = (
     grid_size,
 )
 
-coeffs_file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+coeffs_file_name = make_file_name(
+    Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+)
 coeffs_protocol_name = make_protocol_name(
     AGPtype, norm_type, agp_order, grid_size, coeffs_sched
 )

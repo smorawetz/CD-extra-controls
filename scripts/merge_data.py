@@ -37,6 +37,7 @@ def run_agp_coeffs_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -55,6 +56,7 @@ def run_agp_coeffs_merge(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,
@@ -73,6 +75,7 @@ def run_FE_agp_coeffs_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -90,7 +93,9 @@ def run_FE_agp_coeffs_merge(
     mu=1.0,
     omega0=1.0,
 ):
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     protocol_name = make_FE_protocol_name(
         agp_order,
         0.0,  # this omega does not change coefficients so just pass None
@@ -109,6 +114,7 @@ def run_evolved_wfs_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -127,6 +133,7 @@ def run_evolved_wfs_merge(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,
@@ -145,6 +152,7 @@ def run_evolved_wfs_blocks_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -163,6 +171,7 @@ def run_evolved_wfs_blocks_merge(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,
@@ -181,6 +190,7 @@ def run_universal_evolved_wfs_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -201,6 +211,7 @@ def run_universal_evolved_wfs_merge(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,
@@ -223,6 +234,7 @@ def run_universal_evolved_wfs_blocks_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -243,6 +255,7 @@ def run_universal_evolved_wfs_blocks_merge(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,
@@ -265,6 +278,7 @@ def run_optimization_fids_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -283,6 +297,7 @@ def run_optimization_fids_merge(
         Ns,
         model_name,
         H_params,
+        boundary_conds,
         symmetries,
         sched,
         ctrls,
@@ -304,6 +319,7 @@ def run_spectral_functions_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -314,7 +330,9 @@ def run_spectral_functions_merge(
     ## optional params
     ground_state=False,
 ):
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
     Es, freqs, spec_fn = load_raw_data_spec_fn(
         file_name, ctrls_name, lam, ground_state=ground_state
@@ -329,6 +347,7 @@ def run_opt_windows_merge(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ## schedule params
     sched,
@@ -340,7 +359,9 @@ def run_opt_windows_merge(
     AGPtype,
     agp_order,
 ):
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     protocol_name = make_fitting_protocol_name(AGPtype, agp_order, sched)
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
     window_arr = load_raw_data_opt_windows(file_name, protocol_name, ctrls_name, lam)

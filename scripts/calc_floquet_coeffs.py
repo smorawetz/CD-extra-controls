@@ -54,17 +54,17 @@ def get_floquet_coeffs(
     # smaller system size than current N at some point
     lam_data = np.loadtxt(
         "data_dump/spec_fn_data/{0}_lam_data.txt".format(
-            make_model_str(spec_fn_Ns, model_name, H_params, ctrls)
+            make_model_str(spec_fn_Ns, model_name, H_params, ctrls, boundary_conds)
         )
     )
     omega_data = np.loadtxt(
         "data_dump/spec_fn_data/{0}_omega_data.txt".format(
-            make_model_str(spec_fn_Ns, model_name, H_params, ctrls)
+            make_model_str(spec_fn_Ns, model_name, H_params, ctrls, boundary_conds)
         )
     )
     spec_fn_grid_data = np.loadtxt(
         "data_dump/spec_fn_data/{0}_spec_fn_grid.txt".format(
-            make_model_str(spec_fn_Ns, model_name, H_params, ctrls)
+            make_model_str(spec_fn_Ns, model_name, H_params, ctrls, boundary_conds)
         )
     )
 
@@ -97,7 +97,9 @@ def get_floquet_coeffs(
         )
         betas_grid[j, :] = opt_coeffs
 
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     protocol_name = make_FE_protocol_name(
         agp_order,
         0.0,  # this omega does not change coefficients so just pass None

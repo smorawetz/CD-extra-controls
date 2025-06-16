@@ -38,13 +38,16 @@ def interp_spec_fn(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ctrls,
     ctrls_couplings,
     ctrls_args,
     ground_state=False,
 ):
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     ctrls_name = make_controls_name(ctrls_couplings, ctrls_args)
 
     # define a grid which which be used for 2d interp, with lamvals on x
@@ -91,19 +94,19 @@ def interp_spec_fn(
     # here save in neighbouring data folder to use in interpolation
     np.savetxt(
         "data_dump/spec_fn_data/{0}_lam_data.txt".format(
-            make_model_str(Ns, model_name, H_params, ctrls)
+            make_model_str(Ns, model_name, H_params, ctrls, boundary_conds)
         ),
         lamvals,
     )
     np.savetxt(
         "data_dump/spec_fn_data/{0}_omega_data.txt".format(
-            make_model_str(Ns, model_name, H_params, ctrls)
+            make_model_str(Ns, model_name, H_params, ctrls, boundary_conds)
         ),
         omega_pts,
     )
     np.savetxt(
         "data_dump/spec_fn_data/{0}_spec_fn_grid.txt".format(
-            make_model_str(Ns, model_name, H_params, ctrls)
+            make_model_str(Ns, model_name, H_params, ctrls, boundary_conds)
         ),
         spec_fn_grid,
     )
@@ -142,6 +145,7 @@ interp_spec_fn(
     Ns,
     model_name,
     H_params,
+    boundary_conds,
     symmetries,
     ctrls,
     ctrls_couplings,

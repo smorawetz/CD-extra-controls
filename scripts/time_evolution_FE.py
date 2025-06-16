@@ -77,7 +77,9 @@ def run_time_evolution_FE(
 
     save_dirname = "{0}/data_dump".format(os.environ["CD_CODE_DIR"])
     # change to saving for FE
-    file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+    file_name = make_file_name(
+        Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    )
     protocol_name = make_FE_protocol_name(agp_order, 0.0, mu, omega0, grid_size, sched)
     controls_name = make_controls_name(ctrls_couplings, ctrls_args)
 

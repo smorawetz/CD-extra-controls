@@ -151,7 +151,9 @@ args = (
 
 save_protocol_wf = False
 
-coeffs_file_name = make_file_name(Ns, model_name, H_params, symmetries, ctrls)
+coeffs_file_name = make_file_name(
+    Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+)
 coeffs_protocol_name = make_FE_protocol_name(
     agp_order,
     0.0,  # this omega does not change coefficients so just pass None

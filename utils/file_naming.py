@@ -23,8 +23,11 @@ AGPtype_dict = {
 
 symmetries_names_dict = {
     "translation_1d": "K{0}",
+    "dbl_translation_1d": "dK{0}",
     "spin_inversion": "Z{0}",
     "m": "m{0}",
+    "dbl_translation_x_2d": "dKx{0}",
+    "dbl_translation_y_2d": "dKy{0}",
 }
 
 scheds_name_dict = {LinearSchedule: "lin", SmoothSchedule: "smooth"}

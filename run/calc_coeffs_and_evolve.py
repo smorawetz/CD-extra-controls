@@ -13,25 +13,41 @@ from scripts.time_evolution import run_time_evolution
 
 from utils.file_naming import make_file_name, make_protocol_name, make_controls_name
 
+
 # define the various parameters of the model/task
-Ns = [4]
-coeffs_model_name = "TFIM_Disorder_1D"
-coeffs_H_params = [1, 1, 0.1, 1]  # seed 1 and disorder strength 0.1
+# Ns = [4]
+# coeffs_model_name = "TFIM_1D"
+Nx = 10
+Ny = 2
+Ns = [Nx, Ny]
+coeffs_model_name = "XY_2D"
+coeffs_H_params = [1, 1]
 coeffs_boundary_conds = "periodic"
 
-symms = []  # break Z2 and translational symmetry
-symms_args = []
-symm_nums = []
+symms = ["dbl_translation_x_2d"]
+# symms = ["translation_1d", "spin_inversion"]
+# symms = []
+symms_args = [[Ns], [Ns]]
+symm_nums = [0, 0]
 coeffs_symmetries = {
     symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
+coeffs_symmetries["m"] = 0.0
 coeffs_target_symmetries = coeffs_symmetries
+
+# evolve_model_name = "TFIM_1D"
+# evolve_model_name = "XY_1D"
+evolve_model_name = "XY_2D"
+evolve_H_params = [1, 1]
+evolve_boundary_conds = coeffs_boundary_conds
+evolve_symmetries = coeffs_symmetries
+evolve_target_symmetries = coeffs_target_symmetries
 
 model_kwargs = {}
 
 # schedule will be for coeffs grid, or evolution depending on script
-evolve_tau = 0.01
+evolve_tau = 1
 coeffs_tau = 1
 evolve_sched = SmoothSchedule(evolve_tau)
 coeffs_sched = SmoothSchedule(coeffs_tau)
@@ -41,10 +57,12 @@ ctrls_couplings = []
 ctrls_args = []
 
 agp_order = 1
+# AGPtype = "krylov"
 AGPtype = "commutator"
 norm_type = "trace"
 
 grid_size = 1000
+
 
 # have generic list of args that get used for every function
 args = (
@@ -73,12 +91,14 @@ args = (
 
 kwargs = {}
 
-calc_kry_coeffs(*args, **kwargs)
+# calc_kry_coeffs(*args, **kwargs)
+calc_comm_coeffs(*args, **kwargs)
 
 run_agp_coeffs_merge(
     Ns,
     coeffs_model_name,
     coeffs_H_params,
+    coeffs_boundary_conds,
     coeffs_symmetries,
     coeffs_sched,
     ctrls,
@@ -89,16 +109,6 @@ run_agp_coeffs_merge(
     norm_type,
     grid_size,
 )
-evolve_boundary_conds = "periodic"
-
-symms = ["translation_1d", "spin_inversion"]
-symms_args = [[Ns], [Ns]]
-symm_nums = [0, 0]
-evolve_symmetries = {
-    symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
-    for i in range(len(symms))
-}
-evolve_target_symmetries = evolve_symmetries
 
 args = (
     ## H params
@@ -125,7 +135,12 @@ args = (
 )
 
 coeffs_file_name = make_file_name(
-    Ns, coeffs_model_name, coeffs_H_params, coeffs_symmetries, ctrls
+    Ns,
+    coeffs_model_name,
+    coeffs_H_params,
+    coeffs_symmetries,
+    ctrls,
+    coeffs_boundary_conds,
 )
 coeffs_protocol_name = make_protocol_name(
     AGPtype, norm_type, agp_order, grid_size, coeffs_sched
@@ -139,6 +154,7 @@ kwargs = {
     "coeffs_ctrls_name": coeffs_ctrls_name,
     "coeffs_sched": coeffs_sched,
     "print_fid": True,
+    "print_states": False,
 }
 
 run_time_evolution(*args, **kwargs)

@@ -7,7 +7,7 @@ import numpy as np
 import quspin
 
 
-from scripts.calc_floquet_coeffs import get_floquet_coeffs
+from scripts.calc_floquet_coeffs_from_comms import get_floquet_coeffs_from_comm_coeffs
 from scripts.merge_data import run_FE_agp_coeffs_merge
 from scripts.time_evolution_FE import run_time_evolution_FE
 
@@ -25,32 +25,41 @@ from utils.file_naming import (
 ## this is a generic example of how to run a pre made script ##
 ###############################################################
 
-Ns = [10]
-model_name = "NNN_TFIM_1D"
-H_params = [1, 0.25, 1]  # seed 1 and disorder strength 0.1
-boundary_conds = "periodic"
+# Ns = [6]
+# coeffs_model_name = "XY_1D"
+# coeffs_model_name = "TFIM_1D"
+# coeffs_H_params = [1, 1]
+Nx = 8
+Ny = 2
+Ns = [Nx, Ny]
+coeffs_model_name = "XY_2D"
+coeffs_H_params = [1, 1]
+coeffs_boundary_conds = "periodic"
 
-# Ns = [4]
-# model_name = "TFIM_1D"
-# H_params = [1, 1]  # seed 1 and disorder strength 0.1
-# boundary_conds = "periodic"
-
-symms = ["translation_1d", "spin_inversion"]
+symms = ["dbl_translation_x_2d"]
+# symms = ["translation_1d", "spin_inversion"]
+# symms = []
 symms_args = [[Ns], [Ns]]
 symm_nums = [0, 0]
-symmetries = {
-    symms[i]: (
-        get_symm_op(symms[i], *symms_args[i]),
-        symm_nums[i],
-    )
+coeffs_symmetries = {
+    symms[i]: (get_symm_op(symms[i], *symms_args[i]), symm_nums[i])
     for i in range(len(symms))
 }
-target_symmetries = symmetries
+coeffs_symmetries["m"] = 0.0
+coeffs_target_symmetries = coeffs_symmetries
+
+# evolve_model_name = "XY_1D"
+# evolve_model_name = "TFIM_1D"
+evolve_model_name = "XY_2D"
+evolve_H_params = [1, 1]
+evolve_boundary_conds = coeffs_boundary_conds
+evolve_symmetries = coeffs_symmetries
+evolve_target_symmetries = coeffs_target_symmetries
 
 model_kwargs = {}
 
 # schedule will be for coeffs grid, or evolution depending on script
-evolve_tau = 0.1
+evolve_tau = 1
 coeffs_tau = 1
 evolve_sched = SmoothSchedule(evolve_tau)
 coeffs_sched = SmoothSchedule(coeffs_tau)
@@ -59,7 +68,7 @@ ctrls = []
 ctrls_couplings = []
 ctrls_args = []
 
-agp_order = 2
+agp_order = 1
 AGPtype = "floquet"
 norm_type = "trace"
 
@@ -69,11 +78,11 @@ grid_size = 1000
 args = (
     ## H params
     Ns,
-    model_name,
-    H_params,
-    boundary_conds,
-    symmetries,
-    target_symmetries,
+    coeffs_model_name,
+    coeffs_H_params,
+    coeffs_boundary_conds,
+    coeffs_symmetries,
+    coeffs_target_symmetries,
     model_kwargs,
     ## schedule params
     coeffs_tau,
@@ -90,26 +99,25 @@ args = (
     grid_size,
 )
 
-mu = 1.0
-omega0 = 2 * np.pi * 2.0
-spec_fn_Ns = [10]
+# omega0 = 2 * np.pi * 10.0
+# omega = 2 * np.pi * 250.0
 
-omega = 2 * np.pi * 100000.0
+omega0 = 3.0
+omega = 50.0
 
 kwargs = {
-    "mu": mu,
     "omega0": omega0,
-    "spec_fn_Ns": spec_fn_Ns,
 }
 
 # compute coefficients and then merge them
-tgrid, betas_grid = get_floquet_coeffs(*args, **kwargs)
+tgrid, betas_grid = get_floquet_coeffs_from_comm_coeffs(*args, **kwargs)
 
 run_FE_agp_coeffs_merge(
     Ns,
-    model_name,
-    H_params,
-    symmetries,
+    coeffs_model_name,
+    coeffs_H_params,
+    coeffs_boundary_conds,
+    coeffs_symmetries,
     coeffs_sched,
     ctrls,
     ctrls_couplings,
@@ -118,7 +126,6 @@ run_FE_agp_coeffs_merge(
     AGPtype,
     norm_type,
     grid_size,
-    mu=mu,
     omega0=omega0,
 )
 
@@ -127,11 +134,11 @@ run_FE_agp_coeffs_merge(
 args = (
     ## H params
     Ns,
-    model_name,
-    H_params,
-    boundary_conds,
-    symmetries,
-    target_symmetries,
+    evolve_model_name,
+    evolve_H_params,
+    evolve_boundary_conds,
+    evolve_symmetries,
+    evolve_target_symmetries,
     model_kwargs,
     ## schedule params
     evolve_tau,
@@ -152,12 +159,16 @@ args = (
 save_protocol_wf = False
 
 coeffs_file_name = make_file_name(
-    Ns, model_name, H_params, symmetries, ctrls, boundary_conds
+    Ns,
+    coeffs_model_name,
+    coeffs_H_params,
+    coeffs_symmetries,
+    ctrls,
+    coeffs_boundary_conds,
 )
 coeffs_protocol_name = make_FE_protocol_name(
     agp_order,
     0.0,  # this omega does not change coefficients so just pass None
-    mu,
     omega0,
     grid_size,
     coeffs_sched,
@@ -165,11 +176,10 @@ coeffs_protocol_name = make_FE_protocol_name(
 coeffs_controls_name = make_controls_name(ctrls_couplings, ctrls_args)
 
 print_fid = True
-print_states = True
+print_states = False
 
 kwargs = {
     "omega": omega,
-    "mu": mu,
     "omega0": omega0,
     "save_protocol_wf": save_protocol_wf,
     "coeffs_file_name": coeffs_file_name,

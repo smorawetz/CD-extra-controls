@@ -97,8 +97,6 @@ def run_time_evolution_FE(
     else:
         save_data_evolved_wfs(*names_list, final_state)
 
-    print("Fidelity:", (calc_fid(targ_state, final_state)))
-
     if print_fid:
         print("Log fidelity:", np.log(calc_fid(targ_state, final_state)))
     if print_states:

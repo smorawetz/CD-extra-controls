@@ -74,7 +74,7 @@ def run_time_evolution_noCD(
     targ_state = ham.get_targ_gstate()
 
     t_data = np.linspace(0, tau, grid_size)
-    wf_data = ham.bareH.evolve(init_state, t_data[0], t_data, **solver_args)
+    wf_data = ham.bareH.evolve(init_state, t_data[0], t_data)
 
     final_state = wf_data[:, -1]
 
@@ -84,6 +84,7 @@ def run_time_evolution_noCD(
         save_data_evolved_wfs(*names_list, final_state)
 
     if print_fid:
+        print("Fidelity:", calc_fid(targ_state, final_state))
         print("Log fidelity:", np.log(calc_fid(targ_state, final_state)))
     if print_states:
         print("init state is\n", init_state)

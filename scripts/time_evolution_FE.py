@@ -80,7 +80,7 @@ def run_time_evolution_FE(
     file_name = make_file_name(
         Ns, model_name, H_params, symmetries, ctrls, boundary_conds
     )
-    protocol_name = make_FE_protocol_name(agp_order, 0.0, mu, omega0, grid_size, sched)
+    protocol_name = make_FE_protocol_name(agp_order, 0.0, omega0, grid_size, sched)
     controls_name = make_controls_name(ctrls_couplings, ctrls_args)
 
     names_list = (file_name, protocol_name, controls_name)
@@ -98,6 +98,7 @@ def run_time_evolution_FE(
         save_data_evolved_wfs(*names_list, final_state)
 
     if print_fid:
+        print("Fidelity:", calc_fid(targ_state, final_state))
         print("Log fidelity:", np.log(calc_fid(targ_state, final_state)))
     if print_states:
         print("init state is\n", init_state)

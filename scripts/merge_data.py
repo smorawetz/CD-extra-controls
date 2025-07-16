@@ -90,7 +90,6 @@ def run_FE_agp_coeffs_merge(
     ## simulation params
     grid_size,
     ## optiponal params specific to this
-    mu=1.0,
     omega0=1.0,
 ):
     file_name = make_file_name(
@@ -99,7 +98,6 @@ def run_FE_agp_coeffs_merge(
     protocol_name = make_FE_protocol_name(
         agp_order,
         0.0,  # this omega does not change coefficients so just pass None
-        mu,
         omega0,
         grid_size,
         sched,

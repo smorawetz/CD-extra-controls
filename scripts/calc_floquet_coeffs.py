@@ -103,7 +103,6 @@ def get_floquet_coeffs(
     protocol_name = make_FE_protocol_name(
         agp_order,
         0.0,  # this omega does not change coefficients so just pass None
-        mu,
         omega0,
         grid_size,
         sched,

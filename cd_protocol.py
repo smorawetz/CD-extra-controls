@@ -53,7 +53,7 @@ class CD_Protocol:
         Returns:
             final_state (np.array):     Final state after evolution
         """
-        if self.ham.schedule.tau < 10:
+        if self.ham.schedule.tau < 100:
             return reg_do_evolution(
                 self.ham,
                 self.AGPtype,
